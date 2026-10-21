@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# local data (PGlite 資料庫、本機上傳的照片)
+.data/
+
+# env
+.env
+.env*.local
+
+# misc
+.DS_Store
+*.log
+.vercel

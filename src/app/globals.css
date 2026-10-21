@@ -1,0 +1,285 @@
+@import "tailwindcss";
+
+/* 設計語言：DESIGN.md（暖紙色底、細襯線標題、安靜的無襯線內文、膠囊按鈕） */
+@theme {
+  --color-primary: #2a72de;
+  --color-stone: #4a4741;
+  --color-clay: #6b443d;
+  --color-espresso: #39221e;
+  --color-gold: #af751b;
+  --color-ochre: #bc924c;
+  --color-gold-soft: #ddaa61;
+  --color-gold-pale: #ddbe78;
+  --color-gold-deep: #684d07;
+  --color-forest: #224228;
+  --color-olive: #5c6f5d;
+  --color-sage: #849671;
+  --color-sage-mute: #7b886d;
+  --color-sage-pale: #ced4b8;
+  --color-canvas: #f7f1e8;
+  --color-surface: #ffffff;
+  --color-surface-grey: #ececec;
+  --color-silver: #cccac7;
+  --color-ink-band: #19191c;
+  --color-ink: #1c1b1a;
+  --color-ash: #838280;
+  --color-mute: #a8a5a0;
+  --color-hairline: #e1dcd3;
+  --color-error: #e33a22;
+
+  --font-serif: var(--font-newsreader), var(--font-noto-serif-tc), "Songti TC", serif;
+  --font-sans: var(--font-noto-sans-tc), "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+
+  --radius-field: 12px;
+  --radius-card: 24px;
+  --radius-media: 40px;
+
+  --shadow-soft: 0 1px 2px rgb(57 34 30 / 0.04), 0 8px 24px rgb(57 34 30 / 0.06);
+  --shadow-float: 0 2px 6px rgb(57 34 30 / 0.06), 0 18px 48px rgb(57 34 30 / 0.12);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-gold-pale);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-stone);
+    outline-offset: 2px;
+  }
+  [id] {
+    scroll-margin-top: 96px;
+  }
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 32px;
+    }
+  }
+  .container-narrow {
+    width: 100%;
+    max-width: 720px;
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+
+  /* 標題：細字重襯線 */
+  .display {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    line-height: 1.12;
+    letter-spacing: 0.01em;
+  }
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: var(--color-ink);
+  }
+
+  /* 按鈕：全圓角膠囊。藍色只給導覽列的「註冊／登入」 */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: 9999px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s,
+      color 0.15s,
+      border-color 0.15s,
+      opacity 0.15s;
+    cursor: pointer;
+  }
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--color-primary);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: #2465c6;
+  }
+  .btn-stone {
+    background: var(--color-stone);
+    color: #fff;
+  }
+  .btn-stone:hover:not(:disabled) {
+    background: #3a3833;
+  }
+  .btn-outline {
+    border: 1px solid var(--color-stone);
+    color: var(--color-stone);
+    background: transparent;
+  }
+  .btn-outline:hover:not(:disabled) {
+    background: rgb(74 71 65 / 0.06);
+  }
+  .btn-cream {
+    background: var(--color-canvas);
+    color: var(--color-stone);
+  }
+  .btn-sm {
+    min-height: 36px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+  .link {
+    color: var(--color-stone);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-silver);
+  }
+  .link:hover {
+    text-decoration-color: var(--color-stone);
+  }
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-card);
+  }
+
+  /* 表單 */
+  .field-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-ink);
+    margin-bottom: 6px;
+  }
+  .field-hint {
+    font-size: 13px;
+    color: var(--color-ash);
+    margin-top: 6px;
+  }
+  .input {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 14px;
+    border-radius: var(--radius-field);
+    border: 1px solid var(--color-hairline);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-size: 16px;
+    transition: border-color 0.15s;
+  }
+  .input::placeholder {
+    color: var(--color-mute);
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--color-stone);
+  }
+  .input[aria-invalid="true"] {
+    border-color: var(--color-error);
+  }
+  textarea.input {
+    line-height: 1.7;
+    resize: vertical;
+  }
+  select.input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%234a4741' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  /* 膠囊標籤／篩選 */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 9999px;
+    border: 1px solid var(--color-silver);
+    color: var(--color-stone);
+    font-size: 14px;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .pill[aria-pressed="true"],
+  .pill[aria-current="true"] {
+    border-color: var(--color-stone);
+    background: var(--color-stone);
+    color: #fff;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    background: rgb(74 71 65 / 0.07);
+    color: var(--color-stone);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .notice {
+    border-radius: 16px;
+    padding: 14px 18px;
+    font-size: 15px;
+    background: rgb(221 190 120 / 0.25);
+    color: var(--color-espresso);
+  }
+  .notice-error {
+    background: rgb(227 58 34 / 0.08);
+    color: #9b2615;
+  }
+  .notice-ok {
+    background: rgb(132 150 113 / 0.18);
+    color: var(--color-forest);
+  }
+
+  /* 故事內文 */
+  .prose-story p {
+    margin-bottom: 1.1em;
+    white-space: pre-line;
+  }
+}
+
+/* 手機版橫向滑動，不自動輪播 */
+.snap-row {
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.snap-row::-webkit-scrollbar {
+  display: none;
+}
+.snap-row > * {
+  scroll-snap-align: start;
+}
