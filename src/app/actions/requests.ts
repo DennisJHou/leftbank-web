@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { one, query } from "@/lib/db";
 import { requestRespondedEmail } from "@/lib/mail";
 import { REQUEST_STATUS_LABEL, type ContactType, type RequestStatus } from "@/lib/constants";
@@ -25,6 +26,7 @@ export async function respondToRequest(_: FormState, fd: FormData): Promise<Form
     [token],
   );
   if (!req) return { error: "找不到這筆邀請，連結可能不完整。" };
+  revalidatePath(`/r/${token}`);
 
   if (action === "accept" || action === "decline") {
     if (req.status !== "pending") {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { submitCddq } from "@/app/actions/compass";
 import { GOAL_OPTIONS, ITEMS, SCALE_LABELS, SCALE_MAX, STAGE_OPTIONS } from "@/lib/cddq";
 import { FIELD_CATEGORIES } from "@/lib/constants";
@@ -26,6 +26,12 @@ function saveDraft(d: Draft | null) {
   }
 }
 
+/** 第一題還沒作答的位置；全部答完時回傳題數 */
+function firstMissing(items: Record<string, number>) {
+  const i = ITEMS.findIndex((it) => items[it.id] == null);
+  return i === -1 ? ITEMS.length : i;
+}
+
 export function CddqRunner({ consentItems }: { consentItems: string[] }) {
   const [consented, setConsented] = useState(false);
   const [step, setStep] = useState(0);
@@ -43,12 +49,19 @@ export function CddqRunner({ consentItems }: { consentItems: string[] }) {
   const onExtras = step >= total;
   const item = ITEMS[Math.min(step, total - 1)];
 
+  // 換題動畫進行中時忽略輸入，避免快速連按把答案記到同一題
+  const advancing = useRef(false);
   const answer = useCallback(
     (v: number) => {
+      if (advancing.current) return;
+      advancing.current = true;
       const next = { ...items, [item.id]: v };
       setItems(next);
       saveDraft({ items: next, step: step + 1 });
-      setTimeout(() => setStep((s) => Math.min(s + 1, total)), 160);
+      setTimeout(() => {
+        setStep((s) => Math.min(s + 1, total));
+        advancing.current = false;
+      }, 160);
     },
     [items, item, step, total],
   );
@@ -69,7 +82,9 @@ export function CddqRunner({ consentItems }: { consentItems: string[] }) {
     return (
       <div className="space-y-6">
         {resume && Object.keys(resume.items).length > 0 && (
-          <p className="notice">你上次作答到第 {Math.min(resume.step, total)} 題。同意後會從那裡繼續。</p>
+          <p className="notice">
+            你上次已經回答了 {Object.keys(resume.items).length} 題。同意後會從還沒回答的題目繼續。
+          </p>
         )}
         <Consent
           items={consentItems}
@@ -77,7 +92,7 @@ export function CddqRunner({ consentItems }: { consentItems: string[] }) {
           onAgree={() => {
             if (resume) {
               setItems(resume.items);
-              setStep(Math.min(resume.step, total));
+              setStep(firstMissing(resume.items));
             }
             setConsented(true);
           }}
@@ -91,6 +106,11 @@ export function CddqRunner({ consentItems }: { consentItems: string[] }) {
   if (onExtras) {
     const submit = () => {
       setError(null);
+      const missing = firstMissing(items);
+      if (missing < total) {
+        setStep(missing);
+        return;
+      }
       start(async () => {
         const res = await submitCddq({ items, interests, stage, goal, consent: true });
         if (res?.error) setError(res.error);
