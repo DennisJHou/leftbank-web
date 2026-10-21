@@ -34,7 +34,14 @@ export function FilterBar() {
 
   const filter = params.get("filter") ?? "";
   return (
-    <div className={`space-y-4 transition-opacity ${pending ? "opacity-60" : ""}`}>
+    <div className={`space-y-8 transition-opacity ${pending ? "opacity-60" : ""}`}>
+      <div className="tabs" role="toolbar" aria-label="服務篩選">
+        {SERVICES.map((s) => (
+          <button key={s.value} type="button" aria-pressed={filter === s.value} onClick={() => push({ filter: s.value })} className="tab">
+            {s.label}
+          </button>
+        ))}
+      </div>
       <div className="flex flex-col gap-3 md:flex-row">
         <input
           type="search"
@@ -44,30 +51,12 @@ export function FilterBar() {
           aria-label="搜尋姓名或職稱"
           className="input md:max-w-sm"
         />
-        <select
-          value={params.get("field") ?? ""}
-          onChange={(e) => push({ field: e.target.value })}
-          aria-label="領域分類"
-          className="input md:max-w-[240px]"
-        >
+        <select value={params.get("field") ?? ""} onChange={(e) => push({ field: e.target.value })} aria-label="領域分類" className="input md:max-w-[260px]">
           <option value="">所有領域</option>
           {FIELD_CATEGORIES.map((f) => (
             <option key={f} value={f}>{f}</option>
           ))}
         </select>
-      </div>
-      <div className="snap-row -mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
-        {SERVICES.map((s) => (
-          <button
-            key={s.value}
-            type="button"
-            aria-pressed={filter === s.value}
-            onClick={() => push({ filter: s.value })}
-            className="pill"
-          >
-            {s.label}
-          </button>
-        ))}
       </div>
     </div>
   );

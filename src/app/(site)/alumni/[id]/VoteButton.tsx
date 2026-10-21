@@ -20,16 +20,21 @@ export function VoteButton({ alumniId, initialVoted, loginHref }: { alumniId: st
         return;
       }
       setVoted(res.voted);
-      setMsg(res.voted ? "已收到你的 +1。系上邀請講者時會參考大家的意願。" : "已收回。");
+      setMsg(res.voted ? "已收到。系上邀請講者時會參考大家的意願。" : "已收回。");
     });
   };
 
   return (
     <div>
-      <button type="button" onClick={click} disabled={pending} aria-pressed={voted} className={`btn ${voted ? "btn-stone" : "btn-outline"}`}>
-        {voted ? "✓ 已 +1，想聽他回來分享" : "想聽他回來分享 +1"}
+      <button type="button" onClick={click} disabled={pending} aria-pressed={voted} className="btn btn-outline w-full">
+        {voted ? "已表示想聽他回來分享" : "想聽他回來分享 +1"}
       </button>
-      {msg && <p className="mt-2 text-[13px] text-ash" role="status">{msg}</p>}
+      {msg && (
+        <p className="mt-2 text-note text-ash" role="status">
+          {msg}
+          {voted && "再按一次可以收回。"}
+        </p>
+      )}
     </div>
   );
 }

@@ -21,6 +21,7 @@ import { DEFAULT_VISIBILITY } from "@/lib/queries";
 import { RadarChart } from "@/components/compass/RadarChart";
 import { Meter } from "@/components/compass/Meter";
 import { Avatar } from "@/components/Avatar";
+import { Arrow, BackLink, EmptyState } from "@/components/ui";
 
 export const metadata = { title: "我的職涯羅盤" };
 
@@ -68,13 +69,13 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
   const allLow = CAT_KEYS.every((c) => levelOf(scores.categories[c]) === "low");
 
   return (
-    <div className="container-page pt-10 md:pt-16">
-      <Link href="/compass" className="text-[14px] text-ash hover:text-stone">← 職涯羅盤</Link>
-      <p className="eyebrow mt-8">我的職涯羅盤 · {fmtDate(session.created_at)}</p>
-      <h1 className="display mt-4 max-w-3xl text-[34px] md:text-[52px]">
-        {allLow ? "整體來說，你的方向感不錯" : `你目前最需要的，是處理「${CATEGORIES[topCat].label}」`}
+    <div className="container-page pt-10">
+      <BackLink href="/compass">職涯羅盤</BackLink>
+      <p className="mt-12 text-meta text-ash">{fmtDate(session.created_at)}</p>
+      <h1 className="h-page mt-2 max-w-4xl">
+        {allLow ? "三大類都在穩定的範圍" : `你目前最需要處理的是「${CATEGORIES[topCat].label}」`}
       </h1>
-      <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-stone">
+      <p className="mt-4 max-w-2xl text-body text-ash">
         {allLow ? "三大類都在穩定的範圍。下面列出相對較高的面向，可以作為下一步的參考。" : CATEGORIES[topCat].summary}
       </p>
       {!scores.validity.ok && (
@@ -83,10 +84,10 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
         </p>
       )}
 
-      <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+      <div className="mt-16 grid gap-14 border-t border-hairline pt-14 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
         <section>
-          <h2 className="font-serif text-[24px] font-light">三大類</h2>
-          <div className="mt-6 space-y-7">
+          <h2 className="h-section">三大類</h2>
+          <div className="mt-8 space-y-8">
             {CAT_KEYS.map((c) => (
               <Meter
                 key={c}
@@ -98,14 +99,12 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
             ))}
           </div>
           {prev && (
-            <p className="mt-6 text-[13px] text-ash">
-              灰色刻度是 {fmtDate(prev.created_at)} 的結果。分數下降，代表那個面向比較不卡了。
-            </p>
+            <p className="mt-6 text-note text-ash">深色刻度為 {fmtDate(prev.created_at)} 的結果。分數下降代表比較不卡了。</p>
           )}
         </section>
         <section>
-          <h2 className="font-serif text-[24px] font-light">十個面向</h2>
-          <div className="card mt-6 p-4 md:p-6">
+          <h2 className="h-section">十個面向</h2>
+          <div className="card mt-8 p-4 md:p-6">
             <RadarChart
               axes={SUBSCALE_ORDER.map((k) => ({
                 key: k,
@@ -119,9 +118,9 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
         </section>
       </div>
 
-      <section className="mt-20">
-        <h2 className="font-serif text-[24px] font-light">{allLow ? "相對較高的面向" : "最主要的困難"}</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <section className="mt-20 border-t border-hairline pt-14">
+        <h2 className="h-section">{allLow ? "相對較高的面向" : "最主要的困難"}</h2>
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
           {scores.top.map((k) => (
             <TopCard key={k} k={k} scores={scores} />
           ))}
@@ -130,9 +129,9 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
 
       <Recommendations services={services} alumni={alumni} />
 
-      <div className="mt-16 flex flex-wrap gap-3">
-        <Link href="/compass/cddq" className="btn btn-outline">重新測驗</Link>
-        <Link href="/me?tab=records" className="btn text-stone">我的羅盤紀錄</Link>
+      <div className="mt-16 flex flex-wrap gap-3 border-t border-hairline pt-10">
+        <Link href="/compass/cddq" className="btn btn-dark">重新測驗</Link>
+        <Link href="/me?tab=records" className="btn btn-outline">我的羅盤紀錄</Link>
       </div>
     </div>
   );
@@ -141,15 +140,12 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
 function TopCard({ k, scores }: { k: (typeof SUBSCALE_ORDER)[number]; scores: CddqScores }) {
   const s = SUBSCALES[k];
   return (
-    <div className="card flex flex-col p-6">
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[18px] font-medium">{s.label}</p>
-        <p className="text-[13px] text-ash">{CATEGORIES[s.category].label}</p>
-      </div>
-      <p className="mt-1 text-[13px] text-stone">
-        {LEVEL_LABEL[levelOf(scores.subscales[k])]} · {scores.subscales[k].toFixed(1)}
+    <div className="card flex flex-col p-6 md:p-7">
+      <h3 className="h-item">{s.label}</h3>
+      <p className="mt-1 text-meta text-ash">
+        {CATEGORIES[s.category].label}，{LEVEL_LABEL[levelOf(scores.subscales[k])]} {scores.subscales[k].toFixed(1)}
       </p>
-      <p className="mt-4 text-[15px] leading-[1.8] text-stone">{s.explain}</p>
+      <p className="mt-4 text-meta text-ink">{s.explain}</p>
     </div>
   );
 }
@@ -158,37 +154,38 @@ function Recommendations({ services, alumni }: { services: Service[]; alumni: Re
   return (
     <>
       {services.length > 0 && (
-        <section className="mt-20">
-          <h2 className="font-serif text-[24px] font-light">推薦給你的左岸服務</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <section className="mt-20 border-t border-hairline pt-14">
+          <h2 className="h-section">推薦的服務</h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {services.map((s) => (
-              <Link key={s.key} href={s.href} className="group rounded-card bg-[#efe4d3] p-6 transition-colors hover:bg-[#e8dac4]">
-                <p className="text-[17px] font-medium">{s.title}</p>
-                <p className="mt-2 text-[14px] leading-relaxed text-stone">{s.text}</p>
-                <p className="mt-4 text-[14px] text-stone group-hover:underline">前往 →</p>
+              <Link key={s.key} href={s.href} className="panel group flex flex-col p-6 transition-colors hover:bg-hairline">
+                <h3 className="h-item">{s.title}</h3>
+                <p className="mt-2 flex-1 text-meta text-ash">{s.text}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-meta font-medium text-ink group-hover:underline group-hover:underline-offset-4">
+                  前往 <Arrow />
+                </span>
               </Link>
             ))}
           </div>
         </section>
       )}
-      <section className="mt-20">
-        <h2 className="font-serif text-[24px] font-light">可以聊聊的系友</h2>
-        <p className="mt-2 text-[14px] text-ash">依照你的興趣與卡關的地方，從願意接受提問或咖啡邀請的系友中挑選。</p>
+      <section className="mt-20 border-t border-hairline pt-14">
+        <h2 className="h-section">推薦的系友</h2>
         {alumni.length ? (
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="mt-8 grid gap-5 md:grid-cols-3">
             {alumni.map((a) => {
               const v = { ...DEFAULT_VISIBILITY, ...a.visibility };
               return (
                 <Link key={a.id} href={`/alumni/${a.id}`} className="card group flex flex-col p-6">
-                  <div className="flex items-center gap-3">
-                    <Avatar name={a.name} src={v.photo === "public" ? a.photo_url : null} size={52} />
+                  <div className="flex items-center gap-4">
+                    <Avatar name={a.name} src={v.photo === "public" ? a.photo_url : null} size={56} />
                     <div className="min-w-0">
-                      <p className="font-medium group-hover:underline">{a.name}</p>
-                      {v.title === "public" && a.title && <p className="truncate text-[14px] text-ash">{a.title}</p>}
+                      <p className="h-item group-hover:underline group-hover:underline-offset-4">{a.name}</p>
+                      {v.title === "public" && a.title && <p className="truncate text-meta text-ash">{a.title}</p>}
                     </div>
                   </div>
-                  {a.tagline && <p className="mt-5 flex-1 font-serif text-[17px] leading-[1.6] text-stone">「{a.tagline}」</p>}
-                  <p className="mt-5 text-[13px] text-ash">
+                  {a.tagline && <p className="mt-5 flex-1 font-serif text-item leading-[1.7]">「{a.tagline}」</p>}
+                  <p className="mt-5 text-note text-ash">
                     {[a.accept_question && "可線上提問", a.accept_coffee && "可約咖啡"].filter(Boolean).join(" · ")}
                   </p>
                 </Link>
@@ -196,9 +193,9 @@ function Recommendations({ services, alumni }: { services: Service[]; alumni: Re
             })}
           </div>
         ) : (
-          <p className="mt-6 text-[15px] text-stone">
-            目前還沒有開放聯絡的系友。<Link href="/alumni" className="link">逛逛系友園地</Link>
-          </p>
+          <div className="mt-8">
+            <EmptyState />
+          </div>
         )}
       </section>
     </>
@@ -208,25 +205,22 @@ function Recommendations({ services, alumni }: { services: Service[]; alumni: Re
 function AiResult({ report, date, alumni, services }: { report: AiReport; date: Date; alumni: RecommendedAlumni[]; services: Service[] }) {
   const LEVEL_TEXT = { low: "穩定", moderate: "有些卡關", high: "明顯卡關" } as const;
   return (
-    <div className="container-page pt-10 md:pt-16">
-      <Link href="/compass" className="text-[14px] text-ash hover:text-stone">← 職涯羅盤</Link>
-      <p className="eyebrow mt-8">AI 生涯對談報告 · {fmtDate(date)}</p>
-      <h1 className="display mt-4 max-w-3xl text-[30px] leading-[1.4] md:text-[42px]">{report.summary}</h1>
+    <div className="container-page pt-10">
+      <BackLink href="/compass">職涯羅盤</BackLink>
+      <p className="mt-12 text-meta text-ash">AI 生涯對談報告，{fmtDate(date)}</p>
+      <h1 className="h-page mt-2 max-w-4xl">{report.summary}</h1>
 
-      <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
+      <div className="mt-16 grid gap-14 border-t border-hairline pt-14 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
         <section>
-          <h2 className="font-serif text-[24px] font-light">三大類</h2>
-          <ul className="mt-6 divide-y divide-hairline border-y border-hairline">
+          <h2 className="h-section">三大類</h2>
+          <ul className="mt-8 divide-y divide-hairline border-y border-hairline">
             {CAT_KEYS.map((c) => (
               <li key={c} className="flex items-center justify-between py-4">
-                <span className="text-[16px]">{CATEGORIES[c].label}</span>
-                <span className="flex items-center gap-2 text-[14px] text-stone">
+                <span className="h-item">{CATEGORIES[c].label}</span>
+                <span className="flex items-center gap-3 text-meta text-ash">
                   <span className="flex gap-1" aria-hidden>
                     {[0, 1, 2].map((i) => (
-                      <span
-                        key={i}
-                        className={`h-2 w-5 rounded-full ${i <= ["low", "moderate", "high"].indexOf(report.categories[c]) ? "bg-[#9a5f17]" : "bg-[#efe4d3]"}`}
-                      />
+                      <span key={i} className={`h-2 w-5 ${i <= ["low", "moderate", "high"].indexOf(report.categories[c]) ? "bg-chart" : "bg-chart-track"}`} />
                     ))}
                   </span>
                   {LEVEL_TEXT[report.categories[c]]}
@@ -236,12 +230,12 @@ function AiResult({ report, date, alumni, services }: { report: AiReport; date: 
           </ul>
         </section>
         <section>
-          <h2 className="font-serif text-[24px] font-light">你正在面對的</h2>
-          <div className="mt-6 space-y-6">
+          <h2 className="h-section">你正在面對的</h2>
+          <div className="mt-8 space-y-8">
             {report.focus.map((f, i) => (
               <div key={i}>
-                <p className="text-[17px] font-medium">{f.title}</p>
-                <p className="mt-2 text-[15px] leading-[1.8] text-stone">{f.text}</p>
+                <h3 className="h-item">{f.title}</h3>
+                <p className="mt-2 text-body">{f.text}</p>
               </div>
             ))}
           </div>
@@ -249,12 +243,12 @@ function AiResult({ report, date, alumni, services }: { report: AiReport; date: 
       </div>
 
       {report.next_steps.length > 0 && (
-        <section className="mt-20">
-          <h2 className="font-serif text-[24px] font-light">這週可以做的小事</h2>
-          <ol className="mt-6 space-y-3">
+        <section className="mt-20 border-t border-hairline pt-14">
+          <h2 className="h-section">接下來可以做的事</h2>
+          <ol className="mt-8 space-y-4">
             {report.next_steps.map((s, i) => (
-              <li key={i} className="flex gap-4 text-[16px] leading-relaxed">
-                <span className="font-serif text-[18px] text-ochre">{i + 1}</span>
+              <li key={i} className="flex gap-4 text-body">
+                <span className="w-5 shrink-0 font-serif text-ash">{i + 1}.</span>
                 {s}
               </li>
             ))}
@@ -264,9 +258,9 @@ function AiResult({ report, date, alumni, services }: { report: AiReport; date: 
 
       <Recommendations services={services} alumni={alumni} />
 
-      <div className="mt-16 flex flex-wrap gap-3">
-        <Link href="/compass/cddq" className="btn btn-outline">也做做基礎版量表</Link>
-        <Link href="/me?tab=records" className="btn text-stone">我的羅盤紀錄</Link>
+      <div className="mt-16 flex flex-wrap gap-3 border-t border-hairline pt-10">
+        <Link href="/compass/cddq" className="btn btn-dark">生涯決策困難量表</Link>
+        <Link href="/me?tab=records" className="btn btn-outline">我的羅盤紀錄</Link>
       </div>
     </div>
   );

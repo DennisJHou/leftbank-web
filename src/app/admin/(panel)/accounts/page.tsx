@@ -65,20 +65,22 @@ export default async function AccountsPage({ searchParams }: PageProps<"/admin/a
   return (
     <>
       <PageTitle title="帳號管理" lead="審核教師與沒有學號的系友；發現冒充時可以停用帳號。標示「學號重複」代表同一個學號被不同帳號使用。" />
-      <div className="mb-5 flex flex-wrap items-center gap-2">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-hairline">
+        <div className="tabs border-b-0">
         {TABS.map((t) => (
-          <Link key={t.key} href={`/admin/accounts?tab=${t.key}`} aria-current={tab === t.key} className="pill">
+          <Link key={t.key} href={`/admin/accounts?tab=${t.key}`} aria-current={tab === t.key} className="tab">
             {t.label}
           </Link>
         ))}
-        <form className="ml-auto" action="/admin/accounts">
+        </div>
+        <form className="mb-3" action="/admin/accounts">
           <input type="hidden" name="tab" value={tab} />
-          <input name="q" defaultValue={q} placeholder="搜尋姓名、email、學號" className="input !min-h-[40px] w-60 !py-1.5 text-[14px]" />
+          <input name="q" defaultValue={q} placeholder="搜尋姓名、email、學號" className="input w-64" />
         </form>
       </div>
 
       {rows.length === 0 ? (
-        <p className="card p-8 text-center text-[14px] text-ash">{tab === "pending" ? "目前沒有待審核的帳號。" : "沒有符合的帳號。"}</p>
+        <p className="card p-8 text-center text-meta text-ash">{tab === "pending" ? "目前沒有待審核的帳號。" : "沒有符合的帳號。"}</p>
       ) : (
         <Table>
           <thead>
@@ -100,17 +102,17 @@ export default async function AccountsPage({ searchParams }: PageProps<"/admin/a
                 <tr key={u.id}>
                   <Td>
                     <p className="font-medium">{u.name}</p>
-                    <p className="text-[13px] text-ash">{u.email}</p>
+                    <p className="text-note text-ash">{u.email}</p>
                   </Td>
                   <Td>
                     <div className="flex flex-wrap gap-1">
                       {identityLabels(id).map((l) => (
-                        <span key={l} className="chip">{l}</span>
+                        <span key={l} className="tag">{l}</span>
                       ))}
-                      {id.teacherPending && <span className="chip bg-gold-pale/60">老師待審</span>}
+                      {id.teacherPending && <span className="tag tag-accent">老師待審</span>}
                     </div>
                   </Td>
-                  <Td className="text-[13px]">
+                  <Td className="text-note">
                     {edu.length ? (
                       edu.map((e) => (
                         <p key={e.id}>
@@ -121,24 +123,24 @@ export default async function AccountsPage({ searchParams }: PageProps<"/admin/a
                     ) : (
                       <span className="text-ash">—</span>
                     )}
-                    {u.dup?.length ? <p className="mt-1 font-medium text-error">⚠ 學號重複：{u.dup.join("、")}</p> : null}
+                    {u.dup?.length ? <p className="mt-1 font-medium text-error">學號重複：{u.dup.join("、")}</p> : null}
                   </Td>
                   <Td>
                     {!u.email_verified_at ? (
-                      <span className="chip">未驗證</span>
+                      <span className="tag">未驗證</span>
                     ) : u.status === "active" ? (
-                      <span className="chip bg-sage-pale text-forest">啟用</span>
+                      <span className="tag tag-ok">啟用</span>
                     ) : u.status === "pending" ? (
-                      <span className="chip bg-gold-pale/60 text-gold-deep">待審核</span>
+                      <span className="tag tag-accent">待審核</span>
                     ) : (
-                      <span className="chip bg-surface-grey text-ash">停用</span>
+                      <span className="tag">停用</span>
                     )}
                   </Td>
-                  <Td className="whitespace-nowrap text-[13px] text-ash">{fmtDate(u.created_at)}</Td>
+                  <Td className="whitespace-nowrap text-note text-ash">{fmtDate(u.created_at)}</Td>
                   <Td>
                     <div className="flex justify-end gap-2">
                       {needsReview && u.status !== "suspended" && u.email_verified_at && (
-                        <ConfirmButton action={approveUser.bind(null, u.id)} className="btn btn-stone btn-sm">
+                        <ConfirmButton action={approveUser.bind(null, u.id)} className="btn btn-dark btn-sm">
                           審核通過
                         </ConfirmButton>
                       )}

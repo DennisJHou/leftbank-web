@@ -27,13 +27,13 @@ export default async function RespondPage({ params, searchParams }: PageProps<"/
   );
 
   return (
-    <div className="container-narrow pt-10 md:pt-16">
+    <div className="container-narrow pt-12 md:pt-20">
       {!req ? (
         <p className="notice notice-error">找不到這筆邀請，請確認連結是否完整。</p>
       ) : (
         <>
-          <p className="eyebrow">{CONTACT_TYPE_LABEL[req.type]} · {REQUEST_STATUS_LABEL[req.status]}</p>
-          <h1 className="display mt-4 text-[32px] md:text-[42px]">
+          <p className="text-meta text-ash">{CONTACT_TYPE_LABEL[req.type]}，目前狀態：{REQUEST_STATUS_LABEL[req.status]}</p>
+          <h1 className="h-page mt-3">
             {action === "complete"
               ? `和 ${req.student_name} 的${CONTACT_TYPE_LABEL[req.type]}完成了嗎？`
               : `${req.alumni_name}，${req.student_name} 想${req.type === "coffee" ? "約你喝杯咖啡" : "請教你幾個問題"}`}
@@ -41,19 +41,19 @@ export default async function RespondPage({ params, searchParams }: PageProps<"/
 
           <div className="card mt-8 space-y-5 p-6 md:p-8">
             <div>
-              <p className="text-[13px] text-ash">自我介紹</p>
-              <p className="mt-2 whitespace-pre-line text-[16px] leading-relaxed">{req.intro}</p>
+              <p className="text-meta font-medium">自我介紹</p>
+              <p className="mt-2 whitespace-pre-line text-body leading-relaxed">{req.intro}</p>
             </div>
             <div>
-              <p className="text-[13px] text-ash">問題</p>
-              <ol className="mt-2 list-decimal space-y-2 pl-5 text-[16px] leading-relaxed">
+              <p className="text-meta font-medium">問題</p>
+              <ol className="mt-2 list-decimal space-y-2 pl-5 text-body leading-relaxed">
                 {req.questions.map((q, i) => (
                   <li key={i}>{q}</li>
                 ))}
               </ol>
             </div>
             {req.type === "coffee" && (
-              <p className="text-[15px] text-stone">
+              <p className="text-meta text-ash">
                 {MEETING_MODE_LABEL[req.mode ?? "either"]} · {req.availability}
               </p>
             )}
@@ -62,7 +62,7 @@ export default async function RespondPage({ params, searchParams }: PageProps<"/
           <div className="mt-8">
             <RespondForm token={token} action={action} />
           </div>
-          <p className="mt-10 text-[13px] text-ash">
+          <p className="mt-10 text-note text-ash">
             你不需要登入。這個頁面只有收到邀請信的你能打開；你的 email 不會出現在網站上。
           </p>
         </>

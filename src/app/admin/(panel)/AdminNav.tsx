@@ -14,8 +14,8 @@ export function AdminNav({ items }: { items: { href: string; label: string }[] }
             key={it.href}
             href={it.href}
             aria-current={active ? "page" : undefined}
-            className={`whitespace-nowrap rounded-[10px] px-3 py-2 text-[14px] transition-colors ${
-              active ? "bg-stone text-white" : "text-stone hover:bg-surface"
+            className={`whitespace-nowrap border-l-2 px-4 py-2.5 text-meta transition-colors ${
+              active ? "border-ink font-medium text-ink-strong" : "border-transparent text-ash hover:text-ink"
             }`}
           >
             {it.label}

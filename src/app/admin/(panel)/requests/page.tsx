@@ -57,21 +57,22 @@ export default async function RequestsAdmin({ searchParams }: PageProps<"/admin/
       <PageTitle title="提問與咖啡" lead="系友 14 天沒有回應會自動改成逾期（每天排程檢查一次），並通知學生。">
         <SweepButton />
       </PageTitle>
-      <div className="mb-5 flex flex-wrap gap-2">
+      <div className="tabs mb-4">
         {STATUSES.map((s) => (
-          <Link key={s || "all"} href={link({ status: s })} aria-current={status === s} className="pill">
+          <Link key={s || "all"} href={link({ status: s })} aria-current={status === s} className="tab">
             {s ? REQUEST_STATUS_LABEL[s] : "全部狀態"}
           </Link>
         ))}
-        <span className="mx-2 hidden w-px bg-hairline md:block" />
+      </div>
+      <div className="tabs mb-8">
         {(["", "question", "coffee"] as const).map((t) => (
-          <Link key={t || "all"} href={link({ type: t })} aria-current={type === t} className="pill">
+          <Link key={t || "all"} href={link({ type: t })} aria-current={type === t} className="tab">
             {t ? CONTACT_TYPE_LABEL[t] : "全部類型"}
           </Link>
         ))}
       </div>
       {rows.length === 0 ? (
-        <p className="card p-8 text-center text-[14px] text-ash">沒有符合的紀錄。</p>
+        <p className="card p-8 text-center text-meta text-ash">沒有符合的紀錄。</p>
       ) : (
         <Table>
           <thead>
@@ -86,31 +87,31 @@ export default async function RequestsAdmin({ searchParams }: PageProps<"/admin/
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className={r.status === "overdue" ? "bg-[#fbeee9]" : ""}>
-                <Td className="whitespace-nowrap text-[13px]">{fmtDate(r.created_at)}</Td>
+              <tr key={r.id} className={r.status === "overdue" ? "bg-[#fbefea]" : ""}>
+                <Td className="whitespace-nowrap text-note">{fmtDate(r.created_at)}</Td>
                 <Td className="whitespace-nowrap">{CONTACT_TYPE_LABEL[r.type]}</Td>
                 <Td>
                   <p>
                     {r.student} → <a href={`/alumni/${r.alumni_id}`} target="_blank" className="hover:underline">{r.alumni}</a>
                   </p>
                   <details className="mt-1">
-                    <summary className="cursor-pointer text-[12px] text-ash">內容</summary>
-                    <p className="mt-2 whitespace-pre-line text-[13px] text-stone">{r.intro}</p>
-                    <ol className="mt-2 list-decimal pl-5 text-[13px]">
+                    <summary className="cursor-pointer text-note text-ash">內容</summary>
+                    <p className="mt-2 whitespace-pre-line text-note text-stone">{r.intro}</p>
+                    <ol className="mt-2 list-decimal pl-5 text-note">
                       {r.questions.map((q, i) => (
                         <li key={i}>{q}</li>
                       ))}
                     </ol>
                     {r.type === "coffee" && (
-                      <p className="mt-2 text-[12px] text-ash">{MEETING_MODE_LABEL[r.mode ?? "either"]} · {r.availability}</p>
+                      <p className="mt-2 text-note text-ash">{MEETING_MODE_LABEL[r.mode ?? "either"]} · {r.availability}</p>
                     )}
                   </details>
                 </Td>
                 <Td>
-                  <span className={`chip ${r.status === "overdue" ? "bg-[#f6d5cc] text-[#9b2615]" : ""}`}>{REQUEST_STATUS_LABEL[r.status]}</span>
+                  <span className={`tag ${r.status === "overdue" ? "tag-error" : ""}`}>{REQUEST_STATUS_LABEL[r.status]}</span>
                 </Td>
-                <Td className="whitespace-nowrap text-[13px] text-ash">{fmtDate(r.responded_at)}</Td>
-                <Td className="whitespace-nowrap text-[13px] text-ash">{fmtDate(r.completed_at)}</Td>
+                <Td className="whitespace-nowrap text-note text-ash">{fmtDate(r.responded_at)}</Td>
+                <Td className="whitespace-nowrap text-note text-ash">{fmtDate(r.completed_at)}</Td>
               </tr>
             ))}
           </tbody>

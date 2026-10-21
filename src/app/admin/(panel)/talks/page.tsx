@@ -31,7 +31,7 @@ export default async function TalksAdmin() {
     <>
       <PageTitle title="演講意願" lead="願意回校分享的系友，依「想聽他回來分享 +1」的票數排序。公開頁面不顯示票數。人文沙龍的報名與押金由系上另外處理。" />
       {rows.length === 0 ? (
-        <p className="card p-8 text-center text-[14px] text-ash">目前沒有系友開放回校分享。</p>
+        <p className="card p-8 text-center text-meta text-ash">目前沒有系友開放回校分享。</p>
       ) : (
         <Table>
           <thead>
@@ -50,12 +50,12 @@ export default async function TalksAdmin() {
                 <Td className="tabular-nums text-ash">{i + 1}</Td>
                 <Td>
                   <a href={`/alumni/${r.id}`} target="_blank" className="font-medium hover:underline">{r.name}</a>
-                  {!r.willing_to_talk && <span className="chip ml-2">已關閉意願</span>}
+                  {!r.willing_to_talk && <span className="tag ml-2">已關閉意願</span>}
                 </Td>
-                <Td className="text-[13px] text-stone">{[r.title, r.company].filter(Boolean).join(" · ") || "—"}</Td>
-                <Td className="text-right text-[16px] font-medium tabular-nums">{r.votes}</Td>
+                <Td className="text-note text-stone">{[r.title, r.company].filter(Boolean).join(" · ") || "—"}</Td>
+                <Td className="text-right text-body font-medium tabular-nums">{r.votes}</Td>
                 <Td className="text-right tabular-nums text-ash">{r.recent}</Td>
-                <Td className="text-[13px]">
+                <Td className="text-note">
                   <a href={`mailto:${r.email}`} className="link">{r.email}</a>
                 </Td>
               </tr>

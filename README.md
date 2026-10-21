@@ -16,29 +16,12 @@ cp .env.example .env.local   # 至少填 SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASSWOR
 npm run dev                  # http://localhost:3000
 ```
 
-- **不用安裝資料庫**：沒有設定 `DATABASE_URL` 時，會自動使用內嵌的 PGlite（真正的 Postgres，資料存在 `.data/pglite`），第一次啟動自動建表並放入示範資料。
-- **不用設定寄信**：沒有設定 `GMAIL_APP_PASSWORD` 時，信件不會寄出，而是記錄在資料庫，可以在 [/dev/mailbox](http://localhost:3000/dev/mailbox) 查看並點信裡的按鈕。
-- **不用 AI 金鑰**：沒有設定 `ANTHROPIC_API_KEY` 時，AI 對談會用固定的示範回覆（畫面會標示「開發模式」），整個流程都能測試。
+- **不用安裝資料庫**：沒有設定 `DATABASE_URL` 時，會自動使用內嵌的 PGlite（真正的 Postgres，資料存在 `.data/pglite`），第一次啟動自動建立空的資料表。網站不含任何示範資料；沒有內容的區塊會顯示「資料建置中」。
+- **不用設定寄信**：沒有設定 `GMAIL_APP_PASSWORD` 時，信件不會寄出，而是記錄在資料庫，可以在 [/dev/mailbox](http://localhost:3000/dev/mailbox) 查看並點信裡的按鈕（例如註冊驗證信）。
+- **不用 AI 金鑰**：沒有設定 `ANTHROPIC_API_KEY` 時，本機的 AI 對談會用固定回覆代替（畫面會標示「開發模式」，正式環境不會出現）。
 - 想從頭來過：先停掉開發伺服器，再執行 `npm run db:reset`。
 
-### 示範帳號（只存在本機的示範資料）
-
-前台帳號的密碼都是 `leftbank2026`（定義在 [src/lib/seed.ts](src/lib/seed.ts)），人物與故事皆為虛構。
-
-| 帳號 | 身分 | 可以試試 |
-|---|---|---|
-| `chiayu@leftbank.test` | 學生 | 職涯羅盤（有兩次紀錄可比較）、提問紀錄、演講投票 |
-| `yuan@leftbank.test` | 系友 | 收到的邀請、故事編輯、演講票數 |
-| `yeh@leftbank.test` | 老師（已審核） | 老師身分的公開頁 |
-| `wenyen@leftbank.test` | 系友＋碩士在學 | 身分同時成立 |
-| `mengru@leftbank.test` | 老師（待審核） | 審核中的畫面 |
-| `guohua@leftbank.test` | 沒有學號的系友（待審核） | 審核中的畫面 |
-| `chiayu2@leftbank.test` | 學生 | 和 chiayu 學號重複（後台會標示） |
-
-後台在 [/admin](http://localhost:3000/admin)（前台沒有任何連結）：
-
-- 超級管理員：`.env.local` 裡的 `SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD`
-- 一般管理員（示範）：`admin@leftbank.test`，密碼見 [src/lib/seed.ts](src/lib/seed.ts) 的 `DEMO_ADMIN`
+後台在 [/admin](http://localhost:3000/admin)（前台沒有任何連結），用 `.env.local` 裡的 `SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD` 登入。
 
 ---
 
@@ -75,7 +58,6 @@ npm run dev                  # http://localhost:3000
    ```bash
    DATABASE_URL="postgres://..." npm run db:migrate
    ```
-   正式環境不會放示範資料。
 3. **Gmail**：`leftbank.psy@gmail.com` 開啟兩步驟驗證 → 建立「應用程式密碼」→ 填入 `GMAIL_APP_PASSWORD`。每天上限約 500 封。
 4. **Vercel**：把這個資料夾推上 GitHub（它本身就是 git repo 的根目錄），在 Vercel 匯入後，於 Environment Variables 填入 [.env.example](.env.example) 的所有變數：
    - `APP_URL`：網站網址（例如 `https://leftbank.vercel.app`），信裡的連結會用它
@@ -115,7 +97,7 @@ npm run dev                  # http://localhost:3000
 | 身分由學歷推算 | `src/lib/identity.ts` |
 | 後台 | `src/app/admin/`、`src/lib/admin-auth.ts` |
 | Email 一覽（7 種） | `src/lib/mail.ts` |
-| 設計語言（DESIGN.md） | `src/app/globals.css` |
+| 設計系統（字級、按鈕、色彩） | `src/app/globals.css`、`src/components/ui.tsx` |
 
 ### 幾個實作上的決定
 
@@ -126,6 +108,27 @@ npm run dev                  # http://localhost:3000
 - **屆別**：最早一筆學歷的畢業年（例如「學士 2018 屆」），沒有畢業年時顯示入學年。
 - **老師**：註冊選「教師」需要審核；若同時填了有學號的系友學歷，審核前可以先用系友身分使用。審核通過時會寄信通知。
 - **故事被下架後**，作者仍可編輯，但維持下架，由管理員決定是否恢復。
+
+---
+
+## 設計系統
+
+視覺參考 Aesop：淺米白底（`#fffef2`）、深灰文字（`#333`）、直角元件、大量留白。全站只用以下字級（定義在 `src/app/globals.css`）：
+
+| 名稱 | 用途 | 大小 |
+|---|---|---|
+| `h-display` | 首頁主標題 | 36–60px，襯線 |
+| `h-page` | 每頁最大的標題 | 32–48px，襯線 |
+| `h-section` | 區塊標題、「某某的故事」 | 24–32px，襯線 |
+| `h-item` | 人名、卡片標題、題目 | 18px，無襯線粗體 |
+| `text-body` | 內文 | 17px |
+| `text-meta` | 次要資訊、按鈕 | 15px |
+| `text-note` | 最小的提示文字 | 14px（不再更小） |
+
+- 按鈕一律直角，只有兩種尺寸：`btn`（48px 高）與 `btn-sm`（40px，用在導覽列與後台表格）。樣式：`btn-dark`（主要）、`btn-outline`（次要）、`btn-light`（深色圖片上）、`btn-text`（文字型）。導覽列的「註冊／登入」是全站唯一的藍色按鈕。
+- 篩選與分頁用底線式的 `tabs`／`tab`；表單裡的選項用直角的 `option`；狀態用 `tag`。
+- 全站不使用 emoji，也不使用膠囊形（全圓角）的按鈕與標籤。
+- 首頁預設主視覺是黃昏的河岸咖啡館插畫（`src/components/HeroIllustration.tsx`），後台可以換成照片；照片上會自動加深色漸層，讓白色標題清楚。
 
 ---
 
@@ -145,7 +148,7 @@ npm run dev                  # http://localhost:3000
 | `npm run build` / `npm start` | 正式版建置與啟動 |
 | `npm run typecheck` | TypeScript 檢查 |
 | `npm run db:migrate` | 對 `DATABASE_URL` 執行 migration |
-| `npm run db:reset` | 清空本機 PGlite 資料（下次啟動重建示範資料） |
+| `npm run db:reset` | 清空本機 PGlite 資料（下次啟動重建空的資料表） |
 
 ---
 

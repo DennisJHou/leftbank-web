@@ -66,12 +66,12 @@ export function SignupForm() {
               aria-pressed={identity === it.value}
               aria-label={`${it.label}（${it.hint}）`}
               onClick={() => choose(it.value)}
-              className={`rounded-[16px] border px-3 py-3 text-left transition-colors ${
-                identity === it.value ? "border-stone bg-stone text-white" : "border-hairline bg-surface text-ink"
+              className={`border px-3 py-3 text-left transition-colors ${
+                identity === it.value ? "border-ink bg-ink text-white" : "border-line bg-surface text-ink hover:border-ink"
               }`}
             >
-              <span className="block text-[15px] font-medium">{it.label}</span>
-              <span className={`mt-0.5 block text-[12px] ${identity === it.value ? "text-white/75" : "text-ash"}`}>
+              <span className="block text-meta font-medium">{it.label}</span>
+              <span className={`mt-0.5 block text-note ${identity === it.value ? "text-white/75" : "text-ash"}`}>
                 {it.hint}
               </span>
             </button>
@@ -81,7 +81,7 @@ export function SignupForm() {
 
       <div>
         <p className="field-label">臺大心理系的學歷</p>
-        <p className="mb-4 text-[13px] text-ash">
+        <p className="mb-5 text-meta text-ash">
           {identity === "student" && "在學中的學歷請填學號；如果你同時是學士系友，也可以一起填上。"}
           {identity === "alumni" && "可以填多筆。忘記學號的系友可以留空，只填入學或畢業年，但需要管理員審核。"}
           {identity === "teacher" && "教師不需要填學號。如果你也是臺大心理系的系友，可以加上學歷，審核前先用系友身分使用。"}
@@ -90,8 +90,8 @@ export function SignupForm() {
       </div>
 
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-stone w-full" pending="建立帳號中…">建立帳號</SubmitButton>
-      <p className="text-center text-[13px] text-ash">
+      <SubmitButton className="btn btn-dark w-full" pending="建立帳號中…">建立帳號</SubmitButton>
+      <p className="text-center text-note text-ash">
         註冊即表示你同意左岸計畫依照本網站說明使用你的資料。
       </p>
     </form>

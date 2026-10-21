@@ -49,9 +49,9 @@ export default async function CompassAdmin({ searchParams }: PageProps<"/admin/c
         }
       />
       {admin.level === "super" && (
-        <div className="mb-8 flex gap-2">
-          <Link href="/admin/compass" aria-current={view === "stats"} className="pill">統計與趨勢</Link>
-          <Link href="/admin/compass?view=people" aria-current={view === "people"} className="pill">個人結果</Link>
+        <div className="tabs mb-10">
+          <Link href="/admin/compass" aria-current={view === "stats"} className="tab">統計與趨勢</Link>
+          <Link href="/admin/compass?view=people" aria-current={view === "people"} className="tab">個人結果</Link>
         </div>
       )}
       {view === "stats" ? <Stats /> : <People />}
@@ -63,7 +63,7 @@ async function Stats() {
   const rows = await query<Row>(
     "select id, user_id, kind, created_at, answers, scores, report from compass_sessions where status = 'completed' order by created_at",
   );
-  if (!rows.length) return <p className="card p-8 text-center text-[14px] text-ash">還沒有任何羅盤紀錄。</p>;
+  if (!rows.length) return <p className="card p-8 text-center text-meta text-ash">還沒有任何羅盤紀錄。</p>;
 
   // 月趨勢（近 12 個月）
   const months = new Map<string, { cddq: number; ai: number }>();
@@ -110,7 +110,7 @@ async function Stats() {
   return (
     <div className="space-y-14">
       <section>
-        <h2 className="mb-4 font-serif text-[22px] font-light">每月使用次數</h2>
+        <h2 className="mb-4 h-section">每月使用次數</h2>
         <div className="card space-y-2.5 p-5">
           {monthList.map(([m, v]) => (
             <BarRow key={m} label={`${m}（AI ${v.ai}）`} value={v.cddq + v.ai} max={maxMonth} suffix=" 次" />
@@ -119,7 +119,7 @@ async function Stats() {
       </section>
 
       <section>
-        <h2 className="mb-4 font-serif text-[22px] font-light">每學期三大類平均（1–9，越高越卡關）</h2>
+        <h2 className="mb-4 h-section">每學期三大類平均（1–9，越高越卡關）</h2>
         <Table>
           <thead>
             <tr>
@@ -150,13 +150,13 @@ async function Stats() {
         <>
           <section className="grid gap-6 lg:grid-cols-2">
             <div>
-              <h2 className="mb-4 font-serif text-[22px] font-light">三大類的程度分布</h2>
+              <h2 className="mb-4 h-section">三大類的程度分布</h2>
               <div className="card space-y-5 p-5">
                 {CAT_KEYS.map((c) => {
                   const lv = count(people.map((r) => levelOf(r.scores!.categories[c])));
                   return (
                     <div key={c}>
-                      <p className="mb-2 text-[14px] font-medium">{CATEGORIES[c].label}</p>
+                      <p className="mb-2 text-meta font-medium">{CATEGORIES[c].label}</p>
                       <div className="space-y-1.5">
                         {(["high", "moderate", "low"] as const).map((l) => (
                           <BarRow key={l} label={LEVEL_LABEL[l]} value={lv.get(l) ?? 0} max={people.length} suffix=" 人" />
@@ -168,7 +168,7 @@ async function Stats() {
               </div>
             </div>
             <div>
-              <h2 className="mb-4 font-serif text-[22px] font-light">最常見的主要困難</h2>
+              <h2 className="mb-4 h-section">最常見的主要困難</h2>
               <div className="card space-y-2 p-5">
                 {topList.map(([label, n]) => (
                   <BarRow key={label} label={label} value={n} max={people.length} suffix=" 人" />
@@ -182,19 +182,19 @@ async function Stats() {
           </section>
         </>
       ) : (
-        <p className="text-[14px] text-ash">使用人數少於 {MIN_CELL} 人，暫不顯示分布。</p>
+        <p className="text-meta text-ash">使用人數少於 {MIN_CELL} 人，暫不顯示分布。</p>
       )}
 
       <section>
-        <h2 className="mb-4 font-serif text-[22px] font-light">AI 對談</h2>
-        <p className="text-[14px] text-stone">完成報告 {ai.length} 份。</p>
+        <h2 className="mb-4 h-section">AI 對談</h2>
+        <p className="text-meta text-stone">完成報告 {ai.length} 份。</p>
         {ai.length >= MIN_CELL && (
           <div className="card mt-4 space-y-5 p-5">
             {CAT_KEYS.map((c) => {
               const lv = count(ai.map((r) => r.report!.categories[c]));
               return (
                 <div key={c}>
-                  <p className="mb-2 text-[14px] font-medium">{CATEGORIES[c].label}</p>
+                  <p className="mb-2 text-meta font-medium">{CATEGORIES[c].label}</p>
                   {(["high", "moderate", "low"] as const).map((l) => (
                     <BarRow key={l} label={LEVEL_LABEL[l]} value={lv.get(l) ?? 0} max={ai.length} suffix=" 人" />
                   ))}
@@ -221,12 +221,12 @@ function Distribution({
 }) {
   return (
     <div>
-      <h2 className="mb-4 font-serif text-[22px] font-light">{title}</h2>
+      <h2 className="mb-4 h-section">{title}</h2>
       <div className="card space-y-2 p-5">
         {options.map((o) => {
           const n = counts.get(o.value) ?? 0;
           return n > 0 && n < MIN_CELL ? (
-            <div key={o.value} className="grid grid-cols-[7.5rem_1fr] gap-3 text-[14px]">
+            <div key={o.value} className="grid grid-cols-[7.5rem_1fr] gap-3 text-meta">
               <span className="truncate text-stone">{o.label}</span>
               <span className="text-mute">少於 {MIN_CELL} 人</span>
             </div>
@@ -262,14 +262,14 @@ async function People() {
       <tbody>
         {rows.map((r) => (
           <tr key={r.id}>
-            <Td className="whitespace-nowrap text-[13px]">{fmtDate(r.created_at)}</Td>
+            <Td className="whitespace-nowrap text-note">{fmtDate(r.created_at)}</Td>
             <Td>
               <p>{r.name}</p>
-              <p className="text-[12px] text-ash">{r.email}</p>
+              <p className="text-note text-ash">{r.email}</p>
             </Td>
             <Td className="whitespace-nowrap">{r.kind === "ai" ? "AI 對談" : "量表"}</Td>
             {CAT_KEYS.map((c) => (
-              <Td key={c} className="whitespace-nowrap text-[13px]">
+              <Td key={c} className="whitespace-nowrap text-note">
                 {r.scores
                   ? `${LEVEL_LABEL[levelOf(r.scores.categories[c])]} ${r.scores.categories[c].toFixed(1)}`
                   : r.report
@@ -278,7 +278,7 @@ async function People() {
               </Td>
             ))}
             <Td>
-              <Link href={`/admin/compass/${r.id}`} className="link text-[13px]">詳細</Link>
+              <Link href={`/admin/compass/${r.id}`} className="link text-note">詳細</Link>
             </Td>
           </tr>
         ))}

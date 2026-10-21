@@ -15,9 +15,8 @@ export default async function DevMailbox({ searchParams }: PageProps<"/dev/mailb
 
   return (
     <div className="container-page pt-10">
-      <p className="eyebrow">開發模式</p>
-      <h1 className="display mt-3 text-[34px]">寄出的信</h1>
-      <p className="mt-2 text-[14px] text-ash">沒有設定 GMAIL_APP_PASSWORD 時，信件不會真的寄出，只記錄在這裡。正式環境不會顯示這個頁面。</p>
+      <h1 className="h-page">寄出的信（開發模式）</h1>
+      <p className="mt-2 text-meta text-ash">沒有設定 GMAIL_APP_PASSWORD 時，信件不會真的寄出，只記錄在這裡。正式環境不會顯示這個頁面。</p>
       {mails.length === 0 ? (
         <p className="card mt-8 p-8 text-center text-ash">還沒有任何信件。</p>
       ) : (
@@ -26,8 +25,8 @@ export default async function DevMailbox({ searchParams }: PageProps<"/dev/mailb
             {mails.map((m) => (
               <li key={m.id}>
                 <a href={`/dev/mailbox?id=${m.id}`} className={`block px-4 py-3 ${m.id === current?.id ? "bg-canvas" : "hover:bg-canvas/60"}`}>
-                  <p className="truncate text-[14px] font-medium">{m.subject}</p>
-                  <p className="truncate text-[12px] text-ash">
+                  <p className="truncate text-meta font-medium">{m.subject}</p>
+                  <p className="truncate text-note text-ash">
                     → {m.to_email} · {m.kind} · {new Date(m.created_at).toLocaleString("zh-TW")}
                   </p>
                 </a>
@@ -36,7 +35,7 @@ export default async function DevMailbox({ searchParams }: PageProps<"/dev/mailb
           </ul>
           {current && (
             <div className="card overflow-hidden">
-              <div className="border-b border-hairline px-5 py-3 text-[13px] text-stone">
+              <div className="border-b border-hairline px-5 py-3 text-note text-stone">
                 <p>收件人：{current.to_email}</p>
                 {current.reply_to && <p>回覆對象：{current.reply_to}</p>}
                 <p>狀態：{current.status}</p>

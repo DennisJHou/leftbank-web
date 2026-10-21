@@ -26,13 +26,13 @@ export function EducationFields({
   return (
     <div className="space-y-4">
       {rows.map((r, i) => (
-        <fieldset key={r.key} className="rounded-[20px] border border-hairline bg-surface p-4 md:p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <legend className="text-[13px] font-medium text-ash">學歷 {i + 1}</legend>
+        <fieldset key={r.key} className="border border-hairline bg-surface p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <legend className="text-meta font-medium">學歷 {i + 1}</legend>
             <button
               type="button"
               onClick={() => setRows(rows.filter((x) => x.key !== r.key))}
-              className="text-[13px] text-ash hover:text-error"
+              className="btn btn-text btn-danger"
             >
               移除
             </button>
@@ -82,26 +82,26 @@ export function EducationFields({
                 disabled={r.studying}
                 onChange={(e) => update(r.key, { grad: e.target.value.replace(/\D/g, "").slice(0, 4) })}
                 placeholder={r.studying ? "在學中" : "2026"}
-                className="input disabled:bg-canvas"
+                className="input"
               />
               {r.studying && <input type="hidden" name="edu_grad" value="" />}
             </label>
           </div>
           {allowStudying && (
-            <label className="mt-3 flex items-center gap-2 text-[14px] text-stone">
+            <label className="mt-4 flex items-center gap-3 text-meta">
               <input
                 type="checkbox"
                 checked={r.studying}
                 onChange={(e) => update(r.key, { studying: e.target.checked, grad: "" })}
-                className="h-4 w-4 accent-[#4a4741]"
+                className="checkbox"
               />
               目前在學中
             </label>
           )}
         </fieldset>
       ))}
-      <button type="button" onClick={() => setRows([...rows, newEduRow()])} className="btn btn-outline btn-sm">
-        ＋ 新增一筆學歷
+      <button type="button" onClick={() => setRows([...rows, newEduRow()])} className="btn btn-outline">
+        新增一筆學歷
       </button>
     </div>
   );

@@ -17,12 +17,12 @@ export function LoginForm({ next }: { next?: string }) {
       <div>
         <div className="flex items-baseline justify-between">
           <label className="field-label" htmlFor="password">密碼</label>
-          <Link href="/forgot-password" className="text-[13px] text-ash hover:text-stone">忘記密碼？</Link>
+          <Link href="/forgot-password" className="text-note text-ash hover:text-stone">忘記密碼？</Link>
         </div>
         <input id="password" name="password" type="password" autoComplete="current-password" required className="input" />
       </div>
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-stone w-full" pending="登入中…">登入</SubmitButton>
+      <SubmitButton className="btn btn-dark w-full" pending="登入中…">登入</SubmitButton>
     </form>
   );
 }

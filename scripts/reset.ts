@@ -1,4 +1,4 @@
-/** 清空本機 PGlite 資料庫與上傳的照片，下次啟動時重新建表並放入示範資料 */
+/** 清空本機 PGlite 資料庫與上傳的照片，下次啟動時重新建立空的資料表 */
 import fs from "node:fs";
 import path from "node:path";
 

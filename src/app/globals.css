@@ -1,41 +1,77 @@
 @import "tailwindcss";
 
-/* 設計語言：DESIGN.md（暖紙色底、細襯線標題、安靜的無襯線內文、膠囊按鈕） */
+/*
+ * 設計系統（參考 Aesop）：淺米白底、深灰文字、直角元件、少量而明確的字級。
+ * 字級只用下面七個：display（首頁主標）> page（頁面標題）> section（區塊標題）> item（卡片／人名）> body > meta > note
+ */
 @theme {
-  --color-primary: #2a72de;
-  --color-stone: #4a4741;
+  /* 文字與介面 */
+  --color-ink: #333333;
+  --color-ink-strong: #1d1d1b;
+  --color-stone: #333333; /* 舊名稱，等同 ink */
+  --color-ash: #5f5e58; /* 次要文字，在底色上符合 AA 對比 */
+  --color-mute: #8d8b82; /* 只用於線條與 placeholder */
+  --color-canvas: #fffef2;
+  --color-panel: #f5f3e4;
+  --color-surface: #ffffff;
+  --color-hairline: #e3e0d3;
+  --color-line: #c3c0b2;
+  --color-silver: #c3c0b2;
+  --color-accent: #9a4f24; /* 小狀態文字，例如「審核中」 */
+  --color-error: #b8361d;
+  --color-ok: #3e5a3b;
+  --color-ink-band: #252524;
+  --color-primary: #2a72de; /* 只給導覽列的「註冊／登入」 */
+
+  /* 插畫與圖表用的大地色 */
   --color-clay: #6b443d;
   --color-espresso: #39221e;
   --color-gold: #af751b;
   --color-ochre: #bc924c;
-  --color-gold-soft: #ddaa61;
   --color-gold-pale: #ddbe78;
-  --color-gold-deep: #684d07;
   --color-forest: #224228;
   --color-olive: #5c6f5d;
   --color-sage: #849671;
-  --color-sage-mute: #7b886d;
   --color-sage-pale: #ced4b8;
-  --color-canvas: #f7f1e8;
-  --color-surface: #ffffff;
-  --color-surface-grey: #ececec;
-  --color-silver: #cccac7;
-  --color-ink-band: #19191c;
-  --color-ink: #1c1b1a;
-  --color-ash: #838280;
-  --color-mute: #a8a5a0;
-  --color-hairline: #e1dcd3;
-  --color-error: #e33a22;
+  --color-chart: #9a5f17;
+  --color-chart-track: #ece6d2;
 
   --font-serif: var(--font-newsreader), var(--font-noto-serif-tc), "Songti TC", serif;
   --font-sans: var(--font-noto-sans-tc), "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
 
-  --radius-field: 12px;
-  --radius-card: 24px;
-  --radius-media: 40px;
+  --text-display: clamp(2.25rem, 1.35rem + 3.2vw, 3.75rem);
+  --text-display--line-height: 1.18;
+  --text-page: clamp(2rem, 1.55rem + 1.8vw, 3rem);
+  --text-page--line-height: 1.22;
+  --text-section: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+  --text-section--line-height: 1.35;
+  --text-item: 1.125rem;
+  --text-item--line-height: 1.5;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.8;
+  --text-meta: 0.9375rem;
+  --text-meta--line-height: 1.65;
+  --text-note: 0.875rem;
+  --text-note--line-height: 1.55;
 
-  --shadow-soft: 0 1px 2px rgb(57 34 30 / 0.04), 0 8px 24px rgb(57 34 30 / 0.06);
-  --shadow-float: 0 2px 6px rgb(57 34 30 / 0.06), 0 18px 48px rgb(57 34 30 / 0.12);
+  --shadow-float: 0 12px 32px rgb(0 0 0 / 0.1);
+}
+
+/* 版心（用 @utility 定義，才能搭配 md: 等變體） */
+@utility container-page {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 20px;
+  @media (min-width: 768px) {
+    padding-inline: 40px;
+  }
+}
+@utility container-narrow {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+  padding-inline: 20px;
 }
 
 @layer base {
@@ -47,15 +83,15 @@
     background: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: var(--text-body);
+    line-height: 1.75;
     -webkit-font-smoothing: antialiased;
   }
   ::selection {
     background: var(--color-gold-pale);
   }
   :focus-visible {
-    outline: 2px solid var(--color-stone);
+    outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
   [id] {
@@ -63,136 +99,159 @@
   }
 }
 
-/* 版心（用 @utility 定義，才能搭配 md: 等變體） */
-@utility container-page {
-  width: 100%;
-  max-width: 1200px;
-  margin-inline: auto;
-  padding-inline: 16px;
-  @media (min-width: 768px) {
-    padding-inline: 32px;
-  }
-}
-@utility container-narrow {
-  width: 100%;
-  max-width: 720px;
-  margin-inline: auto;
-  padding-inline: 16px;
-}
-
 @layer components {
-
-  /* 標題：細字重襯線 */
-  .display {
+  /* ─── 標題 ─── */
+  .h-display,
+  .h-page,
+  .h-section {
     font-family: var(--font-serif);
-    font-weight: 300;
-    line-height: 1.12;
+    font-weight: 400;
+    color: var(--color-ink-strong);
     letter-spacing: 0.01em;
     text-wrap: balance;
   }
-  .eyebrow {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    line-height: 1.2;
-    text-transform: uppercase;
-    color: var(--color-ink);
+  .h-display {
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+  }
+  .h-page {
+    font-size: var(--text-page);
+    line-height: var(--text-page--line-height);
+  }
+  .h-section {
+    font-size: var(--text-section);
+    line-height: var(--text-section--line-height);
+  }
+  .h-item {
+    font-size: var(--text-item);
+    line-height: var(--text-item--line-height);
+    font-weight: 500;
+    color: var(--color-ink-strong);
   }
 
-  /* 按鈕：全圓角膠囊。藍色只給導覽列的「註冊／登入」 */
+  /* ─── 按鈕：直角、兩種尺寸 ─── */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    min-height: 44px;
-    padding: 0 22px;
-    border-radius: 9999px;
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1;
+    gap: 12px;
+    min-height: 48px;
+    padding: 0 28px;
+    border: 1px solid transparent;
+    border-radius: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.2;
     white-space: nowrap;
+    cursor: pointer;
     transition:
       background-color 0.15s,
       color 0.15s,
       border-color 0.15s,
       opacity 0.15s;
-    cursor: pointer;
+  }
+  .btn-sm {
+    min-height: 40px;
+    padding: 0 18px;
+    font-size: 0.875rem;
+    gap: 8px;
   }
   .btn:disabled,
   .btn[aria-disabled="true"] {
-    opacity: 0.45;
+    opacity: 0.4;
     cursor: not-allowed;
+  }
+  .btn-dark {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: #fff;
+  }
+  .btn-dark:hover:not(:disabled) {
+    background: var(--color-ink-strong);
+  }
+  .btn-outline {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+    background: transparent;
+  }
+  .btn-outline:hover:not(:disabled) {
+    background: rgb(51 51 51 / 0.06);
+  }
+  .btn-light {
+    border-color: rgb(255 255 255 / 0.85);
+    color: #fff;
+    background: transparent;
+  }
+  .btn-light:hover {
+    background: rgb(255 255 255 / 0.12);
   }
   .btn-primary {
     background: var(--color-primary);
+    border-color: var(--color-primary);
     color: #fff;
   }
   .btn-primary:hover {
     background: #2465c6;
   }
-  .btn-stone {
-    background: var(--color-stone);
-    color: #fff;
+  /* 文字型按鈕：用在次要動作（例如「移除」「登出」） */
+  .btn-text {
+    min-height: 40px;
+    padding: 0 4px;
+    color: var(--color-ash);
+    font-size: 0.9375rem;
   }
-  .btn-stone:hover:not(:disabled) {
-    background: #3a3833;
-  }
-  .btn-outline {
-    border: 1px solid var(--color-stone);
-    color: var(--color-stone);
-    background: transparent;
-  }
-  .btn-outline:hover:not(:disabled) {
-    background: rgb(74 71 65 / 0.06);
-  }
-  .btn-cream {
-    background: var(--color-canvas);
-    color: var(--color-stone);
-  }
-  .btn-sm {
-    min-height: 36px;
-    padding: 0 16px;
-    font-size: 14px;
-  }
-  .link {
-    color: var(--color-stone);
+  .btn-text:hover:not(:disabled) {
+    color: var(--color-ink);
     text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-color: var(--color-silver);
+    text-underline-offset: 4px;
   }
-  .link:hover {
-    text-decoration-color: var(--color-stone);
+  .btn-danger:hover:not(:disabled) {
+    color: var(--color-error);
   }
 
+  .link {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--color-line);
+  }
+  .link:hover {
+    text-decoration-color: var(--color-ink);
+  }
+
+  /* ─── 卡片與面板 ─── */
   .card {
     background: var(--color-surface);
     border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-card);
+  }
+  .panel {
+    background: var(--color-panel);
   }
 
-  /* 表單 */
+  /* ─── 表單 ─── */
   .field-label {
     display: block;
-    font-size: 14px;
+    font-size: var(--text-meta);
     font-weight: 500;
     color: var(--color-ink);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   .field-hint {
-    font-size: 13px;
+    font-size: var(--text-note);
+    line-height: var(--text-note--line-height);
     color: var(--color-ash);
-    margin-top: 6px;
+    margin-top: 8px;
   }
   .input {
     width: 100%;
-    min-height: 46px;
-    padding: 10px 14px;
-    border-radius: var(--radius-field);
-    border: 1px solid var(--color-hairline);
+    min-height: 48px;
+    padding: 11px 14px;
+    border: 1px solid var(--color-line);
+    border-radius: 0;
     background: var(--color-surface);
     color: var(--color-ink);
-    font-size: 16px;
+    font-size: 1rem;
+    line-height: 1.5;
     transition: border-color 0.15s;
   }
   .input::placeholder {
@@ -200,74 +259,143 @@
   }
   .input:focus {
     outline: none;
-    border-color: var(--color-stone);
+    border-color: var(--color-ink);
   }
-  .input[aria-invalid="true"] {
-    border-color: var(--color-error);
+  .input:disabled {
+    background: var(--color-panel);
+    color: var(--color-ash);
   }
   textarea.input {
-    line-height: 1.7;
+    line-height: 1.75;
     resize: vertical;
   }
   select.input {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%234a4741' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%23333' stroke-width='1.5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 14px center;
-    padding-right: 36px;
+    padding-right: 38px;
+  }
+  .checkbox {
+    appearance: none;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--color-ink);
+    background: var(--color-surface);
+    display: inline-grid;
+    place-content: center;
+    cursor: pointer;
+  }
+  .checkbox:checked {
+    background: var(--color-ink);
+  }
+  .checkbox:checked::after {
+    content: "";
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: translateY(-1px) rotate(-45deg);
   }
 
-  /* 膠囊標籤／篩選 */
-  .pill {
+  /* 選項方塊：表單裡的單選、複選（直角） */
+  .option {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    min-height: 36px;
-    padding: 0 14px;
-    border-radius: 9999px;
-    border: 1px solid var(--color-silver);
-    color: var(--color-stone);
-    font-size: 14px;
-    background: transparent;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-size: var(--text-meta);
     cursor: pointer;
-    white-space: nowrap;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
   }
-  .pill[aria-pressed="true"],
-  .pill[aria-current="true"] {
-    border-color: var(--color-stone);
-    background: var(--color-stone);
+  .option:hover {
+    border-color: var(--color-ink);
+  }
+  .option[aria-pressed="true"],
+  .option:has(input:checked) {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
     color: #fff;
   }
-  .chip {
+
+  /* 分頁：底線式，參考 Aesop 的 Fresh／Floral／Woody */
+  .tabs {
+    display: flex;
+    gap: 32px;
+    border-bottom: 1px solid var(--color-hairline);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tab {
+    flex-shrink: 0;
+    padding: 0 0 14px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    font-size: 1rem;
+    color: var(--color-ash);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .tab:hover {
+    color: var(--color-ink);
+  }
+  .tab[aria-current="true"],
+  .tab[aria-current="page"],
+  .tab[aria-pressed="true"] {
+    color: var(--color-ink-strong);
+    border-bottom-color: var(--color-ink);
+  }
+
+  /* 標籤：直角、文字為主 */
+  .tag {
     display: inline-flex;
     align-items: center;
-    white-space: nowrap;
-    padding: 3px 10px;
-    border-radius: 9999px;
-    background: rgb(74 71 65 / 0.07);
-    color: var(--color-stone);
-    font-size: 12px;
-    font-weight: 500;
+    padding: 2px 8px;
+    border: 1px solid var(--color-hairline);
+    background: var(--color-surface);
+    color: var(--color-ash);
+    font-size: var(--text-note);
     line-height: 1.5;
+    white-space: nowrap;
+  }
+  .tag-accent {
+    color: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  }
+  .tag-ok {
+    color: var(--color-ok);
+    border-color: color-mix(in srgb, var(--color-ok) 35%, transparent);
+  }
+  .tag-error {
+    color: var(--color-error);
+    border-color: color-mix(in srgb, var(--color-error) 35%, transparent);
   }
 
   .notice {
-    border-radius: 16px;
     padding: 14px 18px;
-    font-size: 15px;
-    background: rgb(221 190 120 / 0.25);
-    color: var(--color-espresso);
+    font-size: var(--text-meta);
+    line-height: var(--text-meta--line-height);
+    background: var(--color-panel);
+    color: var(--color-ink);
+    border-left: 2px solid var(--color-line);
   }
   .notice-error {
-    background: rgb(227 58 34 / 0.08);
-    color: #9b2615;
+    background: #fbefea;
+    color: var(--color-error);
+    border-left-color: var(--color-error);
   }
   .notice-ok {
-    background: rgb(132 150 113 / 0.18);
-    color: var(--color-forest);
+    background: #eef1e6;
+    color: var(--color-ok);
+    border-left-color: var(--color-ok);
   }
 
-  /* 故事內文 */
   .prose-story p {
     margin-bottom: 1.1em;
     white-space: pre-line;
@@ -277,7 +405,7 @@
 /* 手機版橫向滑動，不自動輪播 */
 .snap-row {
   scroll-snap-type: x mandatory;
-  scroll-padding-inline: 16px;
+  scroll-padding-inline: 20px;
   scrollbar-width: none;
 }
 .snap-row::-webkit-scrollbar {

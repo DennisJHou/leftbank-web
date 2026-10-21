@@ -12,7 +12,7 @@ export default async function AdminLoginPage() {
       <div className="w-full max-w-[400px]">
         <div className="flex items-center gap-2.5 text-stone">
           <LogoMark />
-          <span className="font-serif text-[19px] tracking-[0.12em]">左岸計畫 · 後台</span>
+          <span className="font-serif text-item tracking-[0.12em]">左岸計畫 · 後台</span>
         </div>
         <div className="card mt-8 p-7">
           <AdminLoginForm />

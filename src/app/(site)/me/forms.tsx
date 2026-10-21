@@ -73,7 +73,7 @@ export function EducationForm({
     <form action={action} className="space-y-5">
       <EducationFields rows={rows} setRows={setRows} allowStudying={allowStudying} />
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-stone" pending="儲存中…">儲存學歷</SubmitButton>
+      <SubmitButton className="btn btn-dark" pending="儲存中…">儲存學歷</SubmitButton>
     </form>
   );
 }
@@ -94,10 +94,10 @@ export function PhotoForm({ name, photo }: { name: string; photo: string | null 
 
   return (
     <div className="flex items-center gap-5">
-      <Avatar name={name} src={photo} size={88} rounded="rounded-[22px]" />
+      <Avatar name={name} src={photo} size={96} />
       <div className="space-y-2">
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => inputRef.current?.click()} disabled={pending} className="btn btn-outline btn-sm">
+          <button type="button" onClick={() => inputRef.current?.click()} disabled={pending} className="btn btn-outline">
             {pending ? "上傳中…" : photo ? "更換照片" : "上傳照片"}
           </button>
           {photo && (
@@ -105,13 +105,13 @@ export function PhotoForm({ name, photo }: { name: string; photo: string | null 
               type="button"
               disabled={pending}
               onClick={() => start(async () => setRemoveState(await removePhoto()))}
-              className="btn btn-sm text-ash hover:text-error"
+              className="btn btn-text btn-danger"
             >
               移除
             </button>
           )}
         </div>
-        <p className="text-[13px] text-ash">JPG、PNG 或 WebP，會自動縮小。</p>
+        <p className="text-note text-ash">JPG、PNG 或 WebP，會自動縮小。</p>
         <input
           ref={inputRef}
           type="file"
@@ -145,16 +145,19 @@ function Switch({ name, checked, onChange, disabled, label, hint }: {
   hint?: string;
 }) {
   return (
-    <label className={`flex items-start justify-between gap-4 py-4 ${disabled ? "opacity-45" : "cursor-pointer"}`}>
-      <span>
-        <span className="block text-[16px]">{label}</span>
-        {hint && <span className="mt-0.5 block text-[13px] text-ash">{hint}</span>}
-      </span>
-      <input type="checkbox" name={name} checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} className="peer sr-only" />
-      <span
-        aria-hidden
-        className="relative mt-0.5 h-7 w-12 shrink-0 rounded-full bg-silver transition-colors peer-checked:bg-stone peer-focus-visible:outline-2 peer-focus-visible:outline-stone after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-5"
+    <label className={`flex items-start gap-4 py-5 ${disabled ? "opacity-40" : "cursor-pointer"}`}>
+      <input
+        type="checkbox"
+        name={name}
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+        className="checkbox mt-1"
       />
+      <span>
+        <span className="block text-body font-medium">{label}</span>
+        {hint && <span className="mt-1 block text-meta text-ash">{hint}</span>}
+      </span>
     </label>
   );
 }
@@ -183,18 +186,18 @@ export function PublicProfileForm({ initial }: { initial: PublicInitial }) {
   return (
     <form action={action} className="space-y-12">
       <section>
-        <h3 className="font-serif text-[22px] font-light">公開層級</h3>
-        <div className="mt-3 divide-y divide-hairline border-y border-hairline">
-          <Switch name="show_in_directory" checked={show} onChange={setShow} label="出現在系友園地" hint="總開關。下面三項都要先打開它。" />
+        <h3 className="h-section">公開層級</h3>
+        <div className="mt-5 divide-y divide-hairline border-y border-hairline">
+          <Switch name="show_in_directory" checked={show} onChange={setShow} label="出現在系友園地" hint="總開關，下面三項都要先打開它。" />
           <Switch name="accept_question" checked={show && question} onChange={setQuestion} disabled={!show} label="接受線上提問" hint="學生寫信給你，你回一封信。" />
-          <Switch name="accept_coffee" checked={show && coffee} onChange={setCoffee} disabled={!show} label="接受 Coffee Chat" hint="見面一次（實體或線上），學生會以 200 元內的實物致意。" />
-          <Switch name="willing_to_talk" checked={show && talk} onChange={setTalk} disabled={!show} label="願意回校分享" hint="個人頁會出現「想聽他回來分享 +1」，票數只有你和系上看得到。" />
+          <Switch name="accept_coffee" checked={show && coffee} onChange={setCoffee} disabled={!show} label="接受 Coffee Chat" hint="見面一次，實體或線上皆可。" />
+          <Switch name="willing_to_talk" checked={show && talk} onChange={setTalk} disabled={!show} label="願意回校分享" hint="票數只有你和系上看得到。" />
         </div>
-        <p className="mt-3 text-[13px] text-ash">接受聯絡的次數沒有上限；每一則邀請你都可以選擇婉拒。你的 email 不會出現在網站上。</p>
+        <p className="mt-3 text-note text-ash">你的 email 不會出現在網站上，每一則邀請都可以婉拒。</p>
       </section>
 
       <section className="space-y-5">
-        <h3 className="font-serif text-[22px] font-light">基本資料</h3>
+        <h3 className="h-section">基本資料</h3>
         <div className="grid gap-4 md:grid-cols-2">
           <label>
             <span className="field-label">職稱</span>
@@ -209,7 +212,7 @@ export function PublicProfileForm({ initial }: { initial: PublicInitial }) {
           <legend className="field-label">領域（最多 3 個）</legend>
           <div className="flex flex-wrap gap-2">
             {FIELD_CATEGORIES.map((f) => (
-              <button key={f} type="button" aria-pressed={fields.includes(f)} onClick={() => toggleField(f)} className="pill">
+              <button key={f} type="button" aria-pressed={fields.includes(f)} onClick={() => toggleField(f)} className="option">
                 {f}
               </button>
             ))}
@@ -221,13 +224,13 @@ export function PublicProfileForm({ initial }: { initial: PublicInitial }) {
       </section>
 
       <section>
-        <h3 className="font-serif text-[22px] font-light">欄位的公開範圍</h3>
-        <p className="mt-1 text-[14px] text-ash">姓名一律公開，其他欄位可以逐項選擇。</p>
+        <h3 className="h-section">欄位的公開範圍</h3>
+        <p className="mt-2 text-meta text-ash">姓名一律公開。</p>
         <div className="mt-4 divide-y divide-hairline border-y border-hairline">
           {VIS_ROWS.map((r) => (
             <div key={r.key} className="flex items-center justify-between gap-4 py-3">
-              <span className="text-[15px]">{r.label}</span>
-              <select name={`vis_${r.key}`} defaultValue={initial.vis[r.key] ?? r.options[0]} className="input !min-h-[40px] max-w-[180px] !py-1.5 text-[14px]">
+              <span className="text-meta">{r.label}</span>
+              <select name={`vis_${r.key}`} defaultValue={initial.vis[r.key] ?? r.options[0]} className="input max-w-[200px] text-meta">
                 {r.options.map((o) => (
                   <option key={o} value={o}>{VIS_LABEL[o]}</option>
                 ))}
@@ -239,7 +242,7 @@ export function PublicProfileForm({ initial }: { initial: PublicInitial }) {
 
       <div className="space-y-4">
         <FormMessage state={state} />
-        <SubmitButton className="btn btn-stone" pending="儲存中…">儲存公開設定</SubmitButton>
+        <SubmitButton className="btn btn-dark" pending="儲存中…">儲存公開設定</SubmitButton>
       </div>
     </form>
   );

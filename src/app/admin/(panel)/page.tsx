@@ -72,7 +72,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
         </Link>
       </div>
 
-      <h2 className="mb-4 mt-12 font-serif text-[22px] font-light">提問與咖啡 KPI</h2>
+      <h2 className="mb-4 mt-12 h-section">提問與咖啡 KPI</h2>
       {kpis.length ? (
         <Table>
           <thead>
@@ -99,11 +99,11 @@ export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
           </tbody>
         </Table>
       ) : (
-        <p className="text-[14px] text-ash">還沒有任何提問或咖啡邀請。</p>
+        <p className="text-meta text-ash">還沒有任何提問或咖啡邀請。</p>
       )}
-      <p className="mt-2 text-[12px] text-ash">接受率＝已接受（含已完成）÷ 已有結果的申請（不含待回應）。</p>
+      <p className="mt-2 text-note text-ash">接受率＝已接受（含已完成）÷ 已有結果的申請（不含待回應）。</p>
 
-      <h2 className="mb-4 mt-12 font-serif text-[22px] font-light">職涯羅盤與 AI</h2>
+      <h2 className="mb-4 mt-12 h-section">職涯羅盤與 AI</h2>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="量表完成次數" value={compass?.cddq ?? 0} sub={`使用人數 ${compass?.users ?? 0}`} />
         <Stat label="AI 對談" value={aiCount?.n ?? 0} sub={`完成報告 ${compass?.ai ?? 0}`} />
@@ -114,7 +114,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
           sub={`${AVAIL[availability]}`}
         />
       </div>
-      <p className="mt-3 text-[13px] text-ash">
+      <p className="mt-3 text-note text-ash">
         宣傳期：{fmtDate(cfg.promoStart)} – {fmtDate(cfg.promoEnd)} · 每次最多 {cfg.maxTurns} 輪 · 模型 {cfg.model}
         {cfg.mock && " · 開發模式（示範回覆）"}
       </p>

@@ -24,7 +24,7 @@ export function ResetForm({ token }: { token: string }) {
         <p className="field-hint">至少 {PASSWORD_MIN} 個字元。設定後，其他裝置上的登入會被登出。</p>
       </div>
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-stone w-full" pending="更新中…">更新密碼</SubmitButton>
+      <SubmitButton className="btn btn-dark w-full" pending="更新中…">更新密碼</SubmitButton>
     </form>
   );
 }

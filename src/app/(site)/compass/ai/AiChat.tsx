@@ -71,8 +71,8 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
         {messages.map((m, i) => (
           <div key={i} className={m.role === "user" ? "flex justify-end" : "flex"}>
             <div
-              className={`max-w-[88%] whitespace-pre-line rounded-[22px] px-5 py-3.5 text-[16px] leading-[1.75] md:max-w-[80%] ${
-                m.role === "user" ? "rounded-br-md bg-stone text-white" : "rounded-bl-md bg-surface text-ink"
+              className={`max-w-[88%] whitespace-pre-line px-5 py-4 text-body md:max-w-[80%] ${
+                m.role === "user" ? "bg-ink text-white" : "border border-hairline bg-surface text-ink"
               }`}
             >
               {m.content}
@@ -81,10 +81,10 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
         ))}
         {sending && (
           <div className="flex">
-            <div className="rounded-[22px] rounded-bl-md bg-surface px-5 py-4" aria-label="AI 正在回覆">
+            <div className="border border-hairline bg-surface px-5 py-5" aria-label="AI 正在回覆">
               <span className="inline-flex gap-1.5">
                 {[0, 1, 2].map((d) => (
-                  <span key={d} className="h-2 w-2 animate-pulse rounded-full bg-mute" style={{ animationDelay: `${d * 160}ms` }} />
+                  <span key={d} className="h-1.5 w-1.5 animate-pulse bg-mute" style={{ animationDelay: `${d * 160}ms` }} />
                 ))}
               </span>
             </div>
@@ -96,7 +96,7 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
       <div className="sticky bottom-0 mt-8 bg-canvas pb-4 pt-3">
         {error && <p className="notice notice-error mb-3" role="alert">{error}</p>}
         {turnsLeft > 0 ? (
-          <div className="flex items-end gap-2 rounded-[24px] border border-hairline bg-surface p-2 pl-4 focus-within:border-stone">
+          <div className="flex items-end gap-2 border border-line bg-surface p-2 pl-4 focus-within:border-ink">
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -110,22 +110,22 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
               maxLength={1000}
               placeholder="想到什麼就說什麼…"
               aria-label="你的訊息"
-              className="max-h-40 flex-1 resize-none bg-transparent py-2 text-[16px] outline-none"
+              className="max-h-40 flex-1 resize-none bg-transparent py-2 text-body outline-none"
             />
-            <button type="button" onClick={send} disabled={sending || !draft.trim()} className="btn btn-stone btn-sm shrink-0">
+            <button type="button" onClick={send} disabled={sending || !draft.trim()} className="btn btn-dark btn-sm shrink-0">
               送出
             </button>
           </div>
         ) : (
-          <p className="notice">這次對談的 {maxTurns} 輪已經用完了，按下面的按鈕產生你的報告。</p>
+          <p className="notice">{maxTurns} 輪已用完，請產生報告。</p>
         )}
-        <div className="mt-3 flex items-center justify-between gap-4 text-[13px] text-ash">
-          <span>還可以說 {turnsLeft} 次（共 {maxTurns} 輪）</span>
+        <div className="mt-3 flex items-center justify-between gap-4 text-note text-ash">
+          <span>剩 {turnsLeft} 輪（共 {maxTurns} 輪）</span>
           <button
             type="button"
             onClick={finish}
             disabled={finishing || sending || userTurns < 2}
-            className={`btn btn-sm ${turnsLeft === 0 ? "btn-stone" : "btn-outline"}`}
+            className={`btn btn-sm ${turnsLeft === 0 ? "btn-dark" : "btn-outline"}`}
           >
             {finishing ? "產生報告中…" : "結束並產生報告"}
           </button>

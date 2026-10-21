@@ -8,7 +8,7 @@ export function CreateAdminForm() {
   const [state, action] = useActionState(createAdminAccount, undefined);
   return (
     <form action={action} className="card space-y-4 p-6">
-      <h2 className="font-serif text-[20px] font-light">新增後台帳號</h2>
+      <h2 className="h-section">新增後台帳號</h2>
       <div className="grid gap-4 md:grid-cols-2">
         <label>
           <span className="field-label">Email</span>
@@ -31,7 +31,7 @@ export function CreateAdminForm() {
         </label>
       </div>
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-stone" pending="建立中…">建立帳號</SubmitButton>
+      <SubmitButton className="btn btn-dark" pending="建立中…">建立帳號</SubmitButton>
     </form>
   );
 }
@@ -41,7 +41,7 @@ export function ResetPasswordForm({ id }: { id: string }) {
   return (
     <form action={action} className="mt-2 flex flex-wrap items-center gap-2">
       <input type="hidden" name="id" value={id} />
-      <input name="password" type="password" required minLength={12} placeholder="新密碼" className="input !min-h-[36px] w-44 !py-1 text-[13px]" autoComplete="new-password" />
+      <input name="password" type="password" required minLength={12} placeholder="新密碼" className="input !min-h-[36px] w-44 !py-1 text-note" autoComplete="new-password" />
       <SubmitButton className="btn btn-outline btn-sm" pending="…">重設</SubmitButton>
       <FormMessage state={state} />
     </form>

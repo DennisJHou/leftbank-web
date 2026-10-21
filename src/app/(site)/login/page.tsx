@@ -12,7 +12,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   if (await getCurrentUser()) redirect(nextPath ?? "/me");
   return (
     <AuthShell
-      title="歡迎回來"
+      title="登入"
       lead={
         <>
           還沒有帳號？{" "}

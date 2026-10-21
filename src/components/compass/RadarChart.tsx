@@ -32,9 +32,9 @@ export function RadarChart({ axes, previousLabel }: { axes: RadarAxis[]; previou
   return (
     <figure>
       {hasPrev && (
-        <figcaption className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-stone">
+        <figcaption className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-note text-ash">
           <span className="inline-flex items-center gap-2">
-            <span className="h-[3px] w-5 rounded-full" style={{ background: CURRENT }} /> 這一次
+            <span className="h-[3px] w-5" style={{ background: CURRENT }} /> 這一次
           </span>
           <span className="inline-flex items-center gap-2">
             <svg width="20" height="4" aria-hidden>
@@ -47,7 +47,7 @@ export function RadarChart({ axes, previousLabel }: { axes: RadarAxis[]; previou
       <div className="relative">
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="十個面向的生涯決策困難程度雷達圖，詳細數字見下方表格">
           {/* 「明顯卡關」區域：最外圈淡淡上色 */}
-          <circle cx={CX} cy={CY} r={R} fill="#f3e6cc" opacity="0.55" />
+          <circle cx={CX} cy={CY} r={R} fill="#f1e9d2" />
           <circle cx={CX} cy={CY} r={((6.33 - MIN) / (MAX - MIN)) * R} fill="#ffffff" />
           {rings.map((v) => (
             <circle key={v} cx={CX} cy={CY} r={((v - MIN) / (MAX - MIN)) * R} fill="none" stroke="#e1dcd3" strokeWidth="1" />
@@ -84,7 +84,8 @@ export function RadarChart({ axes, previousLabel }: { axes: RadarAxis[]; previou
                 y={y}
                 textAnchor={anchor}
                 dominantBaseline="middle"
-                className={`text-[17px] ${hover === i ? "fill-ink font-medium" : "fill-[#4a4741]"}`}
+                fontSize={17}
+                className={hover === i ? "fill-ink-strong font-medium" : "fill-ink"}
               >
                 {a.label}
               </text>
@@ -113,14 +114,14 @@ export function RadarChart({ axes, previousLabel }: { axes: RadarAxis[]; previou
         )}
       </div>
 
-      <details className="mt-4 text-[14px]">
-        <summary className="cursor-pointer text-stone">看數字</summary>
+      <details className="mt-4 text-meta">
+        <summary className="cursor-pointer text-ash hover:text-ink">查看數字</summary>
         <table className="mt-3 w-full text-left">
           <thead>
-            <tr className="border-b border-hairline text-[12px] font-bold uppercase tracking-wider text-ash">
-              <th className="py-2 font-bold">面向</th>
-              <th className="py-2 text-right font-bold">這一次</th>
-              {hasPrev && <th className="py-2 text-right font-bold">上一次</th>}
+            <tr className="border-b border-hairline text-note text-ash">
+              <th className="py-2 font-medium">面向</th>
+              <th className="py-2 text-right font-medium">這一次</th>
+              {hasPrev && <th className="py-2 text-right font-medium">上一次</th>}
             </tr>
           </thead>
           <tbody>
@@ -133,7 +134,7 @@ export function RadarChart({ axes, previousLabel }: { axes: RadarAxis[]; previou
             ))}
           </tbody>
         </table>
-        <p className="mt-2 text-[12px] text-ash">分數 1–9，越高代表在這個面向越卡關。6.33 以上為明顯卡關（外圈底色）。</p>
+        <p className="mt-2 text-note text-ash">分數 1–9，越高代表越卡關；6.33 以上為明顯卡關（外圈底色）。</p>
       </details>
     </figure>
   );
@@ -144,7 +145,7 @@ function Tooltip({ axis, pos }: { axis: RadarAxis; pos: readonly [number, number
   const top = `${(pos[1] / H) * 100}%`;
   return (
     <div
-      className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+14px)] whitespace-nowrap rounded-[12px] bg-ink-band px-3 py-2 text-[13px] text-white shadow-[var(--shadow-float)]"
+      className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+14px)] whitespace-nowrap bg-ink-band px-3 py-2 text-note text-white shadow-[var(--shadow-float)]"
       style={{ left, top }}
       role="status"
     >

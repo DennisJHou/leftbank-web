@@ -21,16 +21,16 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <div className="flex items-center justify-between md:block">
           <div className="flex items-center gap-2 text-stone">
             <LogoMark className="h-6 w-6" />
-            <span className="font-serif text-[16px] tracking-[0.1em]">左岸 · 後台</span>
+            <span className="font-serif text-body tracking-[0.1em]">左岸 · 後台</span>
           </div>
           <form action={adminLogoutAction} className="md:hidden">
-            <button className="text-[13px] text-ash">登出</button>
+            <button className="text-note text-ash">登出</button>
           </form>
         </div>
         <div className="mt-5 md:mt-8">
           <AdminNav items={items} />
         </div>
-        <div className="mt-8 hidden border-t border-hairline pt-5 text-[13px] md:block">
+        <div className="mt-8 hidden border-t border-hairline pt-5 text-note md:block">
           <p className="truncate text-stone">{admin.name || admin.email}</p>
           <p className="text-ash">{admin.level === "super" ? "超級管理員" : "管理員"}</p>
           <form action={adminLogoutAction}>

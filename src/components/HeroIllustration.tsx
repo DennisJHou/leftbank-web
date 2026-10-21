@@ -1,72 +1,66 @@
-/** 預設主視覺：塞納河左岸的抽象插畫（後台可以換成照片） */
+/** 預設主視覺：黃昏時分的塞納河左岸咖啡館（後台可以換成照片）。色調偏暗，讓上面的白字清楚。 */
 export function HeroIllustration({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 1600 700" preserveAspectRatio="xMinYMid slice" className={className} role="img" aria-label="河岸邊的咖啡館與山丘插畫">
+    <svg viewBox="0 0 1600 760" preserveAspectRatio="xMinYMid slice" className={className} role="img" aria-label="黃昏時河岸邊亮著燈的咖啡館">
       <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#efe2cd" />
-          <stop offset="1" stopColor="#f6eee2" />
+        <linearGradient id="dusk-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#2a211c" />
+          <stop offset="0.65" stopColor="#5a4130" />
+          <stop offset="1" stopColor="#7a5636" />
         </linearGradient>
-        <linearGradient id="river" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#e6cf9f" />
-          <stop offset="1" stopColor="#ddbe78" />
+        <linearGradient id="dusk-river" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#7c5a35" />
+          <stop offset="1" stopColor="#4a3524" />
         </linearGradient>
+        <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#ddbe78" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#ddbe78" stopOpacity="0" />
+        </radialGradient>
       </defs>
-      <rect width="1600" height="700" fill="url(#sky)" />
-      <circle cx="1190" cy="235" r="112" fill="#ddaa61" opacity="0.85" />
-      <g fill="none" stroke="#6b443d" strokeWidth="3" strokeLinecap="round" opacity="0.55">
-        <path d="M420 170l14 10 14-10" />
-        <path d="M468 140l10 7 10-7" />
-        <path d="M980 120l12 8 12-8" />
-      </g>
-      {/* 遠山 */}
-      <path d="M0 400 C 180 320 320 300 470 345 S 760 300 900 330 S 1200 280 1360 320 S 1540 330 1600 310 V700 H0Z" fill="#ced4b8" />
-      {/* 中景丘陵 */}
-      <path d="M0 450 C 160 400 300 410 430 430 S 700 380 860 410 S 1150 400 1300 380 S 1520 400 1600 390 V700 H0Z" fill="#849671" />
+      <rect width="1600" height="760" fill="url(#dusk-sky)" />
+      <rect y="600" width="1600" height="160" fill="#3f2d1f" />
+      <g transform="translate(0 -170)">
+      <circle cx="1180" cy="400" r="120" fill="#c98f45" opacity="0.55" />
+      {/* 遠山、中景 */}
+      <path d="M0 420 C 180 350 320 330 470 370 S 760 330 900 355 S 1200 310 1360 345 S 1540 355 1600 335 V940 H0Z" fill="#4b4434" />
+      <path d="M0 470 C 160 425 300 435 430 455 S 700 410 860 435 S 1150 425 1300 405 S 1520 425 1600 415 V940 H0Z" fill="#363a2c" />
       {/* 河 */}
-      <path d="M0 520 C 300 470 520 500 760 480 S 1240 450 1600 470 V700 H0Z" fill="url(#river)" />
-      <g fill="none" stroke="#f7f1e8" strokeWidth="4" strokeLinecap="round" opacity="0.8">
-        <path d="M760 545 c 40 -10 80 -10 120 0" />
-        <path d="M1010 515 c 50 -10 90 -10 140 0" />
-        <path d="M1240 560 c 40 -8 80 -8 120 0" />
-        <path d="M860 610 c 50 -10 100 -10 150 0" />
+      <path d="M0 545 C 300 495 520 525 760 505 S 1240 475 1600 495 V940 H0Z" fill="url(#dusk-river)" />
+      <g fill="none" stroke="#ddbe78" strokeWidth="3" strokeLinecap="round" opacity="0.45">
+        <path d="M760 570 c 40 -8 80 -8 120 0" />
+        <path d="M1010 540 c 50 -8 90 -8 140 0" />
+        <path d="M1240 585 c 40 -6 80 -6 120 0" />
+        <path d="M300 640 c 50 -8 100 -8 150 0" />
       </g>
-      {/* 右岸 */}
-      <path d="M1100 700 C 1250 640 1420 620 1600 615 V700Z" fill="#bc924c" opacity="0.7" />
       {/* 左岸 */}
-      <path d="M0 470 C 160 470 330 500 470 560 S 640 660 720 700 H0Z" fill="#5c6f5d" />
-      <path d="M0 560 C 140 560 300 600 420 660 L 470 700 H0Z" fill="#224228" opacity="0.9" />
-      {/* 咖啡館 */}
-      <g transform="translate(200 395)">
-        <rect x="0" y="40" width="150" height="110" fill="#6b443d" />
-        <path d="M-12 40 L75 -10 L162 40Z" fill="#39221e" />
-        <g>
-          {[0, 1, 2, 3, 4].map((i) => (
-            <rect key={i} x={-6 + i * 32.4} y="64" width="16.2" height="18" fill={i % 2 ? "#f7f1e8" : "#af751b"} />
-          ))}
-          {[0, 1, 2, 3, 4].map((i) => (
-            <rect key={`b${i}`} x={10.2 + i * 32.4} y="64" width="16.2" height="18" fill={i % 2 ? "#af751b" : "#f7f1e8"} />
-          ))}
-        </g>
-        <rect x="20" y="96" width="34" height="54" fill="#ddbe78" />
-        <rect x="88" y="96" width="40" height="30" fill="#ddbe78" />
-        <rect x="88" y="96" width="40" height="30" fill="none" stroke="#39221e" strokeWidth="3" />
+      <path d="M0 495 C 160 495 330 525 470 585 S 640 685 720 760 L 760 940 H0Z" fill="#262b20" />
+      <path d="M0 590 C 140 590 300 630 420 690 L 470 760 L 500 940 H0Z" fill="#1b1f17" />
+      {/* 咖啡館，窗內亮燈 */}
+      <ellipse cx="275" cy="500" rx="190" ry="120" fill="url(#glow)" />
+      <g transform="translate(200 420)">
+        <rect x="0" y="40" width="150" height="110" fill="#4a2f29" />
+        <path d="M-12 40 L75 -10 L162 40Z" fill="#241612" />
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+          <rect key={i} x={-6 + i * 16.2} y="64" width="16.2" height="16" fill={i % 2 ? "#e9dcc0" : "#8f5f22"} />
+        ))}
+        <rect x="20" y="96" width="34" height="54" fill="#e7c77f" />
+        <rect x="88" y="96" width="40" height="30" fill="#e7c77f" />
+        <rect x="88" y="96" width="40" height="30" fill="none" stroke="#241612" strokeWidth="3" />
       </g>
       {/* 樹 */}
-      <g>
-        <rect x="402" y="430" width="8" height="70" fill="#39221e" />
-        <circle cx="406" cy="420" r="42" fill="#224228" />
-        <rect x="96" y="440" width="7" height="60" fill="#39221e" />
-        <circle cx="99" cy="430" r="34" fill="#224228" opacity="0.92" />
-      </g>
+      <rect x="402" y="455" width="8" height="70" fill="#151510" />
+      <circle cx="406" cy="445" r="42" fill="#1f2a1c" />
+      <rect x="96" y="465" width="7" height="60" fill="#151510" />
+      <circle cx="99" cy="455" r="34" fill="#1f2a1c" />
       {/* 咖啡桌與兩張椅子：對話 */}
-      <g transform="translate(470 545)" fill="#39221e">
+      <g transform="translate(470 570)" fill="#120d0b">
         <rect x="-3" y="0" width="6" height="34" />
         <ellipse cx="0" cy="0" rx="26" ry="6" />
         <rect x="-50" y="12" width="5" height="24" />
         <rect x="-58" y="8" width="20" height="5" />
         <rect x="45" y="12" width="5" height="24" />
         <rect x="38" y="8" width="20" height="5" />
+      </g>
       </g>
     </svg>
   );

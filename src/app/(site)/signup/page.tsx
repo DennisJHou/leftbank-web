@@ -10,7 +10,7 @@ export default async function SignupPage() {
   if (await getCurrentUser()) redirect("/me");
   return (
     <AuthShell
-      title="加入左岸"
+      title="註冊"
       lead={
         <>
           已經有帳號了？ <Link href="/login" className="link">登入</Link>

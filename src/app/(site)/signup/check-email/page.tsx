@@ -17,7 +17,7 @@ export default async function CheckEmailPage({ searchParams }: PageProps<"/signu
       }
     >
       <div className="space-y-6">
-        <p className="text-[15px] leading-relaxed text-stone">
+        <p className="text-meta leading-relaxed text-stone">
           沒收到嗎？請看一下垃圾郵件匣，或重新寄送一次。
         </p>
         <ResendForm email={addr} />

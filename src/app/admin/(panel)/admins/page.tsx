@@ -44,16 +44,16 @@ export default async function AdminsPage() {
               <tr key={a.id}>
                 <Td>
                   <p className="font-medium">{a.name}</p>
-                  <p className="text-[13px] text-ash">{a.email}</p>
-                  {a.locked && <p className="mt-1 text-[12px] text-error">登入失敗過多，鎖定中</p>}
+                  <p className="text-note text-ash">{a.email}</p>
+                  {a.locked && <p className="mt-1 text-note text-error">登入失敗過多，鎖定中</p>}
                   {!isEnv && a.has_password && a.id !== me.id && <ResetPasswordForm id={a.id} />}
                 </Td>
                 <Td>
                   {a.level === "super" ? "超級管理員" : "管理員"}
-                  {isEnv && <span className="chip ml-2">環境變數</span>}
-                  {a.id === me.id && <span className="chip ml-2">你</span>}
+                  {isEnv && <span className="tag ml-2">環境變數</span>}
+                  {a.id === me.id && <span className="tag ml-2">你</span>}
                 </Td>
-                <Td className="text-[13px] text-ash">{fmtDate(a.created_at)}</Td>
+                <Td className="text-note text-ash">{fmtDate(a.created_at)}</Td>
                 <Td>
                   <div className="flex justify-end gap-2">
                     {a.locked && <ConfirmButton action={unlockAdminAccount.bind(null, a.id)}>解除鎖定</ConfirmButton>}

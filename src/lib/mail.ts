@@ -65,24 +65,24 @@ const para = (s: string) => `<p style="margin:0 0 16px">${esc(s).replace(/\n/g, 
 
 function button(label: string, href: string, solid = true) {
   const style = solid
-    ? "background:#4a4741;color:#ffffff;border:1px solid #4a4741"
-    : "background:#ffffff;color:#4a4741;border:1px solid #4a4741";
-  return `<a href="${esc(href)}" style="${style};display:inline-block;padding:12px 22px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;margin:0 8px 8px 0">${esc(label)}</a>`;
+    ? "background:#333333;color:#ffffff;border:1px solid #333333"
+    : "background:#ffffff;color:#333333;border:1px solid #333333";
+  return `<a href="${esc(href)}" style="${style};display:inline-block;padding:14px 28px;border-radius:0;font-weight:500;font-size:15px;text-decoration:none;margin:0 8px 8px 0">${esc(label)}</a>`;
 }
 
 function layout(title: string, body: string) {
-  return `<!doctype html><html lang="zh-Hant"><body style="margin:0;background:#f7f1e8;padding:32px 16px;font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;color:#1c1b1a;font-size:16px;line-height:1.7">
-<div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e1dcd3;border-radius:24px;padding:32px">
-<div style="font-family:'Noto Serif TC',serif;font-size:14px;letter-spacing:2px;color:#4a4741;margin-bottom:24px">左岸計畫</div>
-<h1 style="font-family:'Noto Serif TC',serif;font-weight:300;font-size:26px;line-height:1.3;margin:0 0 20px">${esc(title)}</h1>
+  return `<!doctype html><html lang="zh-Hant"><body style="margin:0;background:#fffef2;padding:32px 16px;font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;color:#333333;font-size:16px;line-height:1.75">
+<div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e3e0d3;padding:36px">
+<div style="font-family:'Noto Serif TC',serif;font-size:16px;letter-spacing:3px;color:#333333;margin-bottom:28px">左岸計畫</div>
+<h1 style="font-family:'Noto Serif TC',serif;font-weight:400;font-size:26px;line-height:1.35;margin:0 0 20px;color:#1d1d1b">${esc(title)}</h1>
 ${body}
 </div>
-<p style="max-width:560px;margin:16px auto 0;color:#838280;font-size:13px;text-align:center">臺大心理系 · 左岸計畫｜這封信由網站自動寄出</p>
+<p style="max-width:560px;margin:16px auto 0;color:#5f5e58;font-size:14px;text-align:center">臺大心理系 · 左岸計畫｜這封信由網站自動寄出</p>
 </body></html>`;
 }
 
 function quoteBlock(inner: string) {
-  return `<div style="background:#f7f1e8;border-radius:12px;padding:16px 20px;margin:0 0 20px">${inner}</div>`;
+  return `<div style="background:#f5f3e4;padding:18px 20px;margin:0 0 20px">${inner}</div>`;
 }
 
 // ─── 各種信件 ──────────────────────────────────────────
@@ -150,8 +150,8 @@ function requestSummary(r: RequestMailData) {
       (r.availability ? `<p style="margin:0"><strong>方便的時段：</strong>${esc(r.availability)}</p>` : "");
   }
   return quoteBlock(
-    `<p style="margin:0 0 8px;color:#838280;font-size:13px">自我介紹</p>${para(r.intro)}` +
-      `<p style="margin:0 0 8px;color:#838280;font-size:13px">想請教的問題</p><ol style="margin:0 0 12px;padding-left:20px">${qs}</ol>` +
+    `<p style="margin:0 0 8px;color:#5f5e58;font-size:14px">自我介紹</p>${para(r.intro)}` +
+      `<p style="margin:0 0 8px;color:#5f5e58;font-size:14px">想請教的問題</p><ol style="margin:0 0 12px;padding-left:20px">${qs}</ol>` +
       extra,
   );
 }

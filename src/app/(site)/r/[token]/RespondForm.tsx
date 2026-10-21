@@ -15,7 +15,7 @@ export function RespondForm({ token, action }: { token: string; action: keyof ty
       <input type="hidden" name="action" value={action} />
       <FormMessage state={state} />
       {!state?.error && (
-        <SubmitButton className={`btn ${action === "decline" ? "btn-outline" : "btn-stone"}`} pending="處理中…">
+        <SubmitButton className={`btn ${action === "decline" ? "btn-outline" : "btn-dark"}`} pending="處理中…">
           確認：{LABELS[action]}
         </SubmitButton>
       )}

@@ -1,24 +1,26 @@
+import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { Logo } from "./Logo";
 import { NavLinks, UserMenu, MobileMenu } from "./NavClient";
 
+/** 導覽列：左 logo、中間主要連結、右側帳號（參考 Aesop） */
 export async function Nav() {
   const user = await getCurrentUser();
   const u = user ? { name: user.name, photo: user.photo_url } : null;
   return (
-    <header className="sticky top-0 z-40 bg-canvas/90 backdrop-blur supports-[backdrop-filter]:bg-canvas/80">
-      <div className="container-page flex h-16 items-center gap-4 md:h-20">
+    <header className="sticky top-0 z-40 border-b border-hairline bg-canvas">
+      <div className="container-page grid h-[72px] grid-cols-[1fr_auto] items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
         <Logo />
-        <div className="ml-auto flex items-center gap-2 md:gap-8">
-          <nav className="hidden md:block" aria-label="主要導覽">
-            <NavLinks />
-          </nav>
+        <nav className="hidden md:block" aria-label="主要導覽">
+          <NavLinks />
+        </nav>
+        <div className="flex items-center justify-end gap-3">
           {u ? (
             <UserMenu user={u} />
           ) : (
-            <a href="/login" className="btn btn-primary btn-sm md:min-h-[40px] md:px-5">
+            <Link href="/login" className="btn btn-primary btn-sm">
               註冊／登入
-            </a>
+            </Link>
           )}
           <MobileMenu />
         </div>

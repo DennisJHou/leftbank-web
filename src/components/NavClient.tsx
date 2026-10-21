@@ -16,7 +16,7 @@ const LINKS = [
 export function NavLinks({ vertical = false, onNavigate }: { vertical?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <ul className={vertical ? "flex flex-col" : "flex items-center gap-7"}>
+    <ul className={vertical ? "flex flex-col" : "flex items-center gap-10"}>
       {LINKS.map((l) => {
         const active = l.href !== "/#about" && pathname.startsWith(l.href);
         return (
@@ -27,8 +27,8 @@ export function NavLinks({ vertical = false, onNavigate }: { vertical?: boolean;
               aria-current={active ? "page" : undefined}
               className={
                 vertical
-                  ? "block border-b border-hairline py-4 font-serif text-2xl font-light text-ink"
-                  : `text-[15px] text-ink transition-colors hover:text-stone ${active ? "underline decoration-silver underline-offset-8" : ""}`
+                  ? "block border-b border-hairline py-5 font-serif text-section text-ink-strong"
+                  : `border-b py-1 text-meta font-medium text-ink transition-colors hover:border-ink ${active ? "border-ink" : "border-transparent"}`
               }
             >
               {l.label}
@@ -62,6 +62,7 @@ export function UserMenu({ user }: { user: { name: string; photo: string | null 
   useClickOutside(ref, () => setOpen(false));
   useEffect(() => setOpen(false), [pathname]);
 
+  const item = "block px-5 py-3 text-meta text-ink hover:bg-panel";
   return (
     <div className="relative" ref={ref}>
       <button
@@ -70,26 +71,17 @@ export function UserMenu({ user }: { user: { name: string; photo: string | null 
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="帳號選單"
-        className="flex h-11 w-11 items-center justify-center rounded-full"
+        className="flex h-11 w-11 items-center justify-center"
       >
-        <Avatar name={user.name} src={user.photo} size={38} />
+        <Avatar name={user.name} src={user.photo} size={36} />
       </button>
       {open && (
-        <div
-          role="menu"
-          className="absolute right-0 top-[52px] w-52 overflow-hidden rounded-[20px] border border-hairline bg-surface py-2 shadow-[var(--shadow-float)]"
-        >
-          <p className="truncate px-5 pb-2 pt-1 text-[13px] text-ash">{user.name}</p>
-          <Link role="menuitem" href="/me" className="block px-5 py-2.5 text-[15px] hover:bg-canvas">
-            我的帳號
-          </Link>
-          <Link role="menuitem" href="/me/story" className="block px-5 py-2.5 text-[15px] hover:bg-canvas">
-            留下你的故事
-          </Link>
+        <div role="menu" className="absolute right-0 top-[54px] w-56 border border-hairline bg-surface py-2 shadow-[var(--shadow-float)]">
+          <p className="truncate px-5 pb-2 pt-1 text-note text-ash">{user.name}</p>
+          <Link role="menuitem" href="/me" className={item}>我的帳號</Link>
+          <Link role="menuitem" href="/me/story" className={item}>留下你的故事</Link>
           <form action={logout}>
-            <button role="menuitem" className="block w-full px-5 py-2.5 text-left text-[15px] text-stone hover:bg-canvas">
-              登出
-            </button>
+            <button role="menuitem" className={`${item} w-full text-left`}>登出</button>
           </form>
         </div>
       )}
@@ -115,20 +107,16 @@ export function MobileMenu() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-label={open ? "關閉選單" : "開啟選單"}
-        className="flex h-11 w-11 items-center justify-center rounded-full text-stone"
+        className="flex h-11 w-11 items-center justify-center text-ink"
       >
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-          {open ? (
-            <path d="M5 5l12 12M17 5L5 17" strokeLinecap="round" />
-          ) : (
-            <path d="M3 7h16M3 15h16" strokeLinecap="round" />
-          )}
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+          {open ? <path d="M5 5l12 12M17 5L5 17" /> : <path d="M3 7h16M3 15h16" />}
         </svg>
       </button>
-      {/* 用 portal 掛到 body：header 的 backdrop-filter 會讓 fixed 定位失效 */}
+      {/* 掛到 body，避免受 header 影響定位 */}
       {open &&
         createPortal(
-          <div className="fixed inset-x-0 bottom-0 top-16 z-30 bg-canvas px-4 pt-2 md:hidden">
+          <div className="fixed inset-x-0 bottom-0 top-[73px] z-30 bg-canvas px-5 pt-2 md:hidden">
             <NavLinks vertical onNavigate={() => setOpen(false)} />
           </div>,
           document.body,

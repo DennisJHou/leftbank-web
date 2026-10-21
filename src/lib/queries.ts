@@ -141,6 +141,14 @@ export type DirectoryFilters = {
   talk?: boolean;
 };
 
+/** 系友園地目前有幾位（不含篩選），用來決定是否顯示「資料建置中」 */
+export async function countDirectory() {
+  const row = await one<{ n: number }>(
+    `select count(*)::int as n from alumni_profiles p join users u on u.id = p.user_id where ${LISTABLE_SQL}`,
+  );
+  return row?.n ?? 0;
+}
+
 export async function listDirectory(f: DirectoryFilters, loggedIn: boolean) {
   const where: string[] = [LISTABLE_SQL];
   const params: unknown[] = [];
