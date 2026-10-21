@@ -64,6 +64,7 @@ export function SignupForm() {
               key={it.value}
               type="button"
               aria-pressed={identity === it.value}
+              aria-label={`${it.label}（${it.hint}）`}
               onClick={() => choose(it.value)}
               className={`rounded-[16px] border px-3 py-3 text-left transition-colors ${
                 identity === it.value ? "border-stone bg-stone text-white" : "border-hairline bg-surface text-ink"

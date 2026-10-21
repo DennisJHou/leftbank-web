@@ -7,7 +7,7 @@ import { getCurrentUser, requireUser } from "@/lib/auth";
 import { hashPassword, verifyPassword } from "@/lib/crypto";
 import { FIELD_CATEGORIES, PASSWORD_MIN } from "@/lib/constants";
 import { parseEducationForm, validateEducationForIdentity } from "@/lib/education-form";
-import { deleteImage, saveImage, validateImage } from "@/lib/storage";
+import { deleteImage, InvalidImageError, saveImage, validateImage } from "@/lib/storage";
 import { refreshProfileTags } from "@/lib/recommend";
 import type { FormState } from "./auth";
 
@@ -104,7 +104,13 @@ export async function uploadPhoto(_: FormState, fd: FormData): Promise<FormState
   const file = fd.get("photo") as File | null;
   const err = validateImage(file);
   if (err) return { error: err };
-  const url = await saveImage(file!, "photos");
+  let url: string;
+  try {
+    url = await saveImage(file!, "photos");
+  } catch (e) {
+    if (e instanceof InvalidImageError) return { error: e.message };
+    throw e;
+  }
   const old = await one<{ photo_url: string | null }>("select photo_url from alumni_profiles where user_id = $1", [user.id]);
   await query(
     `insert into alumni_profiles (user_id, photo_url) values ($1, $2)

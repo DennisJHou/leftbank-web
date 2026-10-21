@@ -20,6 +20,12 @@ function supabase() {
   return url && key ? { url, key, bucket } : null;
 }
 
+export class InvalidImageError extends Error {
+  constructor() {
+    super("不是有效的圖片檔。");
+  }
+}
+
 export function validateImage(file: File | null): string | null {
   if (!file || file.size === 0) return "請選擇一張圖片。";
   if (!TYPES[file.type]) return "只接受 JPG、PNG 或 WebP 圖片。";
@@ -27,10 +33,20 @@ export function validateImage(file: File | null): string | null {
   return null;
 }
 
+/** 依檔案開頭的位元組判斷真正的格式（不相信瀏覽器宣稱的 MIME type） */
+function sniff(bytes: Buffer): keyof typeof TYPES | null {
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";
+  if (bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+  if (bytes.subarray(0, 4).toString("ascii") === "RIFF" && bytes.subarray(8, 12).toString("ascii") === "WEBP") return "image/webp";
+  return null;
+}
+
 export async function saveImage(file: File, folder: "photos" | "hero"): Promise<string> {
-  const ext = TYPES[file.type];
-  const key = `${folder}/${Date.now()}-${randomToken(9)}.${ext}`;
   const bytes = Buffer.from(await file.arrayBuffer());
+  const type = sniff(bytes);
+  if (!type) throw new InvalidImageError();
+  const ext = TYPES[type];
+  const key = `${folder}/${Date.now()}-${randomToken(9)}.${ext}`;
   const sb = supabase();
   if (sb) {
     const res = await fetch(`${sb.url}/storage/v1/object/${sb.bucket}/${key}`, {
@@ -38,7 +54,7 @@ export async function saveImage(file: File, folder: "photos" | "hero"): Promise<
       headers: {
         Authorization: `Bearer ${sb.key}`,
         apikey: sb.key,
-        "Content-Type": file.type,
+        "Content-Type": type,
         "Cache-Control": "31536000",
       },
       body: bytes,

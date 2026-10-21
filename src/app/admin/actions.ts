@@ -8,7 +8,7 @@ import { hashPassword } from "@/lib/crypto";
 import { destroyAllSessions } from "@/lib/auth";
 import { accountApprovedEmail } from "@/lib/mail";
 import { runDailyJobs } from "@/lib/cron";
-import { deleteImage, saveImage, validateImage } from "@/lib/storage";
+import { deleteImage, InvalidImageError, saveImage, validateImage } from "@/lib/storage";
 import { DEFAULT_SITE_CONTENT } from "@/lib/site-content-defaults";
 import { PASSWORD_MIN } from "@/lib/constants";
 import type { FormState } from "@/app/actions/auth";
@@ -99,7 +99,13 @@ export async function uploadHeroImage(_: FormState, fd: FormData): Promise<FormS
   const file = fd.get("image") as File | null;
   const err = validateImage(file);
   if (err) return { error: err };
-  const url = await saveImage(file!, "hero");
+  let url: string;
+  try {
+    url = await saveImage(file!, "hero");
+  } catch (e) {
+    if (e instanceof InvalidImageError) return { error: e.message };
+    throw e;
+  }
   const old = await one<{ value: string }>("select value from site_content where key = 'hero.image'");
   await query(
     `insert into site_content (key, value, updated_at) values ('hero.image', $1, now())

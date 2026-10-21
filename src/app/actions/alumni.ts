@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { randomToken } from "@/lib/crypto";
 import { activeRequest, getPublicProfile } from "@/lib/queries";
 import { newRequestEmail, requestSentEmail } from "@/lib/mail";
-import { INTRO_MAX, INTRO_MIN, QUESTION_MAX, type ContactType } from "@/lib/constants";
+import { DAILY_REQUEST_LIMIT, INTRO_MAX, INTRO_MIN, QUESTION_MAX, type ContactType } from "@/lib/constants";
 import type { FormState } from "./auth";
 
 /** 「想聽他回來分享 +1」：每人對每位系友一票，可以收回 */
@@ -49,6 +49,13 @@ export async function sendContactRequest(_: FormState, fd: FormData): Promise<Fo
   }
   if (await activeRequest(user.id, alumniId)) {
     return { error: "你對這位系友已經有一筆進行中的申請，請等他回覆後再提出。" };
+  }
+  const recent = await one<{ n: number }>(
+    "select count(*)::int as n from contact_requests where from_user = $1 and created_at > now() - interval '24 hours'",
+    [user.id],
+  );
+  if ((recent?.n ?? 0) >= DAILY_REQUEST_LIMIT) {
+    return { error: `24 小時內最多送出 ${DAILY_REQUEST_LIMIT} 則邀請，請明天再試。先好好準備手上的這幾場對話吧！` };
   }
 
   const intro = String(fd.get("intro") ?? "").trim();

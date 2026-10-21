@@ -59,3 +59,6 @@ export const PASSWORD_MIN = 8;
 export const INTRO_MIN = 30;
 export const INTRO_MAX = 800;
 export const QUESTION_MAX = 300;
+
+/** 每位學生 24 小時內最多送出幾則提問／咖啡邀請（避免大量寄信打擾系友） */
+export const DAILY_REQUEST_LIMIT = 5;
