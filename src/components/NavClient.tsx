@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Avatar } from "./Avatar";
 import { logout } from "@/app/actions/auth";
 
@@ -124,11 +125,14 @@ export function MobileMenu() {
           )}
         </svg>
       </button>
-      {open && (
-        <div className="fixed inset-x-0 bottom-0 top-16 z-30 bg-canvas px-4 pt-2">
-          <NavLinks vertical onNavigate={() => setOpen(false)} />
-        </div>
-      )}
+      {/* 用 portal 掛到 body：header 的 backdrop-filter 會讓 fixed 定位失效 */}
+      {open &&
+        createPortal(
+          <div className="fixed inset-x-0 bottom-0 top-16 z-30 bg-canvas px-4 pt-2 md:hidden">
+            <NavLinks vertical onNavigate={() => setOpen(false)} />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

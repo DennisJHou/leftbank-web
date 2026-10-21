@@ -63,24 +63,24 @@
   }
 }
 
-@layer components {
-  .container-page {
-    width: 100%;
-    max-width: 1200px;
-    margin-inline: auto;
-    padding-inline: 16px;
-  }
+/* 版心（用 @utility 定義，才能搭配 md: 等變體） */
+@utility container-page {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 16px;
   @media (min-width: 768px) {
-    .container-page {
-      padding-inline: 32px;
-    }
+    padding-inline: 32px;
   }
-  .container-narrow {
-    width: 100%;
-    max-width: 720px;
-    margin-inline: auto;
-    padding-inline: 16px;
-  }
+}
+@utility container-narrow {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+@layer components {
 
   /* 標題：細字重襯線 */
   .display {
@@ -88,6 +88,7 @@
     font-weight: 300;
     line-height: 1.12;
     letter-spacing: 0.01em;
+    text-wrap: balance;
   }
   .eyebrow {
     font-size: 12px;
@@ -276,6 +277,7 @@
 /* 手機版橫向滑動，不自動輪播 */
 .snap-row {
   scroll-snap-type: x mandatory;
+  scroll-padding-inline: 16px;
   scrollbar-width: none;
 }
 .snap-row::-webkit-scrollbar {

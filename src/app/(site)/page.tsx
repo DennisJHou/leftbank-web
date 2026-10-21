@@ -16,7 +16,7 @@ export default async function HomePage() {
       {/* 主視覺 */}
       <section className="container-page pt-10 md:pt-16">
         <p className="eyebrow text-stone">{c["hero.eyebrow"]}</p>
-        <h1 className="display mt-5 whitespace-pre-line text-[40px] leading-[1.18] md:text-[72px] md:leading-[1.1] lg:text-[84px]">
+        <h1 className="display mt-5 whitespace-pre-line text-[34px] leading-[1.25] sm:text-[44px] md:text-[72px] md:leading-[1.1] lg:text-[84px]">
           {c["hero.tagline"]}
         </h1>
         <div className="mt-7 flex flex-col gap-6 md:mt-9 md:flex-row md:items-end md:justify-between">

@@ -1,7 +1,7 @@
 /** 預設主視覺：塞納河左岸的抽象插畫（後台可以換成照片） */
 export function HeroIllustration({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 1600 700" preserveAspectRatio="xMidYMid slice" className={className} role="img" aria-label="河岸邊的咖啡館與山丘插畫">
+    <svg viewBox="0 0 1600 700" preserveAspectRatio="xMinYMid slice" className={className} role="img" aria-label="河岸邊的咖啡館與山丘插畫">
       <defs>
         <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#efe2cd" />
