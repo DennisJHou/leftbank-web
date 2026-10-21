@@ -64,6 +64,15 @@ async function connectPostgres(url: string): Promise<Db> {
     idle_timeout: 20,
     ssl: local ? false : "require",
     onnotice: () => {},
+    types: {
+      // 程式一律以 JSON.stringify(...) 傳入 jsonb 參數；已經是字串就原樣送出，避免被重複編碼成 JSON 字串
+      json: {
+        to: 114,
+        from: [114, 3802],
+        serialize: (x: unknown) => (typeof x === "string" ? x : JSON.stringify(x)),
+        parse: (x: string) => JSON.parse(x),
+      },
+    },
   });
 
   const wrap = (s: Sql | TransactionSql): Db => ({
