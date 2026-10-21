@@ -240,6 +240,7 @@
   .chip {
     display: inline-flex;
     align-items: center;
+    white-space: nowrap;
     padding: 3px 10px;
     border-radius: 9999px;
     background: rgb(74 71 65 / 0.07);
