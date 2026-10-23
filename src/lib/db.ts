@@ -2,7 +2,7 @@
  * 資料庫連線
  *
  * - 有 DATABASE_URL：連到 Postgres（正式環境是 Supabase）
- * - 沒有 DATABASE_URL：使用內嵌的 PGlite，資料存在 .data/pglite，第一次啟動會自動建表
+ * - 沒有 DATABASE_URL：使用內嵌的 PGlite，資料存在 .data/pglite，第一次啟動會自動建表並放入示範資料
  *
  * 兩邊都用 $1、$2 參數。陣列請用 pgArray() 轉成文字再 ::text[]，物件請 JSON.stringify 後 ::jsonb。
  */
@@ -132,5 +132,7 @@ async function connectPglite(): Promise<Db> {
   const conn = wrap(pg, false);
   const { migrate } = await import("./migrate");
   await migrate(conn);
+  const { seedIfEmpty } = await import("./seed");
+  await seedIfEmpty(conn);
   return conn;
 }
