@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSiteContent, latestStories } from "@/lib/queries";
+import { ITEMS } from "@/lib/cddq";
 import { StoryCard } from "@/components/StoryCard";
 import { Arrow, EmptyState } from "@/components/ui";
 import { RiverbankScene } from "@/components/art/RiverbankScene";
@@ -65,8 +66,8 @@ export default async function HomePage() {
         <RiverbankScene image={c["hero.image"]} className="-mt-10 md:-mt-[18vw]" />
       </section>
 
-      {/* 關於計畫：大字「左岸」＋計畫緣起 */}
-      <section id="about" data-progress className="container-page grid items-center gap-12 pt-24 md:grid-cols-[5fr_7fr] md:gap-20 md:pt-36">
+      {/* 大字「左岸」 */}
+      <section data-progress className="container-page pt-24 md:pt-36">
         <div className="relative flex min-h-[340px] items-center justify-center md:min-h-[520px]" aria-hidden>
           <svg viewBox="0 0 300 300" className="parallax absolute inset-0 m-auto h-[80%] w-[80%] overflow-visible" style={shift(90)}>
             <Wash d={blob(150, 150, 118, 132, 21, 0.14)} color={WASH.sage} opacity={0.75} />
@@ -83,33 +84,13 @@ export default async function HomePage() {
             RIVE GAUCHE・塞納河左岸
           </span>
         </div>
-        <div>
-          <span className="eyebrow" data-reveal>
-            #關於計畫
-          </span>
-          <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
-            從塞納河左岸，
-            <br />
-            到臺大心理系
-          </h2>
-          <div className="prose-airy mt-8" data-reveal style={delay(160)}>
-            {paragraphs(c["about.spirit"]).map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </div>
-          {c["about.closing"] && (
-            <blockquote className="quote-kai mt-10" data-reveal style={delay(240)}>
-              {c["about.closing"]}
-            </blockquote>
-          )}
-        </div>
       </section>
 
       {/* 三重困境：三個圓交疊，交集是左岸 */}
       <section className="container-page grid items-center gap-14 pt-28 md:grid-cols-[6fr_5fr] md:gap-20 md:pt-40">
         <div>
           <span className="eyebrow" data-reveal>
-            #三重困境
+            #計畫緣起
           </span>
           <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
             {c["about.dilemmas.title"]}
@@ -132,11 +113,35 @@ export default async function HomePage() {
             ))}
           </ol>
           <p className="quote-kai mt-12" data-reveal>
-            左岸計畫，想站在三者的交集。
+            左岸計畫，想站在三者的交集——讓學術的底蘊、業界的視角與學生的熱血在此交織，把各自的未竟之志，化為改變現實的具體力量。
           </p>
         </div>
         <div data-reveal="fade">
           <Venn labels={dilemmas.map((d) => d.who.replace(/端$/, ""))} />
+        </div>
+      </section>
+
+      {/* 關於計畫：大字「左岸」＋計畫緣起 */}
+      <section id="about" className="container-page pt-24 md:pt-36">
+        <div className="max-w-[44rem]">
+          <span className="eyebrow" data-reveal>
+            #關於計畫
+          </span>
+          <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
+            從塞納河左岸，
+            <br />
+            到臺大心理系
+          </h2>
+          <div className="prose-airy mt-8" data-reveal style={delay(160)}>
+            {paragraphs(c["about.spirit"]).map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+          {c["about.closing"] && (
+            <blockquote className="quote-kai mt-10" data-reveal style={delay(240)}>
+              {c["about.closing"]}
+            </blockquote>
+          )}
         </div>
       </section>
 
@@ -180,15 +185,18 @@ export default async function HomePage() {
             #職涯羅盤
           </span>
           <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
-            卡住了？
+            感到迷惘嗎？
             <br />
-            先看看卡在哪裡
+            讓心理學成為你探索的起點。
           </h2>
           <p className="lede mt-6" data-reveal style={delay(160)}>
-            34 題量表 × AI 生涯對談
+            {ITEMS.length} 題量表 × AI 生涯對談
           </p>
           <p className="prose-airy mt-4" data-reveal style={delay(200)}>
-            「生涯決策困難量表」34 題、約 8 分鐘，會列出你最主要的困難，並推薦適合的服務與系友。想多聊一點，也可以和 AI 進行最多 6 輪的生涯對談。
+            本測驗採用「生涯決策困難量表」（共 {ITEMS.length} 題，約需 8 分鐘），協助你將抽象的迷惘轉化為清晰的決策維度，並根據分析結果推薦最契合的實務方案與學長姊經驗。
+          </p>
+          <p className="prose-airy mt-4" data-reveal style={delay(240)}>
+            此外，更提供最多 6 輪的 AI 互動對話，陪伴你針對目前的卡點反覆對話、尋找破局點。
           </p>
           <Link href="/compass" className="btn-pill mt-9" data-reveal style={delay(280)}>
             開始探索 <Arrow />

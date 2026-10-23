@@ -33,9 +33,23 @@ function firstMissing(items: Record<string, number>) {
   return i === -1 ? ITEMS.length : i;
 }
 
-export function CddqRunner({ consentItems, userId }: { consentItems: string[]; userId: string }) {
+/**
+ * trial：不用登入的試用版。略過同意書與附加選擇題，不存草稿、不送出；
+ * 全部題目答完後把作答交給 onTrialDone，由外層顯示結果。
+ */
+export function CddqRunner({
+  consentItems,
+  userId,
+  trial = false,
+  onTrialDone,
+}: {
+  consentItems: string[];
+  userId: string;
+  trial?: boolean;
+  onTrialDone?: (items: Record<string, number>) => void;
+}) {
   const key = draftKey(userId);
-  const [consented, setConsented] = useState(false);
+  const [consented, setConsented] = useState(trial);
   const [step, setStep] = useState(0);
   const [items, setItems] = useState<Record<string, number>>({});
   const [interests, setInterests] = useState<string[]>([]);
@@ -46,16 +60,21 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
   const [resume, setResume] = useState<Draft | null>(null);
 
   useEffect(() => {
+    if (trial) return;
     setResume(loadDraft(key));
     // 移除舊版不分帳號的草稿
     try {
       localStorage.removeItem("leftbank:cddq-draft");
     } catch {}
-  }, [key]);
+  }, [key, trial]);
 
   const total = ITEMS.length;
   const onExtras = step >= total;
   const item = ITEMS[Math.min(step, total - 1)];
+
+  useEffect(() => {
+    if (trial && onExtras) onTrialDone?.(items);
+  }, [trial, onExtras, items, onTrialDone]);
 
   // 換題動畫進行中時忽略輸入，避免快速連按把答案記到同一題
   const advancing = useRef(false);
@@ -65,13 +84,13 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
       advancing.current = true;
       const next = { ...items, [item.id]: v };
       setItems(next);
-      saveDraft(key, { items: next, step: step + 1 });
+      if (!trial) saveDraft(key, { items: next, step: step + 1 });
       setTimeout(() => {
         setStep((s) => Math.min(s + 1, total));
         advancing.current = false;
       }, 160);
     },
-    [items, item, step, total, key],
+    [items, item, step, total, key, trial],
   );
 
   // 鍵盤 1–9 作答
@@ -108,6 +127,8 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
   }
 
   const progress = Math.round((Math.min(step, total) / total) * 100);
+
+  if (trial && onExtras) return null;
 
   if (onExtras) {
     const submit = () => {
@@ -181,7 +202,7 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
       <p key={item.id} className="rise mt-12 min-h-[120px] font-serif text-section leading-[1.6] tracking-[0.06em] text-ink-strong md:mt-16">
         {item.text}
       </p>
-      <div className="mt-10" role="radiogroup" aria-label="這句話有多像你">
+      <div className="mt-10" role="radiogroup" aria-label="這句話與你的情況有多相似">
         <div className="grid grid-cols-9 gap-1.5 md:gap-2">
           {Array.from({ length: SCALE_MAX }, (_, i) => i + 1).map((v) => (
             <button

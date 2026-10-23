@@ -1,17 +1,22 @@
 /**
- * 職涯羅盤（基礎版）：生涯決策困難量表
+ * 職涯羅盤（基礎版）：生涯決定困難問卷
  *
- * 架構依照 Gati 的生涯決策困難問卷（CDDQ）：3 大類、10 個小項，32 題計分 + 2 題效度題，9 點量表。
+ * 題目：田秀蘭「生涯決定困難問卷」（國科會專題研究計畫問卷，1998）的第 1–44 題，即 Gati、Krausz 與 Osipow（1996）
+ *   CDDQ 44 題的中文版（田秀蘭，2001）。第 45–50 題是本土題，2001 年的分析並未納入，所以這裡不用。
+ * 架構：3 大類、10 個小項；各小項題數為 3、4、3、3、8、4、2、6、7、4（與 2001 年論文表 1 相同）。
+ *   問卷本身沒有標示小項，小項依題號順序與題數歸屬，授權確認時請田老師核對。
+ * 作答：1–9，「與我的情況很不相似」到「與我的情況非常相似」，分數越高代表越困難。
+ * 只放原題，沒有作答品質檢核題；程式仍保留檢核題的機制（Item 的 validity 變體、scores.validity），以相容既有紀錄與後台。
  *
- * 注意：題目文字是依照各小項定義自行撰寫的「試行版」，不是田秀蘭（2001）中文版的原題。
- *    取得授權後，只要替換 ITEMS 的 text（小項與題數不變），計分與結果頁都不用改。
- *    若改用 CAAS 或自編量表，需要一併調整 SUBSCALES / CATEGORIES。
+ * ⚠️ 尚未取得田秀蘭老師的授權。授權之前，這個網站不可以對外公開部署；只用在本機，給田老師看題目在網站上的樣子。
  */
 
 export const SCALE_MIN = 1;
 export const SCALE_MAX = 9;
-export const SCALE_LABELS = { min: "完全不像我", max: "完全像我" };
-export const ITEM_VERSION = "trial-2026-10";
+export const SCALE_LABELS = { min: "與我的情況很不相似", max: "與我的情況非常相似" };
+export const SCALE_INSTRUCTION =
+  "如果句子描述的內容與你的情況非常相似，請選 9 或接近 9 的數字；如果非常不相似，請選 1 或接近 1 的數字。請不要遺漏任何一題，也不需要在任何一題花太多時間思考。";
+export const ITEM_VERSION = "tien-1998-draft";
 
 export type CategoryKey = "readiness" | "information" | "inconsistent";
 export type SubscaleKey =
@@ -117,40 +122,50 @@ export type Item =
   | { id: string; text: string; validity: number };
 
 export const ITEMS: Item[] = [
-  { id: "m1", subscale: "motivation", text: "我覺得現在還不用急著決定未來的方向，時間到了自然會有答案。" },
-  { id: "m2", subscale: "motivation", text: "我對規劃未來這件事，提不太起勁。" },
-  { id: "m3", subscale: "motivation", text: "比起現在就面對生涯選擇，我寧願先把這件事放著。" },
-  { id: "i1", subscale: "indecisiveness", text: "一般來說，做決定對我來說是一件困難的事。" },
-  { id: "i2", subscale: "indecisiveness", text: "面對選擇時，我常常需要別人的肯定，才敢做決定。" },
-  { id: "i3", subscale: "indecisiveness", text: "做了決定之後，我常常反覆懷疑自己是否選對。" },
-  { id: "i4", subscale: "indecisiveness", text: "選項一多，我就容易卡住、遲遲無法決定。" },
-  { id: "b1", subscale: "beliefs", text: "我相信世界上只有一條真正適合我的路，選錯了就很難回頭。" },
-  { id: "b2", subscale: "beliefs", text: "我期待未來的工作，能滿足我所有的需求與理想。" },
-  { id: "b3", subscale: "beliefs", text: "我覺得生涯的選擇是一次性的，一旦決定就很難改變。" },
-  { id: "p1", subscale: "process", text: "我不知道做生涯決定時，應該經過哪些步驟。" },
-  { id: "v1", validity: 2, text: "為了確認作答品質，這一題請選擇「2」。" },
-  { id: "p2", subscale: "process", text: "我不清楚做決定時，哪些因素應該優先考慮。" },
-  { id: "p3", subscale: "process", text: "我不知道該怎麼把手上的資訊整合起來，做出一個決定。" },
-  { id: "s1", subscale: "self", text: "我還不太確定自己真正感興趣的是什麼。" },
-  { id: "s2", subscale: "self", text: "我不太清楚自己的能力或強項在哪裡。" },
-  { id: "s3", subscale: "self", text: "我不確定未來的工作裡，什麼對我最重要（例如收入、穩定、意義）。" },
-  { id: "s4", subscale: "self", text: "我不知道自己現在的興趣或能力，未來會不會改變。" },
-  { id: "o1", subscale: "occupations", text: "我對心理系畢業後可以走的路，認識得還不夠多。" },
-  { id: "o2", subscale: "occupations", text: "我不太清楚各種職業實際的工作內容。" },
-  { id: "o3", subscale: "occupations", text: "我不知道各個領域未來的發展前景如何。" },
-  { id: "w1", subscale: "ways", text: "我不知道可以從哪裡取得關於職業或升學的可靠資訊。" },
-  { id: "w2", subscale: "ways", text: "我不知道可以向誰請教生涯方面的問題。" },
-  { id: "u1", subscale: "unreliable", text: "我得到的生涯資訊常常互相矛盾，讓我無所適從。" },
-  { id: "u2", subscale: "unreliable", text: "我不確定自己對某些職業的了解是否正確。" },
-  { id: "u3", subscale: "unreliable", text: "關於我的能力或個性，別人給我的回饋常常不一致。" },
-  { id: "c1", subscale: "internal", text: "我感興趣的選項，常常不是我能力最適合的選項。" },
-  { id: "c2", subscale: "internal", text: "我很難在幾個都很吸引我的選項之間做取捨。" },
-  { id: "v2", validity: 8, text: "這一題請選擇「8」。" },
-  { id: "c3", subscale: "internal", text: "我在意的條件（例如興趣、收入、穩定）很難在同一個選擇裡同時滿足。" },
-  { id: "c4", subscale: "internal", text: "我不願意為了某個選擇，放棄其他的可能。" },
-  { id: "c5", subscale: "internal", text: "我真正喜歡的領域，進入的門檻或機會讓我很擔心。" },
-  { id: "e1", subscale: "external", text: "對於我的未來，身邊重要的人（例如家人）和我有不同的期待。" },
-  { id: "e2", subscale: "external", text: "身邊重要的人給我的建議彼此不一致，讓我難以決定。" },
+  { id: "q1", subscale: "motivation", text: "我不想現在就決定未來的生涯發展方向。" },
+  { id: "q2", subscale: "motivation", text: "工作並不是我生命裡最重要的一件事。" },
+  { id: "q3", subscale: "motivation", text: "船到橋頭自然直，等時候到了，自然會有一個適合我的決定。" },
+  { id: "q4", subscale: "indecisiveness", text: "我覺得自己是個很難做決定的人。" },
+  { id: "q5", subscale: "indecisiveness", text: "通常在他人的肯定或支持之後，我才敢作成決定。" },
+  { id: "q6", subscale: "indecisiveness", text: "我平常就不太喜歡對任何事情做承諾。" },
+  { id: "q7", subscale: "indecisiveness", text: "我很害怕面對失敗。" },
+  { id: "q8", subscale: "beliefs", text: "我相信只要有一份工作，連帶著我的個人問題也能得到解決。" },
+  { id: "q9", subscale: "beliefs", text: "我相信有一份理想的工作可以滿足我所有的期望。" },
+  { id: "q10", subscale: "beliefs", text: "一次的決定就可能影響我一輩子的發展，我不得不謹慎為之。" },
+  { id: "q11", subscale: "process", text: "我不知道做決定要經歷哪些步驟。" },
+  { id: "q12", subscale: "process", text: "做決定時，我不知道應該考慮哪些因素。" },
+  { id: "q13", subscale: "process", text: "我不知道如何將對自己的認識以及對職業的認識作一連結。" },
+  { id: "q14", subscale: "self", text: "我不清楚自己具備哪些能力。" },
+  { id: "q15", subscale: "self", text: "我不了解自己的人格特質。" },
+  { id: "q16", subscale: "self", text: "我不知道自己究竟適合怎樣的工作。" },
+  { id: "q17", subscale: "self", text: "我不知道自己有哪些與職業相關的興趣偏好。" },
+  { id: "q18", subscale: "self", text: "我不確定自己未來是否能學得在工作上所需具備的能力。" },
+  { id: "q19", subscale: "self", text: "我不知道自己的人格特質在未來會有什麼改變。" },
+  { id: "q20", subscale: "self", text: "我不知道在未來還有哪些職業選擇會是適合自己的。" },
+  { id: "q21", subscale: "self", text: "我不知道自己未來還會發展出哪些職業興趣。" },
+  { id: "q22", subscale: "occupations", text: "我不知道目前可以接觸哪些不同的職業或訓練機會。" },
+  { id: "q23", subscale: "occupations", text: "我不清楚在不同的職業或訓練機會裡，有哪些內容會是自己有興趣的。" },
+  { id: "q24", subscale: "occupations", text: "我不清楚工作世界未來會有哪些不同的職業或訓練機會。" },
+  { id: "q25", subscale: "occupations", text: "我不清楚未來的職業或生涯訓練機會裡會有哪些不同的內容。" },
+  { id: "q26", subscale: "ways", text: "我不知道還有哪些方式可以更了解自己。" },
+  { id: "q27", subscale: "ways", text: "我不清楚還有哪些管道可以增進對工作世界的認識。" },
+  { id: "q28", subscale: "unreliable", text: "我覺得對自己能力的認識是不可靠的。" },
+  { id: "q29", subscale: "unreliable", text: "我覺得自己對自己人格特質的認識是不可靠的。" },
+  { id: "q30", subscale: "unreliable", text: "對於自己適合從事哪方面的職業，我覺得我的看法並不是十分可靠的。" },
+  { id: "q31", subscale: "unreliable", text: "我對自己職業興趣的認識並不是完全正確的。" },
+  { id: "q32", subscale: "unreliable", text: "我不確定是否有某一項特定的職業或訓練機會。" },
+  { id: "q33", subscale: "unreliable", text: "我對職業或訓練機會的所得資料並不是完全正確的。" },
+  { id: "q34", subscale: "internal", text: "當面臨衝突時，我不太願意在各個考慮因素之間做一妥協。" },
+  { id: "q35", subscale: "internal", text: "有好幾個同樣吸引我的職業，讓我不知道如何做決定。" },
+  { id: "q36", subscale: "internal", text: "我是可以有幾個工作機會，但都不太喜歡，因此很難決定。" },
+  { id: "q37", subscale: "internal", text: "在我喜歡的職業選擇裡，有一兩個地方是我不喜歡的。" },
+  { id: "q38", subscale: "internal", text: "我的不同偏好無法在同一個職業選擇裡同時得到。" },
+  { id: "q39", subscale: "internal", text: "我知道自己喜歡做什麼，但覺得自己在那方面能力不夠。" },
+  { id: "q40", subscale: "internal", text: "我的能力遠超過我所喜歡職業對我的要求。" },
+  { id: "q41", subscale: "external", text: "我所期望的生涯選擇與家人對我的期望有所不同。" },
+  { id: "q42", subscale: "external", text: "在我所偏好的工作性質方面，家人的看法與我的看法不同。" },
+  { id: "q43", subscale: "external", text: "家人及師長對我的職業選擇有不同的看法。" },
+  { id: "q44", subscale: "external", text: "家人及師長對我所期望的工作特質有不同的看法。" },
 ];
 
 // ─── 附加題：產生推薦系統的標籤 ─────────────────────────

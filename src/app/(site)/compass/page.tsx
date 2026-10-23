@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { compassEligibility, getAiSession } from "@/lib/compass";
 import { aiAvailability, aiConfig } from "@/lib/ai";
+import { ITEMS } from "@/lib/cddq";
 import { one } from "@/lib/db";
 import { Arrow, PageHeader } from "@/components/ui";
 import { ScrollFx } from "@/components/ScrollFx";
@@ -60,7 +61,7 @@ export default async function CompassPage() {
               </div>
             </div>
             <h2 className="h-section mt-6 tracking-[0.1em]">生涯決策困難量表</h2>
-            <p className="lede mt-2 text-meta">34 題・約 8 分鐘</p>
+            <p className="lede mt-2 text-meta">{ITEMS.length} 題・約 10 分鐘</p>
             <p className="prose-airy mt-4 flex-1 text-ash">結果會列出你最主要的困難，並推薦服務與系友。</p>
             <div className="mt-8">
               {usable ? (
@@ -71,6 +72,11 @@ export default async function CompassPage() {
                 <span className="btn-pill" aria-disabled="true">目前無法使用</span>
               )}
             </div>
+            <p className="mt-4 text-note text-ash">
+              想先看看題目？
+              <Link href="/compass/try" className="ml-1 underline underline-offset-4 hover:text-ink">不用登入，直接試用</Link>
+              （不會儲存作答）
+            </p>
           </section>
           <section className="paper-card flex flex-col p-7 md:p-10" data-reveal style={delay(140)}>
             <div className="flex items-start justify-between gap-6">
