@@ -43,21 +43,22 @@ export async function signup(_: FormState, fd: FormData): Promise<FormState> {
   const name = str(fd, "name");
   const email = str(fd, "email").toLowerCase();
   const password = String(fd.get("password") ?? "");
-  const identity = str(fd, "identity") as "student" | "alumni" | "teacher";
+  // 系友可以同時是學生或老師；學生和老師互斥
+  const role = str(fd, "role");
+  const flags = { student: role === "student", teacher: role === "teacher", alumni: fd.get("is_alumni") === "1" };
 
   if (!name) return { error: "請填寫姓名。" };
   if (name.length > 40) return { error: "姓名請在 40 字以內。" };
   if (!EMAIL_RE.test(email)) return { error: "請填寫正確的 email。" };
   if (password.length < PASSWORD_MIN) return { error: `密碼至少需要 ${PASSWORD_MIN} 個字元。` };
-  if (!["student", "alumni", "teacher"].includes(identity)) return { error: "請選擇你的身分。" };
 
   const parsed = parseEducationForm(fd);
   if ("error" in parsed) return { error: parsed.error };
   const edu = parsed.rows;
-  const err = validateEducationForIdentity(identity, edu);
+  const err = validateEducationForIdentity(flags, edu);
   if (err) return { error: err };
 
-  const roleTeacher = identity === "teacher";
+  const roleTeacher = flags.teacher;
   // 有填學號的學生、系友：驗證 email 後立即可用；教師、沒有學號的系友：需要管理員審核
   const hasStudentNo = edu.some((e) => e.student_no);
   const status = hasStudentNo ? "active" : "pending";

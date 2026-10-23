@@ -37,8 +37,14 @@ export async function updateEducation(_: FormState, fd: FormData): Promise<FormS
   if ("error" in parsed) return { error: parsed.error };
   const rows = parsed.rows;
   if (!user.role_teacher && rows.length === 0) return { error: "學生與系友至少要有一筆學歷。" };
-  const identity = user.role_teacher ? "teacher" : rows.some((e) => e.grad_year == null) ? "student" : "alumni";
-  const err = validateEducationForIdentity(identity, rows);
+  const err = validateEducationForIdentity(
+    {
+      teacher: user.role_teacher,
+      student: !user.role_teacher && rows.some((e) => e.grad_year == null),
+      alumni: rows.some((e) => e.grad_year != null),
+    },
+    rows,
+  );
   if (err) return { error: err };
 
   await tx(async (t) => {

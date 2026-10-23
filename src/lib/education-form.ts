@@ -39,15 +39,20 @@ export function parseEducationForm(fd: FormData): { rows: EduInput[] } | { error
   return { rows };
 }
 
-export function validateEducationForIdentity(identity: string, edu: EduInput[]): string | null {
-  if (identity === "student") {
+/** 系友可以同時是學生或老師；只有老師和學生互斥 */
+export type IdentityFlags = { student: boolean; alumni: boolean; teacher: boolean };
+
+export function validateEducationForIdentity(id: IdentityFlags, edu: EduInput[]): string | null {
+  if (!id.student && !id.alumni && !id.teacher) return "請選擇你的身分。";
+  if (id.student && id.teacher) return "學生和教師不能同時選擇。";
+  if (id.student) {
     if (!edu.some((e) => e.grad_year == null)) return "學生請至少填一筆「在學中」的學歷（畢業年留空）。";
     if (edu.some((e) => e.grad_year == null && !e.student_no)) return "在學中的學歷請填寫學號。";
   }
-  if (identity === "alumni" && !edu.some((e) => e.grad_year != null)) {
+  if (id.alumni && !edu.some((e) => e.grad_year != null)) {
     return "系友請至少填一筆已畢業的學歷（填上畢業年）。";
   }
-  if (identity === "teacher" && edu.some((e) => e.grad_year == null)) {
+  if (id.teacher && edu.some((e) => e.grad_year == null)) {
     return "教師身分不會同時是在學學生；若你也是系友，請填上畢業年。";
   }
   return null;

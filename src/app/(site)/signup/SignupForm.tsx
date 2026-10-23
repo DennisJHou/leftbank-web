@@ -6,28 +6,33 @@ import { FormMessage, SubmitButton } from "@/components/forms";
 import { EducationFields, newEduRow, type EduRow } from "@/components/EducationFields";
 import { PASSWORD_MIN } from "@/lib/constants";
 
-type Identity = "student" | "alumni" | "teacher";
+type Role = "student" | "teacher" | "";
 
-const IDENTITIES: { value: Identity; label: string; hint: string }[] = [
+const ROLES: { value: Exclude<Role, "">; label: string; hint: string }[] = [
   { value: "student", label: "學生", hint: "學士、碩士、博士班在學" },
-  { value: "alumni", label: "系友", hint: "曾在臺大心理系畢業" },
   { value: "teacher", label: "教師", hint: "需管理員審核" },
 ];
 
-const DEFAULT_ROWS: Record<Identity, () => EduRow[]> = {
-  student: () => [newEduRow({ studying: true })],
-  alumni: () => [newEduRow()],
-  teacher: () => [],
-};
-
 export function SignupForm() {
   const [state, action] = useActionState(signup, undefined);
-  const [identity, setIdentity] = useState<Identity>("student");
-  const [rows, setRows] = useState<EduRow[]>(DEFAULT_ROWS.student);
+  const [alumni, setAlumni] = useState(false);
+  const [role, setRole] = useState<Role>("student");
+  const [rows, setRows] = useState<EduRow[]>([newEduRow({ studying: true })]);
 
-  const choose = (v: Identity) => {
-    setIdentity(v);
-    setRows(DEFAULT_ROWS[v]());
+  const hasStudying = (r: EduRow[]) => r.some((x) => x.studying);
+  const hasGraduated = (r: EduRow[]) => r.some((x) => !x.studying);
+
+  // 系友可以同時是學生或老師；學生和老師互斥。切換時補上對應的學歷列，教師則移除在學列
+  const toggleAlumni = () => {
+    const next = !alumni;
+    setAlumni(next);
+    if (next && !hasGraduated(rows)) setRows([...rows, newEduRow()]);
+  };
+  const chooseRole = (v: Exclude<Role, "">) => {
+    const next: Role = role === v ? "" : v;
+    setRole(next);
+    if (next === "student" && !hasStudying(rows)) setRows([...rows, newEduRow({ studying: true })]);
+    if (next === "teacher") setRows(rows.filter((x) => !x.studying));
   };
 
   return (
@@ -57,36 +62,50 @@ export function SignupForm() {
 
       <fieldset>
         <legend className="field-label">身分</legend>
-        <input type="hidden" name="identity" value={identity} />
+        <input type="hidden" name="role" value={role} />
+        <input type="hidden" name="is_alumni" value={alumni ? "1" : "0"} />
         <div className="grid grid-cols-3 gap-2">
-          {IDENTITIES.map((it) => (
+          <button
+            type="button"
+            aria-pressed={alumni}
+            aria-label="系友（曾在臺大心理系畢業）"
+            onClick={toggleAlumni}
+            className={`border px-3 py-3 text-left transition-colors ${
+              alumni ? "border-ink bg-ink text-white" : "border-line bg-surface text-ink hover:border-ink"
+            }`}
+          >
+            <span className="block text-meta font-medium">系友</span>
+            <span className={`mt-0.5 block text-note ${alumni ? "text-white/75" : "text-ash"}`}>曾在臺大心理系畢業</span>
+          </button>
+          {ROLES.map((it) => (
             <button
               key={it.value}
               type="button"
-              aria-pressed={identity === it.value}
+              aria-pressed={role === it.value}
               aria-label={`${it.label}（${it.hint}）`}
-              onClick={() => choose(it.value)}
+              onClick={() => chooseRole(it.value)}
               className={`border px-3 py-3 text-left transition-colors ${
-                identity === it.value ? "border-ink bg-ink text-white" : "border-line bg-surface text-ink hover:border-ink"
+                role === it.value ? "border-ink bg-ink text-white" : "border-line bg-surface text-ink hover:border-ink"
               }`}
             >
               <span className="block text-meta font-medium">{it.label}</span>
-              <span className={`mt-0.5 block text-note ${identity === it.value ? "text-white/75" : "text-ash"}`}>
+              <span className={`mt-0.5 block text-note ${role === it.value ? "text-white/75" : "text-ash"}`}>
                 {it.hint}
               </span>
             </button>
           ))}
         </div>
+        <p className="mt-2 text-note text-ash">系友可以同時是學生或教師；只有學生和教師不能同時選。</p>
       </fieldset>
 
       <div>
         <p className="field-label">臺大心理系的學歷</p>
         <p className="mb-5 text-meta text-ash">
-          {identity === "student" && "在學中的學歷請填學號；如果你同時是學士系友，也可以一起填上。"}
-          {identity === "alumni" && "可以填多筆。忘記學號的系友可以留空，只填入學或畢業年，但需要管理員審核。"}
-          {identity === "teacher" && "教師不需要填學號。如果你也是臺大心理系的系友，可以加上學歷，審核前先用系友身分使用。"}
+          {role === "student" && "在學中的學歷請填學號。"}
+          {role === "teacher" && "教師不需要填學號。"}
+          {alumni && " 系友請填已畢業的學歷（填上畢業年）；忘記學號的系友可以留空，只填入學或畢業年，但需要管理員審核。"}
         </p>
-        <EducationFields rows={rows} setRows={setRows} allowStudying={identity !== "teacher"} />
+        <EducationFields rows={rows} setRows={setRows} allowStudying={role !== "teacher"} />
       </div>
 
       <FormMessage state={state} />
