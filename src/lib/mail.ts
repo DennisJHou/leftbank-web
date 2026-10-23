@@ -11,8 +11,26 @@ export function appUrl(path = "") {
   return base + path;
 }
 
+const resendConfigured = () => Boolean(process.env.RESEND_API_KEY);
+
 export function smtpConfigured() {
-  return Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
+  return resendConfigured() || Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
+}
+
+/** 優先用 Resend（沒有自己的網域時，寄件人只能是 onboarding@resend.dev，而且只寄得到註冊 Resend 的那個信箱） */
+async function sendViaResend(mail: Mail) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from: process.env.MAIL_FROM || "左岸計畫 <onboarding@resend.dev>",
+      to: [mail.to],
+      reply_to: mail.replyTo,
+      subject: mail.subject,
+      html: mail.html,
+    }),
+  });
+  if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
 }
 
 let transporter: Transporter | null = null;
@@ -32,13 +50,15 @@ export async function sendMail(mail: Mail) {
   let error: string | null = null;
   if (smtpConfigured()) {
     try {
-      await getTransporter().sendMail({
-        from: `左岸計畫 <${process.env.GMAIL_USER}>`,
-        to: mail.to,
-        replyTo: mail.replyTo,
-        subject: mail.subject,
-        html: mail.html,
-      });
+      if (resendConfigured()) await sendViaResend(mail);
+      else
+        await getTransporter().sendMail({
+          from: `左岸計畫 <${process.env.GMAIL_USER}>`,
+          to: mail.to,
+          replyTo: mail.replyTo,
+          subject: mail.subject,
+          html: mail.html,
+        });
       status = "sent";
     } catch (e) {
       status = "failed";
