@@ -44,7 +44,7 @@ export function ContactForm({ alumniId, type, email }: { alumniId: string; type:
           ))}
         </div>
         {!coffee && count < 3 && (
-          <button type="button" onClick={() => setCount(count + 1)} className="btn btn-outline btn-sm ml-8 mt-3">
+          <button type="button" onClick={() => setCount(count + 1)} className="btn-pill btn-pill-sm ml-8 mt-3">
             再加一個問題
           </button>
         )}
@@ -60,7 +60,7 @@ export function ContactForm({ alumniId, type, email }: { alumniId: string; type:
                 ["online", "線上"],
                 ["either", "都可以"],
               ].map(([v, label]) => (
-                <label key={v} className="option">
+                <label key={v} className="chip">
                   <input type="radio" name="mode" value={v} defaultChecked={v === "either"} className="sr-only" />
                   {label}
                 </label>
@@ -80,7 +80,7 @@ export function ContactForm({ alumniId, type, email }: { alumniId: string; type:
 
       <p className="text-meta text-ash">系友會直接回信到 {email}；系友的 email 不會出現在網站上。</p>
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-dark" pending="送出中…">
+      <SubmitButton className="btn-pill btn-pill-solid" pending="送出中…">
         送出{coffee ? "邀請" : "提問"}
       </SubmitButton>
     </form>

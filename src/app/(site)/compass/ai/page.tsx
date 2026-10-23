@@ -34,11 +34,15 @@ export default async function AiPage() {
   }
 
   return (
-    <div className="container-narrow pt-10">
-      <BackLink href="/compass">職涯羅盤</BackLink>
-      <PageHeader title="AI 生涯對談" />
-      {mock && <p className="notice mb-8">開發模式：未設定 ANTHROPIC_API_KEY，AI 以固定回覆代替。</p>}
-      {body}
+    <div className="paper-grid paper-page">
+      <div className="container-narrow pt-10">
+        <BackLink href="/compass">職涯羅盤</BackLink>
+        <PageHeader eyebrow="#職涯羅盤" title="AI 生涯對談">
+          想到什麼就說什麼。聊完之後，會整理成一份報告。
+        </PageHeader>
+        {mock && <p className="notice mb-8">開發模式：未設定 ANTHROPIC_API_KEY，AI 以固定回覆代替。</p>}
+        {body}
+      </div>
     </div>
   );
 }

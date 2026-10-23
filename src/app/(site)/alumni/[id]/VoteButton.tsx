@@ -26,7 +26,7 @@ export function VoteButton({ alumniId, initialVoted, loginHref }: { alumniId: st
 
   return (
     <div>
-      <button type="button" onClick={click} disabled={pending} aria-pressed={voted} className="btn btn-outline w-full">
+      <button type="button" onClick={click} disabled={pending} aria-pressed={voted} className="btn-pill w-full">
         {voted ? "已表示想聽他回來分享" : "想聽他回來分享 +1"}
       </button>
       {msg && (

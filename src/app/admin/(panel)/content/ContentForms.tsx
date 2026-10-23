@@ -11,7 +11,8 @@ const GROUPS: { title: string; fields: Field[] }[] = [
   {
     title: "主視覺",
     fields: [
-      { key: "hero.tagline", label: "主標題" },
+      { key: "hero.tagline", label: "主標題", hint: "首頁以直排顯示，逗號、句號之後會換到下一行。" },
+      { key: "hero.subtitle", label: "副標", rows: 3, hint: "直排、字比較小，排在主標題左邊。換行或逗號之後會換到下一行。" },
     ],
   },
   {

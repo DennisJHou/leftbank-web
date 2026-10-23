@@ -71,8 +71,8 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
         {messages.map((m, i) => (
           <div key={i} className={m.role === "user" ? "flex justify-end" : "flex"}>
             <div
-              className={`max-w-[88%] whitespace-pre-line px-5 py-4 text-body md:max-w-[80%] ${
-                m.role === "user" ? "bg-ink text-white" : "border border-hairline bg-surface text-ink"
+              className={`rise max-w-[88%] whitespace-pre-line rounded-[22px] px-5 py-4 text-body leading-[1.85] tracking-[0.03em] md:max-w-[80%] ${
+                m.role === "user" ? "rounded-tr-md bg-river text-white" : "paper-card rounded-tl-md text-ink"
               }`}
             >
               {m.content}
@@ -81,10 +81,10 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
         ))}
         {sending && (
           <div className="flex">
-            <div className="border border-hairline bg-surface px-5 py-5" aria-label="AI 正在回覆">
+            <div className="paper-card rounded-[22px] rounded-tl-md px-5 py-5" aria-label="AI 正在回覆">
               <span className="inline-flex gap-1.5">
                 {[0, 1, 2].map((d) => (
-                  <span key={d} className="h-1.5 w-1.5 animate-pulse bg-mute" style={{ animationDelay: `${d * 160}ms` }} />
+                  <span key={d} className="h-1.5 w-1.5 animate-pulse rounded-full bg-river/60" style={{ animationDelay: `${d * 160}ms` }} />
                 ))}
               </span>
             </div>
@@ -93,10 +93,10 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
         <div ref={endRef} />
       </div>
 
-      <div className="sticky bottom-0 mt-8 bg-canvas pb-4 pt-3">
+      <div className="sticky bottom-0 mt-8 bg-canvas/90 pb-4 pt-3 backdrop-blur-md">
         {error && <p className="notice notice-error mb-3" role="alert">{error}</p>}
         {turnsLeft > 0 ? (
-          <div className="flex items-end gap-2 border border-line bg-surface p-2 pl-4 focus-within:border-ink">
+          <div className="flex items-end gap-2 rounded-[26px] border border-line bg-surface p-2 pl-5 transition-colors focus-within:border-river">
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -112,7 +112,7 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
               aria-label="你的訊息"
               className="max-h-40 flex-1 resize-none bg-transparent py-2 text-body outline-none"
             />
-            <button type="button" onClick={send} disabled={sending || !draft.trim()} className="btn btn-dark btn-sm shrink-0">
+            <button type="button" onClick={send} disabled={sending || !draft.trim()} className="btn-pill btn-pill-solid btn-pill-sm shrink-0">
               送出
             </button>
           </div>
@@ -125,7 +125,7 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
             type="button"
             onClick={finish}
             disabled={finishing || sending || userTurns < 2}
-            className={`btn btn-sm ${turnsLeft === 0 ? "btn-dark" : "btn-outline"}`}
+            className={`btn-pill btn-pill-sm ${turnsLeft === 0 ? "btn-pill-solid" : ""}`}
           >
             {finishing ? "產生報告中…" : "結束並產生報告"}
           </button>

@@ -22,11 +22,28 @@ import { RadarChart } from "@/components/compass/RadarChart";
 import { Meter } from "@/components/compass/Meter";
 import { Avatar } from "@/components/Avatar";
 import { Arrow, BackLink, EmptyState } from "@/components/ui";
+import { ScrollFx } from "@/components/ScrollFx";
+import { WASH } from "@/components/art/sketch";
 
 export const metadata = { title: "我的職涯羅盤" };
 
 const fmtDate = (d: Date) => new Date(d).toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric" });
 const CAT_KEYS = Object.keys(CATEGORIES) as CategoryKey[];
+const NUMERAL_WASHES = [WASH.clay, WASH.ochre, WASH.sage];
+const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as React.CSSProperties;
+
+/** 結果頁的外框：方格紙、捲動效果、返回連結 */
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="paper-grid paper-page">
+      <ScrollFx />
+      <div className="container-page pt-10">
+        <BackLink href="/compass">職涯羅盤</BackLink>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 const ALL_SERVICES: Record<string, Service> = Object.fromEntries(
   Object.values(SERVICES_BY_CATEGORY)
@@ -69,13 +86,12 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
   const allLow = CAT_KEYS.every((c) => levelOf(scores.categories[c]) === "low");
 
   return (
-    <div className="container-page pt-10">
-      <BackLink href="/compass">職涯羅盤</BackLink>
-      <p className="mt-12 text-meta text-ash">{fmtDate(session.created_at)}</p>
-      <h1 className="h-page mt-2 max-w-4xl">
+    <Shell>
+      <span className="eyebrow rise mt-12" style={delay(0)}>#{fmtDate(session.created_at)} 的羅盤</span>
+      <h1 className="h-feature rise mt-3 max-w-4xl" style={delay(80)}>
         {allLow ? "三大類都在穩定的範圍" : `你目前最需要處理的是「${CATEGORIES[topCat].label}」`}
       </h1>
-      <p className="mt-4 max-w-2xl text-body text-ash">
+      <p className="prose-airy rise mt-5 max-w-2xl text-ash" style={delay(160)}>
         {allLow ? "三大類都在穩定的範圍。下面列出相對較高的面向，可以作為下一步的參考。" : CATEGORIES[topCat].summary}
       </p>
       {!scores.validity.ok && (
@@ -85,8 +101,8 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
       )}
 
       <div className="mt-16 grid gap-14 border-t border-hairline pt-14 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
-        <section>
-          <h2 className="h-section">三大類</h2>
+        <section data-reveal>
+          <h2 className="h-section tracking-[0.1em]">三大類</h2>
           <div className="mt-8 space-y-8">
             {CAT_KEYS.map((c) => (
               <Meter
@@ -102,9 +118,9 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
             <p className="mt-6 text-note text-ash">深色刻度為 {fmtDate(prev.created_at)} 的結果。分數下降代表比較不卡了。</p>
           )}
         </section>
-        <section>
-          <h2 className="h-section">十個面向</h2>
-          <div className="card mt-8 p-4 md:p-6">
+        <section data-reveal style={delay(120)}>
+          <h2 className="h-section tracking-[0.1em]">十個面向</h2>
+          <div className="paper-card mt-8 p-4 md:p-6">
             <RadarChart
               axes={SUBSCALE_ORDER.map((k) => ({
                 key: k,
@@ -119,10 +135,10 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
       </div>
 
       <section className="mt-20 border-t border-hairline pt-14">
-        <h2 className="h-section">{allLow ? "相對較高的面向" : "最主要的困難"}</h2>
+        <h2 className="h-section tracking-[0.1em]" data-reveal>{allLow ? "相對較高的面向" : "最主要的困難"}</h2>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {scores.top.map((k) => (
-            <TopCard key={k} k={k} scores={scores} />
+          {scores.top.map((k, i) => (
+            <TopCard key={k} k={k} scores={scores} index={i} />
           ))}
         </div>
       </section>
@@ -130,22 +146,27 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
       <Recommendations services={services} alumni={alumni} />
 
       <div className="mt-16 flex flex-wrap gap-3 border-t border-hairline pt-10">
-        <Link href="/compass/cddq" className="btn btn-dark">重新測驗</Link>
-        <Link href="/me?tab=records" className="btn btn-outline">我的羅盤紀錄</Link>
+        <Link href="/compass/cddq" className="btn-pill btn-pill-solid">重新測驗</Link>
+        <Link href="/me?tab=records" className="btn-pill">我的羅盤紀錄</Link>
       </div>
-    </div>
+    </Shell>
   );
 }
 
-function TopCard({ k, scores }: { k: (typeof SUBSCALE_ORDER)[number]; scores: CddqScores }) {
+const NUMERALS = ["一", "二", "三", "四", "五"];
+
+function TopCard({ k, scores, index }: { k: (typeof SUBSCALE_ORDER)[number]; scores: CddqScores; index: number }) {
   const s = SUBSCALES[k];
   return (
-    <div className="card flex flex-col p-6 md:p-7">
-      <h3 className="h-item">{s.label}</h3>
+    <div className="paper-card flex flex-col p-6 md:p-7" data-reveal style={delay(index * 120)}>
+      <span className="numeral mb-5 h-10 w-10 text-[1.0625rem]" style={{ background: NUMERAL_WASHES[index % NUMERAL_WASHES.length] }} aria-hidden>
+        {NUMERALS[index] ?? index + 1}
+      </span>
+      <h3 className="h-item tracking-[0.1em]">{s.label}</h3>
       <p className="mt-1 text-meta text-ash">
         {CATEGORIES[s.category].label}，{LEVEL_LABEL[levelOf(scores.subscales[k])]} {scores.subscales[k].toFixed(1)}
       </p>
-      <p className="mt-4 text-meta text-ink">{s.explain}</p>
+      <p className="mt-4 text-meta leading-[1.85] tracking-[0.03em] text-ink">{s.explain}</p>
     </div>
   );
 }
@@ -155,13 +176,19 @@ function Recommendations({ services, alumni }: { services: Service[]; alumni: Re
     <>
       {services.length > 0 && (
         <section className="mt-20 border-t border-hairline pt-14">
-          <h2 className="h-section">推薦的服務</h2>
+          <h2 className="h-section tracking-[0.1em]" data-reveal>推薦的服務</h2>
           <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {services.map((s) => (
-              <Link key={s.key} href={s.href} className="panel group flex flex-col p-6 transition-colors hover:bg-hairline">
-                <h3 className="h-item">{s.title}</h3>
+            {services.map((s, i) => (
+              <Link
+                key={s.key}
+                href={s.href}
+                className="paper-card group flex flex-col p-6 transition-colors hover:border-river"
+                data-reveal
+                style={delay(i * 100)}
+              >
+                <h3 className="h-item tracking-[0.08em]">{s.title}</h3>
                 <p className="mt-2 flex-1 text-meta text-ash">{s.text}</p>
-                <span className="mt-5 inline-flex items-center gap-2 text-meta font-medium text-ink group-hover:underline group-hover:underline-offset-4">
+                <span className="link-arrow mt-5">
                   前往 <Arrow />
                 </span>
               </Link>
@@ -170,21 +197,27 @@ function Recommendations({ services, alumni }: { services: Service[]; alumni: Re
         </section>
       )}
       <section className="mt-20 border-t border-hairline pt-14">
-        <h2 className="h-section">推薦的系友</h2>
+        <h2 className="h-section tracking-[0.1em]" data-reveal>推薦的系友</h2>
         {alumni.length ? (
           <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {alumni.map((a) => {
+            {alumni.map((a, i) => {
               const v = { ...DEFAULT_VISIBILITY, ...a.visibility };
               return (
-                <Link key={a.id} href={`/alumni/${a.id}`} className="card group flex flex-col p-6">
+                <Link
+                  key={a.id}
+                  href={`/alumni/${a.id}`}
+                  className="paper-card group flex flex-col p-6 transition-colors hover:border-river"
+                  data-reveal
+                  style={delay(i * 100)}
+                >
                   <div className="flex items-center gap-4">
-                    <Avatar name={a.name} src={v.photo === "public" ? a.photo_url : null} size={56} />
+                    <Avatar name={a.name} src={v.photo === "public" ? a.photo_url : null} size={56} className="rounded-full" />
                     <div className="min-w-0">
-                      <p className="h-item group-hover:underline group-hover:underline-offset-4">{a.name}</p>
+                      <p className="h-item tracking-[0.1em] transition-colors group-hover:text-river">{a.name}</p>
                       {v.title === "public" && a.title && <p className="truncate text-meta text-ash">{a.title}</p>}
                     </div>
                   </div>
-                  {a.tagline && <p className="mt-5 flex-1 font-serif text-item leading-[1.7]">「{a.tagline}」</p>}
+                  {a.tagline && <p className="mt-5 flex-1 font-kai text-[1.125rem] leading-[1.8] tracking-[0.04em] text-ink-strong">「{a.tagline}」</p>}
                   <p className="mt-5 text-note text-ash">
                     {[a.accept_question && "可線上提問", a.accept_coffee && "可約咖啡"].filter(Boolean).join(" · ")}
                   </p>
@@ -205,14 +238,13 @@ function Recommendations({ services, alumni }: { services: Service[]; alumni: Re
 function AiResult({ report, date, alumni, services }: { report: AiReport; date: Date; alumni: RecommendedAlumni[]; services: Service[] }) {
   const LEVEL_TEXT = { low: "穩定", moderate: "有些卡關", high: "明顯卡關" } as const;
   return (
-    <div className="container-page pt-10">
-      <BackLink href="/compass">職涯羅盤</BackLink>
-      <p className="mt-12 text-meta text-ash">AI 生涯對談報告，{fmtDate(date)}</p>
-      <h1 className="h-page mt-2 max-w-4xl">{report.summary}</h1>
+    <Shell>
+      <span className="eyebrow rise mt-12" style={delay(0)}>#AI 生涯對談報告・{fmtDate(date)}</span>
+      <h1 className="h-feature rise mt-3 max-w-4xl" style={delay(80)}>{report.summary}</h1>
 
       <div className="mt-16 grid gap-14 border-t border-hairline pt-14 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
-        <section>
-          <h2 className="h-section">三大類</h2>
+        <section data-reveal>
+          <h2 className="h-section tracking-[0.1em]">三大類</h2>
           <ul className="mt-8 divide-y divide-hairline border-y border-hairline">
             {CAT_KEYS.map((c) => (
               <li key={c} className="flex items-center justify-between py-4">
@@ -229,13 +261,13 @@ function AiResult({ report, date, alumni, services }: { report: AiReport; date: 
             ))}
           </ul>
         </section>
-        <section>
-          <h2 className="h-section">你正在面對的</h2>
+        <section data-reveal style={delay(120)}>
+          <h2 className="h-section tracking-[0.1em]">你正在面對的</h2>
           <div className="mt-8 space-y-8">
             {report.focus.map((f, i) => (
               <div key={i}>
-                <h3 className="h-item">{f.title}</h3>
-                <p className="mt-2 text-body">{f.text}</p>
+                <h3 className="h-item tracking-[0.08em]">{f.title}</h3>
+                <p className="prose-airy mt-2">{f.text}</p>
               </div>
             ))}
           </div>
@@ -244,12 +276,14 @@ function AiResult({ report, date, alumni, services }: { report: AiReport; date: 
 
       {report.next_steps.length > 0 && (
         <section className="mt-20 border-t border-hairline pt-14">
-          <h2 className="h-section">接下來可以做的事</h2>
-          <ol className="mt-8 space-y-4">
+          <h2 className="h-section tracking-[0.1em]" data-reveal>接下來可以做的事</h2>
+          <ol className="mt-8 space-y-5">
             {report.next_steps.map((s, i) => (
-              <li key={i} className="flex gap-4 text-body">
-                <span className="w-5 shrink-0 font-serif text-ash">{i + 1}.</span>
-                {s}
+              <li key={i} className="flex items-start gap-4" data-reveal style={delay(i * 100)}>
+                <span className="numeral h-10 w-10 text-[1.0625rem]" style={{ background: NUMERAL_WASHES[i % NUMERAL_WASHES.length] }} aria-hidden>
+                  {NUMERALS[i] ?? i + 1}
+                </span>
+                <span className="prose-airy pt-1.5">{s}</span>
               </li>
             ))}
           </ol>
@@ -259,9 +293,9 @@ function AiResult({ report, date, alumni, services }: { report: AiReport; date: 
       <Recommendations services={services} alumni={alumni} />
 
       <div className="mt-16 flex flex-wrap gap-3 border-t border-hairline pt-10">
-        <Link href="/compass/cddq" className="btn btn-dark">生涯決策困難量表</Link>
-        <Link href="/me?tab=records" className="btn btn-outline">我的羅盤紀錄</Link>
+        <Link href="/compass/cddq" className="btn-pill btn-pill-solid">生涯決策困難量表</Link>
+        <Link href="/me?tab=records" className="btn-pill">我的羅盤紀錄</Link>
       </div>
-    </div>
+    </Shell>
   );
 }

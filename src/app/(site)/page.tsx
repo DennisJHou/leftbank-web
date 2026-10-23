@@ -1,91 +1,200 @@
 import Link from "next/link";
 import { getSiteContent, latestStories } from "@/lib/queries";
-import { HeroIllustration } from "@/components/HeroIllustration";
 import { StoryCard } from "@/components/StoryCard";
 import { Arrow, EmptyState } from "@/components/ui";
+import { RiverbankScene } from "@/components/art/RiverbankScene";
+import { Venn } from "@/components/art/Venn";
+import { CompassSketch } from "@/components/art/CompassSketch";
+import { ScrollFx } from "@/components/ScrollFx";
+import { WASH, Wash, blob } from "@/components/art/sketch";
 
 export const dynamic = "force-dynamic";
 
 const paragraphs = (text: string) => text.split(/\n{2,}/).filter((p) => p.trim());
+/** 直排標語：逗號、句號之後或換行處斷成新的一行 */
+const columns = (text: string) =>
+  text
+    .split(/(?<=[，。；！？])|\n/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as React.CSSProperties;
+const shift = (px: number) => ({ "--shift": `${px}px` }) as React.CSSProperties;
+
+const NUMERALS = ["一", "二", "三"];
+const DILEMMA_WASHES = [WASH.sage, WASH.ochre, WASH.clay];
 
 export default async function HomePage() {
   const [c, stories] = await Promise.all([getSiteContent(), latestStories(3)]);
   const dilemmas = [1, 2, 3].map((i) => ({ who: c[`about.dilemma${i}.who`], text: c[`about.dilemma${i}.text`] }));
+  const title = columns(c["hero.tagline"]);
+  const subtitle = columns(c["hero.subtitle"] ?? "");
+  const sealDelay = 150 + (title.length + subtitle.length) * 300 + 200;
 
   return (
-    <>
-      {/* 主視覺 */}
-      <section className="relative h-[72vh] max-h-[820px] min-h-[480px] overflow-hidden bg-ink-band">
-        {c["hero.image"] ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={c["hero.image"]} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        ) : (
-          <HeroIllustration className="absolute inset-0 h-full w-full" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/0" />
-        <div className="container-page absolute inset-x-0 bottom-0 pb-14 text-center md:pb-20">
-          <h1 className="h-display mx-auto max-w-4xl text-white">{c["hero.tagline"]}</h1>
-          <Link href="/alumni" className="btn btn-light mt-9">
-            認識系友 <Arrow />
-          </Link>
+    <div className="paper-grid paper-page">
+      <ScrollFx />
+
+      {/* 主視覺：直排標語＋河岸插畫 */}
+      <section data-progress="exit" className="relative overflow-hidden">
+        {/* 主標題置中、落在橋的正上方；副標與印章掛在左邊 */}
+        <div className="container-page relative z-10 pt-12 md:pt-16">
+          <div className="parallax-exit fade-exit grid grid-cols-[1fr_auto_1fr] items-start gap-5 md:gap-9" style={shift(-80)}>
+            <h1 className="hero-title col-start-2 row-start-1 flex flex-row-reverse items-start gap-2 md:gap-4">
+              {title.map((t, i) => (
+                <span key={i} className="vertical rise" style={delay(150 + i * 300)}>
+                  {t}
+                </span>
+              ))}
+            </h1>
+            <div className="col-start-1 row-start-1 flex flex-col items-start gap-5 justify-self-end pt-[4.5em] md:pt-[5em]">
+              {subtitle.length > 0 && (
+                <p className="hero-sub flex flex-row-reverse items-start gap-1">
+                  {subtitle.map((t, i) => (
+                    <span key={i} className="vertical rise" style={delay(150 + (title.length + i) * 300)}>
+                      {t}
+                    </span>
+                  ))}
+                </p>
+              )}
+              <span className="seal stamp-in text-[0.9375rem]" style={delay(sealDelay)} aria-hidden>
+                左岸計畫
+              </span>
+            </div>
+          </div>
         </div>
+        <RiverbankScene image={c["hero.image"]} className="-mt-10 md:-mt-[18vw]" />
       </section>
 
-      {/* 關於計畫 */}
-      <section id="about" className="container-page pt-24 md:pt-32">
-        <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)] md:gap-20">
-          <h2 className="h-section">關於計畫</h2>
-          <div className="space-y-6 text-body">
-            {[...paragraphs(c["about.spirit"]), ...paragraphs(c["about.closing"] ?? "")].map((p, i) => (
+      {/* 關於計畫：大字「左岸」＋計畫緣起 */}
+      <section id="about" data-progress className="container-page grid items-center gap-12 pt-24 md:grid-cols-[5fr_7fr] md:gap-20 md:pt-36">
+        <div className="relative flex min-h-[340px] items-center justify-center md:min-h-[520px]" aria-hidden>
+          <svg viewBox="0 0 300 300" className="parallax absolute inset-0 m-auto h-[80%] w-[80%] overflow-visible" style={shift(90)}>
+            <Wash d={blob(150, 150, 118, 132, 21, 0.14)} color={WASH.sage} opacity={0.75} />
+          </svg>
+          <div className="relative">
+            <span className="giant-kai vertical parallax absolute left-[0.12em] top-[0.08em] text-[#cfc9b6]" style={shift(-70)}>
+              左岸
+            </span>
+            <span className="giant-kai vertical relative block text-ink-strong mix-blend-multiply" data-reveal="fade">
+              左岸
+            </span>
+          </div>
+          <span className="vertical absolute right-0 top-2 text-note tracking-[0.3em] text-ash md:right-4">
+            RIVE GAUCHE・塞納河左岸
+          </span>
+        </div>
+        <div>
+          <span className="eyebrow" data-reveal>
+            #關於計畫
+          </span>
+          <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
+            從塞納河左岸，
+            <br />
+            到臺大心理系
+          </h2>
+          <div className="prose-airy mt-8" data-reveal style={delay(160)}>
+            {paragraphs(c["about.spirit"]).map((p, i) => (
               <p key={i}>{p}</p>
             ))}
           </div>
+          {c["about.closing"] && (
+            <blockquote className="quote-kai mt-10" data-reveal style={delay(240)}>
+              {c["about.closing"]}
+            </blockquote>
+          )}
         </div>
       </section>
 
-      {/* 心理人的三重困境 */}
-      <section className="container-page pt-20 md:pt-28">
-        <div className="grid gap-8 border-t border-hairline pt-14 md:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)] md:gap-20 md:pt-20">
-          <h2 className="h-section">{c["about.dilemmas.title"]}</h2>
-          <div className="space-y-8">
+      {/* 三重困境：三個圓交疊，交集是左岸 */}
+      <section className="container-page grid items-center gap-14 pt-28 md:grid-cols-[6fr_5fr] md:gap-20 md:pt-40">
+        <div>
+          <span className="eyebrow" data-reveal>
+            #三重困境
+          </span>
+          <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
+            {c["about.dilemmas.title"]}
+          </h2>
+          <ol className="mt-10 space-y-7">
             {dilemmas.map((d, i) => (
-              <div key={i}>
-                <h3 className="h-item">{d.who}</h3>
-                <p className="mt-2 text-body">{d.text}</p>
-              </div>
+              <li key={i} className="flex gap-5" data-reveal style={delay(160 + i * 120)}>
+                <span
+                  className="grid h-12 w-12 shrink-0 place-items-center rounded-full font-serif text-[1.25rem] font-semibold text-ink-strong"
+                  style={{ background: DILEMMA_WASHES[i] }}
+                  aria-hidden
+                >
+                  {NUMERALS[i]}
+                </span>
+                <div>
+                  <h3 className="h-item tracking-[0.12em]">{d.who}</h3>
+                  <p className="prose-airy mt-1 text-ash">{d.text}</p>
+                </div>
+              </li>
             ))}
-          </div>
+          </ol>
+          <p className="quote-kai mt-12" data-reveal>
+            左岸計畫，想站在三者的交集。
+          </p>
+        </div>
+        <div data-reveal="fade">
+          <Venn labels={dilemmas.map((d) => d.who.replace(/端$/, ""))} />
         </div>
       </section>
 
       {/* 系友故事 */}
-      <section className="pt-24 md:pt-32">
-        <div className="container-page">
-          <div className="border-t border-hairline pt-14 md:pt-20">
-            <h2 className="h-section">系友故事</h2>
+      <section className="pt-28 md:pt-40">
+        <div className="container-page flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <span className="eyebrow" data-reveal>
+              #系友故事
+            </span>
+            <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
+              學長姐走過的路
+            </h2>
           </div>
+          <Link href="/alumni" className="btn-pill" data-reveal style={delay(160)}>
+            看更多系友 <Arrow />
+          </Link>
         </div>
         {stories.length ? (
-          <>
-            <div className="snap-row mt-10 flex gap-5 overflow-x-auto px-5 md:container-page md:grid md:grid-cols-3 md:gap-8 md:overflow-visible">
-              {stories.map((s) => (
-                <div key={s.userId} className="w-[82%] shrink-0 md:w-auto">
-                  <StoryCard s={s} />
-                </div>
-              ))}
-            </div>
-            <div className="container-page mt-12 text-center">
-              <Link href="/alumni" className="btn btn-dark">
-                看更多系友 <Arrow />
-              </Link>
-            </div>
-          </>
+          <div className="snap-row mt-12 flex gap-5 overflow-x-auto px-5 md:container-page md:grid md:grid-cols-3 md:gap-10 md:overflow-visible">
+            {stories.map((s, i) => (
+              <div key={s.userId} className="w-[82%] shrink-0 md:w-auto">
+                <StoryCard s={s} index={i} />
+              </div>
+            ))}
+          </div>
         ) : (
-          <div className="container-page mt-10">
+          <div className="container-page mt-12">
             <EmptyState />
           </div>
         )}
       </section>
-    </>
+
+      {/* 職涯羅盤：指針跟著捲動轉 */}
+      <section data-progress className="container-page grid items-center gap-12 pt-28 md:grid-cols-[5fr_7fr] md:gap-20 md:pt-40">
+        <div className="mx-auto w-full max-w-[380px]" data-reveal="draw">
+          <CompassSketch />
+        </div>
+        <div>
+          <span className="eyebrow" data-reveal>
+            #職涯羅盤
+          </span>
+          <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
+            卡住了？
+            <br />
+            先看看卡在哪裡
+          </h2>
+          <p className="lede mt-6" data-reveal style={delay(160)}>
+            34 題量表 × AI 生涯對談
+          </p>
+          <p className="prose-airy mt-4" data-reveal style={delay(200)}>
+            「生涯決策困難量表」34 題、約 8 分鐘，會列出你最主要的困難，並推薦適合的服務與系友。想多聊一點，也可以和 AI 進行最多 6 輪的生涯對談。
+          </p>
+          <Link href="/compass" className="btn-pill mt-9" data-reveal style={delay(280)}>
+            開始探索 <Arrow />
+          </Link>
+        </div>
+      </section>
+    </div>
   );
 }

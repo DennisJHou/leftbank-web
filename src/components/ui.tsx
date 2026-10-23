@@ -18,12 +18,38 @@ export function BackLink({ href, children }: { href: string; children: React.Rea
   );
 }
 
-/** 頁面標題（每頁最大的字） */
-export function PageHeader({ title, children }: { title: string; children?: React.ReactNode }) {
+const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as React.CSSProperties;
+
+/** 頁面標題（參考 justfont）：#小標、加字距的大標題、說明，右邊可以放一張線條插畫。載入時依序浮現 */
+export function PageHeader({
+  title,
+  eyebrow,
+  visual,
+  children,
+}: {
+  title: string;
+  eyebrow?: string;
+  visual?: React.ReactNode;
+  children?: React.ReactNode;
+}) {
   return (
-    <header className="pb-10 pt-12 md:pb-14 md:pt-20">
-      <h1 className="h-page">{title}</h1>
-      {children && <div className="mt-4 max-w-2xl text-body text-ash">{children}</div>}
+    <header className="grid items-center gap-8 pb-10 pt-12 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16 md:pb-14 md:pt-20">
+      <div>
+        {eyebrow && (
+          <span className="eyebrow rise" style={delay(0)}>
+            {eyebrow}
+          </span>
+        )}
+        <h1 className="h-feature rise mt-3" style={delay(80)}>
+          {title}
+        </h1>
+        {children && (
+          <div className="prose-airy rise mt-5 max-w-2xl text-ash" style={delay(160)}>
+            {children}
+          </div>
+        )}
+      </div>
+      {visual && <div className="draw-in mx-auto w-full max-w-[240px] md:max-w-[300px]">{visual}</div>}
     </header>
   );
 }

@@ -127,7 +127,7 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
       <div className="space-y-10">
         <Progress value={100} label="最後三題" />
         <fieldset>
-          <legend className="h-item">你對哪些領域感興趣？（可複選）</legend>
+          <legend className="h-item tracking-[0.08em]">你對哪些領域感興趣？（可複選）</legend>
           <div className="mt-4 flex flex-wrap gap-2">
             {FIELD_CATEGORIES.map((f) => (
               <button
@@ -135,7 +135,7 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
                 type="button"
                 aria-pressed={interests.includes(f)}
                 onClick={() => setInterests((cur) => (cur.includes(f) ? cur.filter((x) => x !== f) : [...cur, f]))}
-                className="option"
+                className="chip"
               >
                 {f}
               </button>
@@ -143,20 +143,20 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
           </div>
         </fieldset>
         <fieldset>
-          <legend className="h-item">你目前的階段</legend>
+          <legend className="h-item tracking-[0.08em]">你目前的階段</legend>
           <div className="mt-4 flex flex-wrap gap-2">
             {STAGE_OPTIONS.map((o) => (
-              <button key={o.value} type="button" aria-pressed={stage === o.value} onClick={() => setStage(o.value)} className="option">
+              <button key={o.value} type="button" aria-pressed={stage === o.value} onClick={() => setStage(o.value)} className="chip">
                 {o.label}
               </button>
             ))}
           </div>
         </fieldset>
         <fieldset>
-          <legend className="h-item">現在最想解決的一件事</legend>
+          <legend className="h-item tracking-[0.08em]">現在最想解決的一件事</legend>
           <div className="mt-4 flex flex-wrap gap-2">
             {GOAL_OPTIONS.map((o) => (
-              <button key={o.value} type="button" aria-pressed={goal === o.value} onClick={() => setGoal(o.value)} className="option">
+              <button key={o.value} type="button" aria-pressed={goal === o.value} onClick={() => setGoal(o.value)} className="chip">
                 {o.label}
               </button>
             ))}
@@ -164,8 +164,8 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
         </fieldset>
         {error && <p className="notice notice-error" role="alert">{error}</p>}
         <div className="flex items-center gap-3">
-          <button type="button" onClick={() => setStep(total - 1)} className="btn btn-outline">上一題</button>
-          <button type="button" onClick={submit} disabled={pending || !interests.length || !stage || !goal} className="btn btn-dark">
+          <button type="button" onClick={() => setStep(total - 1)} className="btn-pill">上一題</button>
+          <button type="button" onClick={submit} disabled={pending || !interests.length || !stage || !goal} className="btn-pill btn-pill-solid">
             {pending ? "計算中…" : "查看結果"}
           </button>
         </div>
@@ -177,7 +177,8 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
   return (
     <div>
       <Progress value={progress} label={`${step + 1} / ${total}`} />
-      <p key={item.id} className="mt-12 min-h-[120px] font-serif text-section text-ink-strong md:mt-16">
+      {/* key 換題時重新掛載，讓 .rise 每題都浮現一次 */}
+      <p key={item.id} className="rise mt-12 min-h-[120px] font-serif text-section leading-[1.6] tracking-[0.06em] text-ink-strong md:mt-16">
         {item.text}
       </p>
       <div className="mt-10" role="radiogroup" aria-label="這句話有多像你">
@@ -190,8 +191,8 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
               aria-checked={current === v}
               aria-label={`${v} 分`}
               onClick={() => answer(v)}
-              className={`aspect-square border text-meta transition-colors ${
-                current === v ? "border-ink bg-ink text-white" : "border-line bg-surface text-ink hover:border-ink"
+              className={`aspect-square rounded-full border text-meta tabular-nums transition-colors ${
+                current === v ? "border-river bg-river text-white" : "border-line bg-surface/80 text-ink hover:border-river hover:text-river"
               }`}
             >
               {v}
@@ -219,11 +220,11 @@ export function CddqRunner({ consentItems, userId }: { consentItems: string[]; u
 function Progress({ value, label }: { value: number; label: string }) {
   return (
     <div>
-      <div className="flex justify-end text-note text-ash">
+      <div className="flex justify-end text-note tracking-[0.06em] text-ash">
         <span>{label}</span>
       </div>
-      <div className="mt-2 h-[2px] bg-hairline">
-        <div className="h-full bg-ink transition-[width] duration-300" style={{ width: `${value}%` }} />
+      <div className="mt-2 h-[3px] overflow-hidden rounded-full bg-hairline">
+        <div className="h-full rounded-full bg-river transition-[width] duration-300" style={{ width: `${value}%` }} />
       </div>
     </div>
   );

@@ -34,10 +34,10 @@ export function FilterBar() {
 
   const filter = params.get("filter") ?? "";
   return (
-    <div className={`space-y-8 transition-opacity ${pending ? "opacity-60" : ""}`}>
-      <div className="tabs" role="toolbar" aria-label="服務篩選">
+    <div className={`rise space-y-5 border-t border-hairline pt-8 transition-opacity ${pending ? "opacity-60" : ""}`} style={{ "--delay": "240ms" } as React.CSSProperties}>
+      <div className="flex flex-wrap gap-2" role="toolbar" aria-label="服務篩選">
         {SERVICES.map((s) => (
-          <button key={s.value} type="button" aria-pressed={filter === s.value} onClick={() => push({ filter: s.value })} className="tab">
+          <button key={s.value} type="button" aria-pressed={filter === s.value} onClick={() => push({ filter: s.value })} className="chip">
             {s.label}
           </button>
         ))}
@@ -49,9 +49,9 @@ export function FilterBar() {
           onChange={(e) => setQ(e.target.value)}
           placeholder="搜尋姓名或職稱"
           aria-label="搜尋姓名或職稱"
-          className="input md:max-w-sm"
+          className="input input-pill md:max-w-sm"
         />
-        <select value={params.get("field") ?? ""} onChange={(e) => push({ field: e.target.value })} aria-label="領域分類" className="input md:max-w-[260px]">
+        <select value={params.get("field") ?? ""} onChange={(e) => push({ field: e.target.value })} aria-label="領域分類" className="input input-pill md:max-w-[260px]">
           <option value="">所有領域</option>
           {FIELD_CATEGORIES.map((f) => (
             <option key={f} value={f}>{f}</option>
