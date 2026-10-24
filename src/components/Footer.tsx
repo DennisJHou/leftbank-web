@@ -16,7 +16,7 @@ export function Footer() {
         <div>
           <p className="text-meta font-medium">網站</p>
           <ul className="mt-4 space-y-3 text-meta text-white/70">
-            <li><Link href="/#about" className="hover:text-white">關於計畫</Link></li>
+            <li><Link href="/#dilemmas" className="hover:text-white">關於計畫</Link></li>
             <li><Link href="/alumni" className="hover:text-white">系友園地</Link></li>
             <li><Link href="/compass" className="hover:text-white">職涯羅盤</Link></li>
           </ul>

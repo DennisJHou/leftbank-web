@@ -66,28 +66,8 @@ export default async function HomePage() {
         <RiverbankScene image={c["hero.image"]} className="-mt-10 md:-mt-[18vw]" />
       </section>
 
-      {/* 大字「左岸」 */}
-      <section data-progress className="container-page pt-24 md:pt-36">
-        <div className="relative flex min-h-[340px] items-center justify-center md:min-h-[520px]" aria-hidden>
-          <svg viewBox="0 0 300 300" className="parallax absolute inset-0 m-auto h-[80%] w-[80%] overflow-visible" style={shift(90)}>
-            <Wash d={blob(150, 150, 118, 132, 21, 0.14)} color={WASH.sage} opacity={0.75} />
-          </svg>
-          <div className="relative">
-            <span className="giant-kai vertical parallax absolute left-[0.12em] top-[0.08em] text-[#cfc9b6]" style={shift(-70)}>
-              左岸
-            </span>
-            <span className="giant-kai vertical relative block text-ink-strong mix-blend-multiply" data-reveal="fade">
-              左岸
-            </span>
-          </div>
-          <span className="vertical absolute right-0 top-2 text-note tracking-[0.3em] text-ash md:right-4">
-            RIVE GAUCHE・塞納河左岸
-          </span>
-        </div>
-      </section>
-
       {/* 三重困境：三個圓交疊，交集是左岸 */}
-      <section className="container-page grid items-center gap-14 pt-28 md:grid-cols-[6fr_5fr] md:gap-20 md:pt-40">
+      <section id="dilemmas" className="container-page grid scroll-mt-24 items-center gap-14 pt-28 md:grid-cols-[6fr_5fr] md:gap-20 md:pt-40">
         <div>
           <span className="eyebrow" data-reveal>
             #計畫緣起

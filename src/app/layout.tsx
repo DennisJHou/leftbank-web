@@ -1,24 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { LXGW_WenKai_TC, Newsreader, Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
+import { Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
 
-const newsreader = Newsreader({
-  subsets: ["latin"],
-  weight: ["300", "400"],
-  style: ["normal", "italic"],
-  variable: "--font-newsreader",
-  display: "swap",
-});
 const notoSerif = Noto_Serif_TC({
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-noto-serif-tc",
-  display: "swap",
-  preload: false,
-});
-// 霞鶩文楷：首頁的大字與引文，帶一點手寫感
-const wenkai = LXGW_WenKai_TC({
-  weight: ["400", "700"],
-  variable: "--font-wenkai",
   display: "swap",
   preload: false,
 });
@@ -43,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="zh-Hant"
       data-scroll-behavior="smooth"
-      className={`${newsreader.variable} ${notoSerif.variable} ${notoSans.variable} ${wenkai.variable}`}
+      className={`${notoSerif.variable} ${notoSans.variable}`}
     >
       <body className="min-h-dvh">{children}</body>
     </html>

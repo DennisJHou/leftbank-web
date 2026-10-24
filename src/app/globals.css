@@ -46,9 +46,9 @@
   --color-chart: #9a5f17;
   --color-chart-track: #ece6d2;
 
-  --font-serif: var(--font-newsreader), var(--font-noto-serif-tc), "Songti TC", serif;
+  --font-serif: var(--font-noto-serif-tc), "Songti TC", "Noto Serif CJK TC", serif;
   --font-sans: var(--font-noto-sans-tc), "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
-  --font-kai: var(--font-wenkai), "Kaiti TC", "BiauKai", serif;
+  --font-kai: var(--font-serif);
 
   --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
 

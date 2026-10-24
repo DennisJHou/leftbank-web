@@ -8,7 +8,7 @@ import { Avatar } from "./Avatar";
 import { logout } from "@/app/actions/auth";
 
 const LINKS = [
-  { href: "/#about", label: "關於計畫" },
+  { href: "/#dilemmas", label: "關於計畫" },
   { href: "/alumni", label: "系友園地" },
   { href: "/compass", label: "職涯羅盤" },
 ];
@@ -18,7 +18,7 @@ export function NavLinks({ vertical = false, onNavigate }: { vertical?: boolean;
   return (
     <ul className={vertical ? "flex flex-col" : "flex items-center gap-10"}>
       {LINKS.map((l) => {
-        const active = l.href !== "/#about" && pathname.startsWith(l.href);
+        const active = l.href !== "/#dilemmas" && pathname.startsWith(l.href);
         return (
           <li key={l.href}>
             <Link
