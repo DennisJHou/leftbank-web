@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { one, pgArray, query } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
@@ -100,8 +101,7 @@ export async function sendContactRequest(_: FormState, fd: FormData): Promise<Fo
     availability,
     token,
   };
-  await newRequestEmail(mail);
-  await requestSentEmail(mail);
+  after(() => Promise.all([newRequestEmail(mail), requestSentEmail(mail)]));
   revalidatePath(`/alumni/${alumniId}`);
   redirect(`/alumni/${alumniId}?sent=${type}`);
 }

@@ -14,12 +14,12 @@ export default async function AlumniPage({ searchParams }: PageProps<"/alumni">)
   const sp = await searchParams;
   const get = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string) : "");
   const filter = get("filter");
-  const user = await getCurrentUser();
+  const loggedIn = getCurrentUser().then(Boolean);
   const [total, people] = await Promise.all([
     countDirectory(),
     listDirectory(
       { q: get("q").slice(0, 50), field: get("field"), question: filter === "question", coffee: filter === "coffee", talk: filter === "talk" },
-      Boolean(user),
+      loggedIn,
     ),
   ]);
 

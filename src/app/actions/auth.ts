@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { one, query, tx } from "@/lib/db";
 import { hashPassword, randomToken, sha256, verifyPassword } from "@/lib/crypto";
 import {
@@ -97,7 +98,7 @@ export async function signup(_: FormState, fd: FormData): Promise<FormState> {
   });
 
   const token = await issueToken(userId, "verify", 24);
-  await verifyEmail(email, name, appUrl(`/verify?token=${token}`));
+  after(() => verifyEmail(email, name, appUrl(`/verify?token=${token}`)));
   redirect(`/signup/check-email?email=${encodeURIComponent(email)}`);
 }
 
@@ -112,7 +113,7 @@ export async function resendVerification(_: FormState, fd: FormData): Promise<Fo
   );
   if (user && !user.email_verified_at && !user.recent) {
     const token = await issueToken(user.id, "verify", 24);
-    await verifyEmail(email, user.name, appUrl(`/verify?token=${token}`));
+    after(() => verifyEmail(email, user.name, appUrl(`/verify?token=${token}`)));
   }
   return { ok: "如果這個 email 還沒驗證，我們已經重新寄出驗證信（一分鐘內只會寄一次）。" };
 }
@@ -195,7 +196,7 @@ export async function requestPasswordReset(_: FormState, fd: FormData): Promise<
   );
   if (user && !user.recent) {
     const token = await issueToken(user.id, "reset", 1);
-    await resetPasswordEmail(email, user.name, appUrl(`/reset-password?token=${token}`));
+    after(() => resetPasswordEmail(email, user.name, appUrl(`/reset-password?token=${token}`)));
   }
   return { ok: "如果這個 email 有註冊，我們已經寄出重設密碼的信，請在 1 小時內完成設定。" };
 }

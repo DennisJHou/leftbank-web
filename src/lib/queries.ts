@@ -149,7 +149,8 @@ export async function countDirectory() {
   return row?.n ?? 0;
 }
 
-export async function listDirectory(f: DirectoryFilters, loggedIn: boolean) {
+/** loggedIn 可以先傳 Promise，讓「查登入狀態」和「查名單」同時進行 */
+export async function listDirectory(f: DirectoryFilters, loggedIn: boolean | Promise<boolean>) {
   const where: string[] = [LISTABLE_SQL];
   const params: unknown[] = [];
   if (f.q) {
@@ -165,16 +166,19 @@ export async function listDirectory(f: DirectoryFilters, loggedIn: boolean) {
   if (f.coffee) where.push("p.accept_coffee");
   if (f.talk) where.push("p.willing_to_talk");
 
-  const rows = await query<ProfileRow & { has_story: boolean }>(
-    `select ${PROFILE_COLUMNS},
-            exists (select 1 from stories s where s.user_id = u.id and s.status = 'published') as has_story
-       from alumni_profiles p join users u on u.id = p.user_id
-      where ${where.join(" and ")}
-      order by has_story desc, p.updated_at desc`,
-    params,
-  );
+  const [rows, isLoggedIn] = await Promise.all([
+    query<ProfileRow & { has_story: boolean }>(
+      `select ${PROFILE_COLUMNS},
+              exists (select 1 from stories s where s.user_id = u.id and s.status = 'published') as has_story
+         from alumni_profiles p join users u on u.id = p.user_id
+        where ${where.join(" and ")}
+        order by has_story desc, p.updated_at desc`,
+      params,
+    ),
+    loggedIn,
+  ]);
   const edu = await educationFor(rows.map((r) => r.id));
-  return rows.map((r) => ({ ...applyVisibility(r, edu.get(r.id) ?? [], loggedIn), hasStory: r.has_story }));
+  return rows.map((r) => ({ ...applyVisibility(r, edu.get(r.id) ?? [], isLoggedIn), hasStory: r.has_story }));
 }
 
 // ─── 系友個人頁 ────────────────────────────────────────

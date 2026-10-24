@@ -11,6 +11,9 @@ export function appUrl(path = "") {
   return base + path;
 }
 
+/** 寄信最多等多久；對方伺服器沒回應時不要讓寄信一直掛著 */
+const MAIL_TIMEOUT_MS = 15_000;
+
 const resendConfigured = () => Boolean(process.env.RESEND_API_KEY);
 
 export function smtpConfigured() {
@@ -22,6 +25,7 @@ async function sendViaResend(mail: Mail) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+    signal: AbortSignal.timeout(MAIL_TIMEOUT_MS),
     body: JSON.stringify({
       from: process.env.MAIL_FROM || "左岸計畫 <onboarding@resend.dev>",
       to: [mail.to],
@@ -38,6 +42,9 @@ function getTransporter() {
   transporter ??= nodemailer.createTransport({
     service: "gmail",
     auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
+    connectionTimeout: MAIL_TIMEOUT_MS,
+    greetingTimeout: MAIL_TIMEOUT_MS,
+    socketTimeout: MAIL_TIMEOUT_MS,
   });
   return transporter;
 }

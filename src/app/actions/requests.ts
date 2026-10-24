@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { one, query } from "@/lib/db";
 import { requestRespondedEmail } from "@/lib/mail";
@@ -43,9 +44,11 @@ export async function respondToRequest(_: FormState, fd: FormData): Promise<Form
       [req.id, status],
     );
     if (!updated.length) return { error: "這筆邀請剛剛已經被處理了。" };
-    await requestRespondedEmail(
-      { type: req.type, studentName: req.student_name, studentEmail: req.student_email, alumniName: req.alumni_name },
-      action === "accept",
+    after(() =>
+      requestRespondedEmail(
+        { type: req.type, studentName: req.student_name, studentEmail: req.student_email, alumniName: req.alumni_name },
+        action === "accept",
+      ),
     );
     return {
       ok:

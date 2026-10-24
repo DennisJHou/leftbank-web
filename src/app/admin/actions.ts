@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { one, query } from "@/lib/db";
 import { adminLogin, adminLogout, envSuperAdmin, requireAdmin } from "@/lib/admin-auth";
@@ -38,7 +39,7 @@ export async function approveUser(userId: string) {
     "update users set status = 'active', teacher_verified = (role_teacher or teacher_verified) where id = $1",
     [userId],
   );
-  if (u.status === "pending" || (u.role_teacher && !u.teacher_verified)) await accountApprovedEmail(u.email, u.name);
+  if (u.status === "pending" || (u.role_teacher && !u.teacher_verified)) after(() => accountApprovedEmail(u.email, u.name));
   revalidatePath("/admin/accounts");
 }
 

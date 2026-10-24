@@ -61,9 +61,15 @@ export async function destroyAllSessions(userId: string) {
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
-  const user = await one<UserRow & { photo_url: string | null }>(
+  // 學歷一起查回來：每個頁面的導覽列都會呼叫這裡，少一趟資料庫往返就少一份等待
+  const user = await one<UserRow & { photo_url: string | null; education: Education[] }>(
     `select u.id, u.name, u.email, u.role_teacher, u.teacher_verified, u.status, u.email_verified_at, u.created_at,
-            p.photo_url
+            p.photo_url,
+            coalesce((select json_agg(json_build_object('id', e.id, 'degree', e.degree, 'student_no', e.student_no,
+                                                        'entry_year', e.entry_year, 'grad_year', e.grad_year)
+                                      order by case e.degree when 'B' then 0 when 'M' then 1 else 2 end,
+                                               coalesce(e.entry_year, e.grad_year))
+                        from education e where e.user_id = u.id), '[]'::json) as education
        from sessions s
        join users u on u.id = s.user_id
        left join alumni_profiles p on p.user_id = u.id
@@ -71,11 +77,9 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     [sha256(token)],
   );
   if (!user || user.status === "suspended" || !user.email_verified_at) return null;
-  const education = await getEducation(user.id);
   return {
     ...user,
-    education,
-    identity: deriveIdentity(education, user.role_teacher, user.teacher_verified),
+    identity: deriveIdentity(user.education, user.role_teacher, user.teacher_verified),
   };
 });
 
