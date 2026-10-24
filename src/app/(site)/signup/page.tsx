@@ -6,7 +6,8 @@ import { SignupForm } from "./SignupForm";
 
 export const metadata = { title: "註冊" };
 
-export default async function SignupPage() {
+export default async function SignupPage({ searchParams }: PageProps<"/signup">) {
+  const sp = await searchParams;
   if (await getCurrentUser()) redirect("/me");
   return (
     <AuthShell
@@ -17,7 +18,7 @@ export default async function SignupPage() {
         </>
       }
     >
-      <SignupForm />
+      <SignupForm asAlumni={sp.as === "alumni"} />
     </AuthShell>
   );
 }

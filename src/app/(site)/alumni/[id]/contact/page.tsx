@@ -19,7 +19,7 @@ export default async function ContactPage({ params, searchParams }: PageProps<"/
   if (await activeRequest(user.id, id)) redirect(`/alumni/${id}`);
 
   return (
-    <div className="paper-grid paper-page">
+    <div>
       <div className="container-narrow pt-10">
         <BackLink href={`/alumni/${id}`}>{p.name}</BackLink>
         <PageHeader

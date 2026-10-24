@@ -3,7 +3,7 @@ import { NameCard } from "./NameCard";
 import { Arrow } from "./ui";
 import type { StoryCardData } from "@/lib/queries";
 
-/** 首頁故事卡（參考 justfont）：照片或名帖、姓名職稱、楷體引言、文字連結；捲進畫面時依序浮現 */
+/** 首頁故事卡：照片或名帖、姓名職稱、楷體引言、文字連結；捲進畫面時依序浮現 */
 export function StoryCard({ s, index = 0 }: { s: StoryCardData; index?: number }) {
   const href = `/alumni/${s.userId}#story`;
   return (
@@ -22,7 +22,7 @@ export function StoryCard({ s, index = 0 }: { s: StoryCardData; index?: number }
         <h3 className="h-item tracking-[0.12em]">{s.name}</h3>
         {s.title && <p className="text-note tracking-[0.04em] text-ash">{s.title}</p>}
       </div>
-      <p className="mt-3 flex-1 font-kai text-[1.1875rem] leading-[1.85] tracking-[0.04em] text-ink-strong">「{s.tagline}」</p>
+      <p className="mt-3 flex-1 text-tagline">「{s.tagline}」</p>
       <Link href={href} className="link-arrow mt-5">
         閱讀全文 <Arrow />
       </Link>

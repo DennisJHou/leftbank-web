@@ -61,7 +61,7 @@ export default async function AdminsPage() {
                       <ConfirmButton
                         action={deleteAdminAccount.bind(null, a.id)}
                         confirm={`確定要刪除後台帳號 ${a.email} 嗎？`}
-                        className="btn btn-sm text-ash hover:text-error"
+                        className="btn btn-text btn-danger"
                       >
                         刪除
                       </ConfirmButton>

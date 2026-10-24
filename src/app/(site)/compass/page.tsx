@@ -42,7 +42,7 @@ export default async function CompassPage() {
   }
 
   return (
-    <div className="paper-grid paper-page">
+    <div>
       <ScrollFx />
       <div data-progress className="container-page">
         <PageHeader eyebrow="#找到卡住的地方" title="職涯羅盤" visual={<CompassSketch />}>
@@ -65,11 +65,11 @@ export default async function CompassPage() {
             <p className="prose-airy mt-4 flex-1 text-ash">結果會列出你最主要的困難，並推薦服務與系友。</p>
             <div className="mt-8">
               {usable ? (
-                <Link href={startHref("/compass/cddq")} className="btn-pill btn-pill-solid">
+                <Link href={startHref("/compass/cddq")} className="btn btn-primary">
                   {user ? "開始作答" : "登入後開始"} <Arrow />
                 </Link>
               ) : (
-                <span className="btn-pill" aria-disabled="true">目前無法使用</span>
+                <span className="btn" aria-disabled="true">目前無法使用</span>
               )}
             </div>
             <p className="mt-4 text-note text-ash">
@@ -92,7 +92,7 @@ export default async function CompassPage() {
             <p className="prose-airy mt-4 flex-1 text-ash">和 AI 聊聊你現在的狀況，結束時會產生一份報告，並推薦服務與系友。</p>
             {aiState.href && usable && (
               <div className="mt-8">
-                <Link href={aiState.href} className="btn-pill">
+                <Link href={aiState.href} className="btn">
                   {user ? aiState.cta : "登入後開始"} <Arrow />
                 </Link>
               </div>

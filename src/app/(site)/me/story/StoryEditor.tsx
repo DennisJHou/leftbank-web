@@ -116,7 +116,7 @@ export function StoryEditor({ initial, hasStory }: { initial: { tagline: string;
 
       <FormMessage state={state} />
       <div className="flex flex-wrap items-center gap-3">
-        <SubmitButton className="btn btn-dark" pending="發布中…">{hasStory ? "更新故事" : "發布故事"}</SubmitButton>
+        <SubmitButton className="btn btn-primary" pending="發布中…">{hasStory ? "更新故事" : "發布故事"}</SubmitButton>
         {hasStory && (
           <button
             type="button"

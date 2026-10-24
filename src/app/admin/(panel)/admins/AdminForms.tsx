@@ -31,7 +31,7 @@ export function CreateAdminForm() {
         </label>
       </div>
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-dark" pending="建立中…">建立帳號</SubmitButton>
+      <SubmitButton className="btn btn-primary" pending="建立中…">建立帳號</SubmitButton>
     </form>
   );
 }
@@ -42,7 +42,7 @@ export function ResetPasswordForm({ id }: { id: string }) {
     <form action={action} className="mt-2 flex flex-wrap items-center gap-2">
       <input type="hidden" name="id" value={id} />
       <input name="password" type="password" required minLength={12} placeholder="新密碼" className="input !min-h-[36px] w-44 !py-1 text-note" autoComplete="new-password" />
-      <SubmitButton className="btn btn-outline btn-sm" pending="…">重設</SubmitButton>
+      <SubmitButton className="btn btn-sm" pending="…">重設</SubmitButton>
       <FormMessage state={state} />
     </form>
   );

@@ -11,7 +11,7 @@ export default async function ContentAdmin() {
   return (
     <div className="max-w-3xl">
       <PageTitle title="首頁內容" lead="修改後立即生效。">
-        <a href="/" target="_blank" className="btn btn-outline btn-sm">在新分頁開啟首頁</a>
+        <a href="/" target="_blank" className="btn btn-sm">在新分頁開啟首頁</a>
       </PageTitle>
       <div className="space-y-10">
         <HeroImageForm current={values["hero.image"]} />

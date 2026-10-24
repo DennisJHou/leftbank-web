@@ -34,7 +34,7 @@ export default async function AiPage() {
   }
 
   return (
-    <div className="paper-grid paper-page">
+    <div>
       <div className="container-narrow pt-10">
         <BackLink href="/compass">職涯羅盤</BackLink>
         <PageHeader eyebrow="#職涯羅盤" title="AI 生涯對談">

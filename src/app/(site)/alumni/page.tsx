@@ -24,7 +24,7 @@ export default async function AlumniPage({ searchParams }: PageProps<"/alumni">)
   ]);
 
   return (
-    <div className="paper-grid paper-page">
+    <div>
       <ScrollFx />
       <div className="container-page">
         <PageHeader eyebrow="#認識系友" title="系友園地" visual={<CoffeeSketch />}>

@@ -10,7 +10,7 @@ export function ResendForm({ email }: { email: string }) {
     <form action={action} className="space-y-4">
       <input type="email" name="email" defaultValue={email} required className="input" aria-label="Email" />
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-outline" pending="寄送中…">重新寄送驗證信</SubmitButton>
+      <SubmitButton className="btn" pending="寄送中…">重新寄送驗證信</SubmitButton>
     </form>
   );
 }

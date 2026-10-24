@@ -7,7 +7,7 @@ export default function NotFound() {
       <LogoMark className="h-10 w-10 text-ink" />
       <h1 className="h-page mt-10">找不到這個頁面</h1>
       <p className="mt-4 text-body text-ash">頁面不存在，或已經被移除。</p>
-      <Link href="/" className="btn btn-dark mt-10">回到首頁</Link>
+      <Link href="/" className="btn btn-primary mt-10">回到首頁</Link>
     </div>
   );
 }

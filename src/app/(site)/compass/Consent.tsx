@@ -20,7 +20,7 @@ export function Consent({ items, onAgree, cta, pending }: { items: string[]; onA
         <input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} className="checkbox" />
         我了解並同意以上的資料使用方式
       </label>
-      <button type="button" disabled={!checked || pending} onClick={onAgree} className="btn-pill btn-pill-solid mt-8">
+      <button type="button" disabled={!checked || pending} onClick={onAgree} className="btn btn-primary mt-8">
         {pending ? "準備中…" : cta}
       </button>
     </div>

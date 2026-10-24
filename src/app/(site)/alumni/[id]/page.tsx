@@ -41,7 +41,7 @@ export default async function AlumniProfilePage({ params, searchParams }: PagePr
   const subtitle = [p.title, p.company].filter(Boolean).join("，");
 
   return (
-    <div className="paper-grid paper-page">
+    <div>
       <ScrollFx />
       <div className="container-page pt-10">
         <BackLink href="/alumni">系友園地</BackLink>
@@ -63,7 +63,7 @@ export default async function AlumniProfilePage({ params, searchParams }: PagePr
             {p.fields.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {p.fields.map((f) => (
-                  <span key={f} className="tag-pill">{f}</span>
+                  <span key={f} className="tag">{f}</span>
                 ))}
               </div>
             )}
@@ -89,10 +89,10 @@ export default async function AlumniProfilePage({ params, searchParams }: PagePr
                   {canContact && !pending && (
                     <>
                       {p.acceptQuestion && (
-                        <Link href={contactHref("question")} className="btn-pill btn-pill-solid w-full">線上提問</Link>
+                        <Link href={contactHref("question")} className="btn btn-primary w-full">線上提問</Link>
                       )}
                       {p.acceptCoffee && (
-                        <Link href={contactHref("coffee")} className={`btn-pill w-full ${p.acceptQuestion ? "" : "btn-pill-solid"}`}>
+                        <Link href={contactHref("coffee")} className={`btn w-full ${p.acceptQuestion ? "" : "btn-primary"}`}>
                           約一杯咖啡
                         </Link>
                       )}

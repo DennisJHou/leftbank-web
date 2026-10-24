@@ -15,7 +15,7 @@ export function NameForm({ name }: { name: string }) {
       <label className="field-label" htmlFor="name">姓名</label>
       <div className="flex gap-2">
         <input id="name" name="name" defaultValue={name} required maxLength={40} className="input" />
-        <SubmitButton className="btn btn-outline shrink-0" pending="儲存中…">儲存</SubmitButton>
+        <SubmitButton className="btn shrink-0" pending="儲存中…">儲存</SubmitButton>
       </div>
       <FormMessage state={state} />
     </form>
@@ -45,7 +45,7 @@ export function PasswordForm() {
         </label>
       </div>
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-outline" pending="更新中…">更新密碼</SubmitButton>
+      <SubmitButton className="btn" pending="更新中…">更新密碼</SubmitButton>
     </form>
   );
 }
@@ -73,7 +73,7 @@ export function EducationForm({
     <form action={action} className="space-y-5">
       <EducationFields rows={rows} setRows={setRows} allowStudying={allowStudying} />
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-dark" pending="儲存中…">儲存學歷</SubmitButton>
+      <SubmitButton className="btn btn-primary" pending="儲存中…">儲存學歷</SubmitButton>
     </form>
   );
 }
@@ -97,7 +97,7 @@ export function PhotoForm({ name, photo }: { name: string; photo: string | null 
       <Avatar name={name} src={photo} size={96} />
       <div className="space-y-2">
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => inputRef.current?.click()} disabled={pending} className="btn btn-outline">
+          <button type="button" onClick={() => inputRef.current?.click()} disabled={pending} className="btn">
             {pending ? "上傳中…" : photo ? "更換照片" : "上傳照片"}
           </button>
           {photo && (
@@ -242,7 +242,7 @@ export function PublicProfileForm({ initial }: { initial: PublicInitial }) {
 
       <div className="space-y-4">
         <FormMessage state={state} />
-        <SubmitButton className="btn btn-dark" pending="儲存中…">儲存公開設定</SubmitButton>
+        <SubmitButton className="btn btn-primary" pending="儲存中…">儲存公開設定</SubmitButton>
       </div>
     </form>
   );

@@ -1,7 +1,7 @@
 /** 換頁時立刻顯示的骨架：伺服器還在算新頁面的時候，使用者馬上看到「有在動」，不會覺得按鈕沒反應 */
 export default function Loading() {
   return (
-    <div className="paper-grid paper-page" role="status" aria-label="載入中">
+    <div role="status" aria-label="載入中">
       <div className="container-page">
         <div className="motion-safe:animate-pulse">
           <div className="h-3 w-24 bg-hairline" />

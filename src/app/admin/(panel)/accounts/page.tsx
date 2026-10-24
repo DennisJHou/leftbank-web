@@ -140,7 +140,7 @@ export default async function AccountsPage({ searchParams }: PageProps<"/admin/a
                   <Td>
                     <div className="flex justify-end gap-2">
                       {needsReview && u.status !== "suspended" && u.email_verified_at && (
-                        <ConfirmButton action={approveUser.bind(null, u.id)} className="btn btn-dark btn-sm">
+                        <ConfirmButton action={approveUser.bind(null, u.id)} className="btn btn-primary btn-sm">
                           審核通過
                         </ConfirmButton>
                       )}
@@ -150,7 +150,7 @@ export default async function AccountsPage({ searchParams }: PageProps<"/admin/a
                         <ConfirmButton
                           action={suspendUser.bind(null, u.id)}
                           confirm={`確定要停用「${u.name}」的帳號嗎？對方會立即被登出，並從系友園地消失。`}
-                          className="btn btn-sm text-ash hover:text-error"
+                          className="btn btn-text btn-danger"
                         >
                           停用
                         </ConfirmButton>

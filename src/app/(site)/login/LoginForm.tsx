@@ -22,7 +22,7 @@ export function LoginForm({ next }: { next?: string }) {
         <input id="password" name="password" type="password" autoComplete="current-password" required className="input" />
       </div>
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-dark w-full" pending="登入中…">登入</SubmitButton>
+      <SubmitButton className="btn btn-primary w-full" pending="登入中…">登入</SubmitButton>
     </form>
   );
 }

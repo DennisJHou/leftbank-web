@@ -35,7 +35,7 @@ const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as React.CSSProperties;
 /** 結果頁的外框：方格紙、捲動效果、返回連結 */
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="paper-grid paper-page">
+    <div>
       <ScrollFx />
       <div className="container-page pt-10">
         <BackLink href="/compass">職涯羅盤</BackLink>
@@ -146,8 +146,8 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
       <Recommendations services={services} alumni={alumni} />
 
       <div className="mt-16 flex flex-wrap gap-3 border-t border-hairline pt-10">
-        <Link href="/compass/cddq" className="btn-pill btn-pill-solid">重新測驗</Link>
-        <Link href="/me?tab=records" className="btn-pill">我的羅盤紀錄</Link>
+        <Link href="/compass/cddq" className="btn btn-primary">重新測驗</Link>
+        <Link href="/me?tab=records" className="btn">我的羅盤紀錄</Link>
       </div>
     </Shell>
   );
@@ -217,7 +217,7 @@ function Recommendations({ services, alumni }: { services: Service[]; alumni: Re
                       {v.title === "public" && a.title && <p className="truncate text-meta text-ash">{a.title}</p>}
                     </div>
                   </div>
-                  {a.tagline && <p className="mt-5 flex-1 font-kai text-[1.125rem] leading-[1.8] tracking-[0.04em] text-ink-strong">「{a.tagline}」</p>}
+                  {a.tagline && <p className="mt-5 flex-1 text-tagline">「{a.tagline}」</p>}
                   <p className="mt-5 text-note text-ash">
                     {[a.accept_question && "可線上提問", a.accept_coffee && "可約咖啡"].filter(Boolean).join(" · ")}
                   </p>
@@ -293,8 +293,8 @@ function AiResult({ report, date, alumni, services }: { report: AiReport; date: 
       <Recommendations services={services} alumni={alumni} />
 
       <div className="mt-16 flex flex-wrap gap-3 border-t border-hairline pt-10">
-        <Link href="/compass/cddq" className="btn-pill btn-pill-solid">生涯決策困難量表</Link>
-        <Link href="/me?tab=records" className="btn-pill">我的羅盤紀錄</Link>
+        <Link href="/compass/cddq" className="btn btn-primary">生涯決策困難量表</Link>
+        <Link href="/me?tab=records" className="btn">我的羅盤紀錄</Link>
       </div>
     </Shell>
   );

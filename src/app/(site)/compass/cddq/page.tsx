@@ -10,7 +10,7 @@ export default async function CddqPage() {
   const user = await requireUser("/compass/cddq");
   const elig = compassEligibility(user);
   return (
-    <div className="paper-grid paper-page">
+    <div>
       <div className="container-narrow pt-10">
         <BackLink href="/compass">職涯羅盤</BackLink>
         <PageHeader eyebrow="#職涯羅盤" title="生涯決策困難量表">

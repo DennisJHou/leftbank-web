@@ -100,7 +100,7 @@ export function EducationFields({
           )}
         </fieldset>
       ))}
-      <button type="button" onClick={() => setRows([...rows, newEduRow()])} className="btn btn-outline">
+      <button type="button" onClick={() => setRows([...rows, newEduRow()])} className="btn">
         新增一筆學歷
       </button>
     </div>

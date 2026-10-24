@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 export function SubmitButton({
   children,
   pending: pendingLabel,
-  className = "btn btn-dark",
+  className = "btn btn-primary",
   disabled,
   name,
   value,

@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 /*
- * 設計系統：淺米白底、深灰文字、少量而明確的字級。
- * 首頁走 justfont 路線：方格紙底、直排標語、鋼筆線條插畫加水彩色塊、#小標、膠囊按鈕、捲動動畫。
- * 字級只用下面七個：display（首頁主標）> page（頁面標題）> section（區塊標題）> item（卡片／人名）> body > meta > note
+ * 左岸計畫設計系統。完整說明見專案根目錄的 DESIGN.md，這裡只留要點：
+ * 紙（方格紙底、直角容器、細線）、水（河水綠是唯一的互動色、水彩色塊）、墨（襯線標題、寬字距、楷體引文）、手（鋼筆線條插畫、印章）。
+ * 規則：容器像紙，是直角；動作與選擇像鵝卵石，是膠囊。
+ * 字級只用下面八個：display > feature > page > section > item > body > meta > note
  */
 @theme {
   /* 文字與介面 */
-  --color-ink: #333333;
+  --color-ink: #383530; /* 暖炭灰，比純灰多一點紙墨的溫度 */
   --color-ink-strong: #1d1d1b;
-  --color-stone: #333333; /* 舊名稱，等同 ink */
+  --color-stone: #383530; /* 舊名稱，等同 ink */
   --color-ash: #5f5e58; /* 次要文字，在底色上符合 AA 對比 */
   --color-mute: #8d8b82; /* 只用於線條 */
   --color-placeholder: #6f6d65; /* placeholder 文字，在白底上約 5.2:1，符合 AA */
@@ -55,6 +56,8 @@
 
   --text-display: clamp(2.25rem, 1.35rem + 3.2vw, 3.75rem);
   --text-display--line-height: 1.18;
+  --text-feature: clamp(1.875rem, 1.35rem + 1.9vw, 2.875rem);
+  --text-feature--line-height: 1.35;
   --text-page: clamp(2rem, 1.55rem + 1.8vw, 3rem);
   --text-page--line-height: 1.22;
   --text-section: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
@@ -109,7 +112,7 @@
     background: var(--color-gold-pale);
   }
   :focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid var(--color-river);
     outline-offset: 2px;
   }
   [id] {
@@ -147,26 +150,42 @@
     color: var(--color-ink-strong);
   }
 
-  /* ─── 按鈕：直角、兩種尺寸 ─── */
+  /* ─── 按鈕：全站同一套。膠囊形、河水綠，兩種尺寸 ───
+   * .btn 本身就是「次要」樣式（外框）；.btn-primary 是「主要」（實心）。
+   * .btn-light 用在深色圖片上，.btn-text 是文字型的第三層，.btn-sm 是小尺寸（導覽列、表格）。
+   * 後台在 .admin-ui 裡把 --btn-radius 設成 0、--color-river 換成墨色，所以同一組 class 會變成直角黑白。 */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     min-height: 48px;
-    padding: 0 28px;
-    border: 1px solid transparent;
-    border-radius: 0;
+    padding: 0 26px;
+    border: 1.5px solid var(--color-river);
+    border-radius: var(--btn-radius, 9999px);
+    background: var(--color-canvas);
+    color: var(--color-river);
     font-size: 0.9375rem;
     font-weight: 500;
+    letter-spacing: 0.08em;
     line-height: 1.2;
     white-space: nowrap;
     cursor: pointer;
     transition:
-      background-color 0.15s,
-      color 0.15s,
-      border-color 0.15s,
+      background-color 0.2s,
+      color 0.2s,
+      border-color 0.2s,
       opacity 0.15s;
+  }
+  .btn:hover:where(:not(:disabled, [aria-disabled="true"])) {
+    background: var(--color-river);
+    color: #fff;
+  }
+  .btn svg {
+    transition: transform 0.25s var(--ease-out-soft);
+  }
+  .btn:hover svg {
+    transform: translateX(4px);
   }
   .btn-sm {
     min-height: 40px;
@@ -179,92 +198,42 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
-  .btn-dark {
-    background: var(--color-ink);
-    border-color: var(--color-ink);
+  .btn[aria-disabled="true"] {
+    pointer-events: none;
+  }
+  .btn-primary {
+    background: var(--color-river);
     color: #fff;
   }
-  .btn-dark:hover:not(:disabled) {
-    background: var(--color-ink-strong);
-  }
-  .btn-outline {
-    border-color: var(--color-ink);
-    color: var(--color-ink);
-    background: transparent;
-  }
-  .btn-outline:hover:not(:disabled) {
-    background: rgb(51 51 51 / 0.06);
+  .btn-primary:hover:where(:not(:disabled, [aria-disabled="true"])) {
+    background: var(--color-river-deep);
+    border-color: var(--color-river-deep);
   }
   .btn-light {
     border-color: rgb(255 255 255 / 0.85);
     color: #fff;
     background: transparent;
   }
-  .btn-light:hover {
-    background: rgb(255 255 255 / 0.12);
-  }
-  /* 膠囊按鈕（參考 justfont 的「深入瞭解」）：河水綠外框，滑過時填滿 */
-  .btn-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    min-height: 46px;
-    padding: 0 24px;
-    border: 1.5px solid var(--color-river);
-    border-radius: 9999px;
-    color: var(--color-river);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    line-height: 1.2;
-    white-space: nowrap;
-    transition:
-      background-color 0.2s,
-      color 0.2s;
-  }
-  .btn-pill:hover {
-    background: var(--color-river);
+  .btn-light:hover:where(:not(:disabled, [aria-disabled="true"])) {
+    background: rgb(255 255 255 / 0.14);
     color: #fff;
   }
-  .btn-pill svg {
-    transition: transform 0.25s var(--ease-out-soft);
-  }
-  .btn-pill:hover svg {
-    transform: translateX(4px);
-  }
-  .btn-pill-sm {
-    min-height: 38px;
-    padding: 0 16px;
-    font-size: 0.875rem;
-  }
-  .btn-pill-solid {
-    background: var(--color-river);
-    color: #fff;
-  }
-  .btn-pill-solid:hover {
-    background: var(--color-river-deep);
-    border-color: var(--color-river-deep);
-  }
-  .btn-pill:disabled,
-  .btn-pill[aria-disabled="true"] {
-    opacity: 0.4;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-  /* 文字型按鈕：用在次要動作（例如「移除」「登出」） */
+  /* 文字型按鈕：次要動作（例如「移除」「登出」），沒有外框 */
   .btn-text {
     min-height: 40px;
     padding: 0 4px;
+    border-color: transparent;
+    background: transparent;
     color: var(--color-ash);
-    font-size: 0.9375rem;
+    letter-spacing: 0.04em;
   }
-  .btn-text:hover:not(:disabled) {
+  .btn-text:hover:where(:not(:disabled, [aria-disabled="true"])) {
+    background: transparent;
     color: var(--color-ink);
     text-decoration: underline;
     text-underline-offset: 4px;
   }
-  .btn-danger:hover:not(:disabled) {
+  .btn-danger:hover:where(:not(:disabled, [aria-disabled="true"])) {
     color: var(--color-error);
   }
 
@@ -318,7 +287,8 @@
   }
   .input:focus {
     outline: none;
-    border-color: var(--color-ink);
+    border-color: var(--color-river);
+    box-shadow: 0 0 0 3px rgb(47 93 80 / 0.12);
   }
   .input:disabled {
     background: var(--color-panel);
@@ -340,14 +310,14 @@
     flex-shrink: 0;
     width: 20px;
     height: 20px;
-    border: 1px solid var(--color-ink);
+    border: 1px solid var(--color-river);
     background: var(--color-surface);
     display: inline-grid;
     place-content: center;
     cursor: pointer;
   }
   .checkbox:checked {
-    background: var(--color-ink);
+    background: var(--color-river);
   }
   .checkbox:checked::after {
     content: "";
@@ -374,16 +344,16 @@
       border-color 0.15s;
   }
   .option:hover {
-    border-color: var(--color-ink);
+    border-color: var(--color-river);
   }
   .option[aria-pressed="true"],
   .option:has(input:checked) {
-    background: var(--color-ink);
-    border-color: var(--color-ink);
+    background: var(--color-river);
+    border-color: var(--color-river);
     color: #fff;
   }
 
-  /* 分頁：底線式，參考 Aesop 的 Fresh／Floral／Woody */
+  /* 分頁：底線式，目前的分頁用河水綠底線 */
   .tabs {
     display: flex;
     gap: 32px;
@@ -408,19 +378,21 @@
   .tab[aria-current="page"],
   .tab[aria-pressed="true"] {
     color: var(--color-ink-strong);
-    border-bottom-color: var(--color-ink);
+    border-bottom-color: var(--color-river);
   }
 
-  /* 標籤：直角、文字為主 */
+  /* 標籤：膠囊、細線外框，狀態與領域共用 */
   .tag {
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
-    border: 1px solid var(--color-hairline);
-    background: var(--color-surface);
+    padding: 2px 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 9999px;
+    background: transparent;
     color: var(--color-ash);
     font-size: var(--text-note);
-    line-height: 1.5;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
     white-space: nowrap;
   }
   .tag-accent {
@@ -519,19 +491,6 @@
     outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
-  /* 小標籤：領域等 */
-  .tag-pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 12px;
-    border: 1px solid var(--color-line);
-    border-radius: 9999px;
-    color: var(--color-ash);
-    font-size: var(--text-note);
-    line-height: 1.6;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-  }
   /* 圓角的輸入框（搜尋、下拉選單），沿用 .input 的其他設定 */
   .input-pill {
     border-radius: 9999px;
@@ -586,8 +545,8 @@
   .h-feature {
     font-family: var(--font-serif);
     font-weight: 600;
-    font-size: clamp(1.875rem, 1.35rem + 1.9vw, 2.875rem);
-    line-height: 1.35;
+    font-size: var(--text-feature);
+    line-height: var(--text-feature--line-height);
     letter-spacing: 0.12em;
     color: var(--color-ink-strong);
     text-wrap: balance;
@@ -612,6 +571,14 @@
     font-size: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
     line-height: 1.9;
     letter-spacing: 0.06em;
+    color: var(--color-ink-strong);
+  }
+  /* 金句：故事卡與結果頁引用系友的一句話 */
+  .text-tagline {
+    font-family: var(--font-kai);
+    font-size: 1.1875rem;
+    line-height: 1.85;
+    letter-spacing: 0.04em;
     color: var(--color-ink-strong);
   }
   .giant-kai {
@@ -881,4 +848,20 @@
 }
 .snap-row > * {
   scroll-snap-align: start;
+}
+
+/* ─── 後台：密集的操作介面，是全站唯一的例外 ───
+ * 同一組 class，換掉兩個變數：按鈕變直角、互動色從河水綠變成墨色。 */
+@layer components {
+  .admin-ui {
+    --btn-radius: 0px;
+    --color-river: var(--color-ink);
+    --color-river-deep: var(--color-ink-strong);
+  }
+  .admin-ui .btn {
+    letter-spacing: 0.02em;
+  }
+  .admin-ui .tag {
+    border-radius: 0;
+  }
 }

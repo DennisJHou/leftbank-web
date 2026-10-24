@@ -13,7 +13,7 @@ export function ForgotForm() {
         <input id="email" name="email" type="email" required autoComplete="email" className="input" />
       </div>
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-dark w-full" pending="寄送中…">寄送重設密碼信</SubmitButton>
+      <SubmitButton className="btn btn-primary w-full" pending="寄送中…">寄送重設密碼信</SubmitButton>
     </form>
   );
 }

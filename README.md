@@ -2,7 +2,7 @@
 
 臺大心理系「左岸計畫」的網站：串起**系友 × 學生 × 系上**。學生可以讀系友的學思歷程、低門檻地向系友提問或約 Coffee Chat，並透過「職涯羅盤」知道自己卡在哪裡、哪項服務最能幫到自己。
 
-依據上一層資料夾的 [網站規格書.md](../網站規格書.md)（v0.2）與 [DESIGN.md](../DESIGN.md) 建置。
+依據上一層資料夾的 [網站規格書.md](../網站規格書.md)（v0.2）建置，視覺依 [DESIGN.md](../DESIGN.md)。
 
 ---
 
@@ -116,7 +116,7 @@ npm run dev                  # http://localhost:3000
 | 身分由學歷推算 | `src/lib/identity.ts` |
 | 後台 | `src/app/admin/`、`src/lib/admin-auth.ts` |
 | Email 一覽（7 種） | `src/lib/mail.ts` |
-| 設計系統（字級、按鈕、色彩） | `src/app/globals.css`、`src/components/ui.tsx` |
+| 設計系統（字級、按鈕、色彩） | `../DESIGN.md`、`src/app/globals.css`、`src/components/ui.tsx`、`/dev/design` |
 
 ### 幾個實作上的決定
 
@@ -132,22 +132,16 @@ npm run dev                  # http://localhost:3000
 
 ## 設計系統
 
-視覺參考 Aesop：淺米白底（`#fffef2`）、深灰文字（`#333`）、直角元件、大量留白。全站只用以下字級（定義在 `src/app/globals.css`）：
+完整規範在上一層資料夾的 [DESIGN.md](../DESIGN.md)；顏色、字級、元件 class 的實際定義在 [src/app/globals.css](src/app/globals.css)。本機執行後，可以在 [/dev/design](http://localhost:3000/dev/design) 看到所有規則的實際樣子（正式環境不會顯示）。
 
-| 名稱 | 用途 | 大小 |
-|---|---|---|
-| `h-display` | 首頁主標題 | 36–60px，襯線 |
-| `h-page` | 每頁最大的標題 | 32–48px，襯線 |
-| `h-section` | 區塊標題、「某某的故事」 | 24–32px，襯線 |
-| `h-item` | 人名、卡片標題、題目 | 18px，無襯線粗體 |
-| `text-body` | 內文 | 17px |
-| `text-meta` | 次要資訊、按鈕 | 15px |
-| `text-note` | 最小的提示文字 | 14px（不再更小） |
+重點：
 
-- 按鈕一律直角，只有兩種尺寸：`btn`（48px 高）與 `btn-sm`（40px，用在導覽列與後台表格）。樣式：`btn-dark`（主要）、`btn-outline`（次要）、`btn-light`（深色圖片上）、`btn-text`（文字型）。導覽列的「註冊／登入」是全站唯一的藍色按鈕。
-- 篩選與分頁用底線式的 `tabs`／`tab`；表單裡的選項用直角的 `option`；狀態用 `tag`。
-- 全站不使用 emoji，也不使用膠囊形（全圓角）的按鈕與標籤。
-- 首頁預設主視覺是黃昏的河岸咖啡館插畫（`src/components/HeroIllustration.tsx`），後台可以換成照片；照片上會自動加深色漸層，讓白色標題清楚。
+- 感覺是**質感、溫暖、人文情懷**：方格紙底、河水綠、襯線標題、手繪插畫與印章。
+- **容器像紙，是直角；動作與選擇像鵝卵石，是膠囊；河水綠是唯一的互動色。**
+- 八個字級：`h-display`、`h-feature`、`h-page`、`h-section`、`h-item`、`text-body`、`text-meta`、`text-note`。
+- 按鈕只有一組：`btn`（次要）、`btn btn-primary`（主要）、`btn btn-text`、`btn btn-light`、`btn-sm`。後台在外層加 `admin-ui`，同一組 class 會變成直角黑白。
+- 前台所有頁面的方格紙在 `src/app/(site)/layout.tsx` 統一鋪設，頁面本身不要再加背景。
+- 全站不使用 emoji。
 
 ---
 

@@ -11,7 +11,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         跳到主要內容
       </a>
       <Nav />
-      <main id="main" tabIndex={-1} className="outline-none">
+      <main id="main" tabIndex={-1} className="paper-grid paper-page outline-none">
         {children}
       </main>
       <Footer />

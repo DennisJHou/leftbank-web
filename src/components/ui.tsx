@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-/** 按鈕與連結裡的箭頭（參考 Aesop 的「Explore the story →」） */
+/** 按鈕與連結裡的箭頭 */
 export function Arrow({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" className={className} aria-hidden>
@@ -20,7 +20,7 @@ export function BackLink({ href, children }: { href: string; children: React.Rea
 
 const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as React.CSSProperties;
 
-/** 頁面標題（參考 justfont）：#小標、加字距的大標題、說明，右邊可以放一張線條插畫。載入時依序浮現 */
+/** 頁面標題：#小標、加字距的大標題、說明，右邊可以放一張線條插畫。載入時依序浮現 */
 export function PageHeader({
   title,
   eyebrow,

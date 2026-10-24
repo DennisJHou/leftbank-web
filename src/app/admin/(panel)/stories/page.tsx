@@ -42,17 +42,17 @@ export default async function StoriesAdmin() {
                 <div className="flex gap-2">
                   {s.status === "published" ? (
                     <>
-                      <a href={`/alumni/${s.user_id}#story`} target="_blank" className="btn btn-sm text-stone">查看</a>
+                      <a href={`/alumni/${s.user_id}#story`} target="_blank" className="btn btn-sm">查看</a>
                       <ConfirmButton
                         action={setStoryStatus.bind(null, s.id, "hidden")}
                         confirm={`確定要下架「${s.name}」的故事嗎？`}
-                        className="btn btn-outline btn-sm"
+                        className="btn btn-sm"
                       >
                         下架
                       </ConfirmButton>
                     </>
                   ) : (
-                    <ConfirmButton action={setStoryStatus.bind(null, s.id, "published")} className="btn btn-dark btn-sm">
+                    <ConfirmButton action={setStoryStatus.bind(null, s.id, "published")} className="btn btn-primary btn-sm">
                       恢復
                     </ConfirmButton>
                   )}

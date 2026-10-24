@@ -6,7 +6,7 @@ export const metadata = { title: "生涯決策困難量表（試用）", robots:
 
 export default function TryPage() {
   return (
-    <div className="paper-grid paper-page">
+    <div>
       <ScrollFx />
       <div className="container-page pt-10">
         <BackLink href="/compass">職涯羅盤</BackLink>

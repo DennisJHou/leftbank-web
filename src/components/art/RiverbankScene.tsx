@@ -1,7 +1,7 @@
 import { Ink, Paper, WASH, Wash, blob, circle, palm, quad, r1, rng, tuft, type Pt } from "./sketch";
 
 /*
- * 首頁主視覺：鋼筆線條＋水彩色塊的河岸風景（參考 justfont 首頁的手繪城市）。
+ * 首頁主視覺：鋼筆線條＋水彩色塊的河岸風景。
  * 左岸是亮著燈的咖啡館，兩個人坐在戶外喝咖啡聊天；一座拱橋通往對岸的椰林與紅磚校舍。
  * 分成遠、中、近、前四層，各自是一張 SVG，捲動時用不同速度位移，做出景深。
  */

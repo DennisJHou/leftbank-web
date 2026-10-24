@@ -112,7 +112,7 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
               aria-label="你的訊息"
               className="max-h-40 flex-1 resize-none bg-transparent py-2 text-body outline-none"
             />
-            <button type="button" onClick={send} disabled={sending || !draft.trim()} className="btn-pill btn-pill-solid btn-pill-sm shrink-0">
+            <button type="button" onClick={send} disabled={sending || !draft.trim()} className="btn btn-primary btn-sm shrink-0">
               送出
             </button>
           </div>
@@ -125,7 +125,7 @@ export function AiChat({ initial, turnsLeft: initialLeft, maxTurns }: { initial:
             type="button"
             onClick={finish}
             disabled={finishing || sending || userTurns < 2}
-            className={`btn-pill btn-pill-sm ${turnsLeft === 0 ? "btn-pill-solid" : ""}`}
+            className={`btn btn-sm ${turnsLeft === 0 ? "btn-primary" : ""}`}
           >
             {finishing ? "產生報告中…" : "結束並產生報告"}
           </button>

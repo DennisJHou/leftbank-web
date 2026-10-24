@@ -123,8 +123,8 @@ export function TrialResult({ items, onRestart }: { items: Record<string, number
       </details>
 
       <div className="mt-14 flex flex-wrap gap-3 border-t border-hairline pt-10">
-        <button type="button" onClick={onRestart} className="btn-pill btn-pill-solid">重新作答</button>
-        <Link href="/compass/cddq" className="btn-pill">
+        <button type="button" onClick={onRestart} className="btn btn-primary">重新作答</button>
+        <Link href="/compass/cddq" className="btn">
           登入後作答並保存結果 <Arrow />
         </Link>
       </div>

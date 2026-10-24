@@ -52,7 +52,7 @@ export function ContentForm({ values }: { values: Record<string, string> }) {
         </section>
       ))}
       <div className="sticky bottom-4 flex items-center gap-4 bg-canvas/90 py-2 backdrop-blur">
-        <SubmitButton className="btn btn-dark" pending="儲存中…">儲存首頁內容</SubmitButton>
+        <SubmitButton className="btn btn-primary" pending="儲存中…">儲存首頁內容</SubmitButton>
         <FormMessage state={state} />
       </div>
     </form>
@@ -76,12 +76,12 @@ export function HeroImageForm({ current }: { current: string }) {
         )}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={() => ref.current?.click()} disabled={pending} className="btn btn-outline btn-sm">
+        <button type="button" onClick={() => ref.current?.click()} disabled={pending} className="btn btn-sm">
           {pending ? "上傳中…" : "上傳新圖片"}
         </button>
         {current && (
           <form action={setRemoveState}>
-            <SubmitButton className="btn btn-sm text-ash hover:text-error" pending="處理中…">改回預設插畫</SubmitButton>
+            <SubmitButton className="btn btn-text btn-danger" pending="處理中…">改回預設插畫</SubmitButton>
           </form>
         )}
         <span className="text-note text-ash">建議橫式、寬 2000px 以上，會自動壓縮。</span>

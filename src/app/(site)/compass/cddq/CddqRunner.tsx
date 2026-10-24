@@ -185,8 +185,8 @@ export function CddqRunner({
         </fieldset>
         {error && <p className="notice notice-error" role="alert">{error}</p>}
         <div className="flex items-center gap-3">
-          <button type="button" onClick={() => setStep(total - 1)} className="btn-pill">上一題</button>
-          <button type="button" onClick={submit} disabled={pending || !interests.length || !stage || !goal} className="btn-pill btn-pill-solid">
+          <button type="button" onClick={() => setStep(total - 1)} className="btn">上一題</button>
+          <button type="button" onClick={submit} disabled={pending || !interests.length || !stage || !goal} className="btn btn-primary">
             {pending ? "計算中…" : "查看結果"}
           </button>
         </div>

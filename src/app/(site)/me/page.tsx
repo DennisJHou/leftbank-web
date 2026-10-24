@@ -169,7 +169,7 @@ async function RecordsTab({ userId, canWrite }: { userId: string; canWrite: bool
             ) : (
               <p className="text-meta">尚未撰寫故事。</p>
             )}
-            <Link href="/me/story" className="btn btn-outline shrink-0">{story ? "編輯故事" : "開始撰寫"}</Link>
+            <Link href="/me/story" className="btn shrink-0">{story ? "編輯故事" : "開始撰寫"}</Link>
           </div>
         ) : (
           <p className="mt-3 text-meta text-ash">故事開放給系友與老師撰寫。</p>
@@ -244,11 +244,11 @@ async function RecordsTab({ userId, canWrite }: { userId: string; canWrite: bool
                 </span>
                 {r.status === "pending" ? (
                   <span className="flex gap-2">
-                    <Link href={`/r/${r.token}?action=accept`} className="btn btn-dark btn-sm">我會聯絡他</Link>
-                    <Link href={`/r/${r.token}?action=decline`} className="btn btn-outline btn-sm">婉拒</Link>
+                    <Link href={`/r/${r.token}?action=accept`} className="btn btn-primary btn-sm">我會聯絡他</Link>
+                    <Link href={`/r/${r.token}?action=decline`} className="btn btn-sm">婉拒</Link>
                   </span>
                 ) : r.status === "accepted" ? (
-                  <Link href={`/r/${r.token}?action=complete`} className="btn btn-outline btn-sm">標示為已完成</Link>
+                  <Link href={`/r/${r.token}?action=complete`} className="btn btn-sm">標示為已完成</Link>
                 ) : (
                   <StatusChip status={r.status} />
                 )}

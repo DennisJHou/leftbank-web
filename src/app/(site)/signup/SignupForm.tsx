@@ -13,11 +13,11 @@ const ROLES: { value: Exclude<Role, "">; label: string; hint: string }[] = [
   { value: "teacher", label: "教師", hint: "需管理員審核" },
 ];
 
-export function SignupForm() {
+export function SignupForm({ asAlumni = false }: { asAlumni?: boolean }) {
   const [state, action] = useActionState(signup, undefined);
-  const [alumni, setAlumni] = useState(false);
-  const [role, setRole] = useState<Role>("student");
-  const [rows, setRows] = useState<EduRow[]>([newEduRow({ studying: true })]);
+  const [alumni, setAlumni] = useState(asAlumni);
+  const [role, setRole] = useState<Role>(asAlumni ? "" : "student");
+  const [rows, setRows] = useState<EduRow[]>([asAlumni ? newEduRow() : newEduRow({ studying: true })]);
 
   const hasStudying = (r: EduRow[]) => r.some((x) => x.studying);
   const hasGraduated = (r: EduRow[]) => r.some((x) => !x.studying);
@@ -109,7 +109,7 @@ export function SignupForm() {
       </div>
 
       <FormMessage state={state} />
-      <SubmitButton className="btn btn-dark w-full" pending="建立帳號中…">建立帳號</SubmitButton>
+      <SubmitButton className="btn btn-primary w-full" pending="建立帳號中…">建立帳號</SubmitButton>
       <p className="text-center text-note text-ash">
         註冊即表示你同意左岸計畫依照本網站說明使用你的資料。
       </p>

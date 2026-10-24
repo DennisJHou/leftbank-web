@@ -7,7 +7,7 @@ export function ConfirmButton({
   action,
   confirm: message,
   children,
-  className = "btn btn-outline btn-sm",
+  className = "btn btn-sm",
 }: {
   action: () => Promise<unknown>;
   confirm?: string;

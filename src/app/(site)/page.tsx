@@ -32,7 +32,7 @@ export default async function HomePage() {
   const sealDelay = 150 + (title.length + subtitle.length) * 300 + 200;
 
   return (
-    <div className="paper-grid paper-page">
+    <div>
       <ScrollFx />
 
       {/* 主視覺：直排標語＋河岸插畫 */}
@@ -62,8 +62,47 @@ export default async function HomePage() {
               </span>
             </div>
           </div>
+          {/* 兩個出口：學生、系友各走各的路 */}
+          <div className="rise relative z-10 mt-10 flex flex-wrap justify-center gap-3 md:mt-12" style={delay(sealDelay + 300)}>
+            <Link href="/alumni" className="btn btn-primary">
+              我是學生 <Arrow />
+            </Link>
+            <Link href="/for-alumni" className="btn">
+              我是系友 <Arrow />
+            </Link>
+          </div>
         </div>
         <RiverbankScene image={c["hero.image"]} className="-mt-10 md:-mt-[18vw]" />
+      </section>
+
+      {/* 系友故事：訪客最想先看到的，排在計畫緣起之前 */}
+      <section id="stories" className="scroll-mt-24 pt-28 md:pt-40">
+        <div className="container-page flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <span className="eyebrow" data-reveal>
+              #系友故事
+            </span>
+            <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
+              學長姐走過的路
+            </h2>
+          </div>
+          <Link href="/alumni" className="btn" data-reveal style={delay(160)}>
+            看更多系友 <Arrow />
+          </Link>
+        </div>
+        {stories.length ? (
+          <div className="snap-row mt-12 flex gap-5 overflow-x-auto px-5 md:container-page md:grid md:grid-cols-3 md:gap-10 md:overflow-visible">
+            {stories.map((s, i) => (
+              <div key={s.userId} className="w-[82%] shrink-0 md:w-auto">
+                <StoryCard s={s} index={i} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="container-page mt-12">
+            <EmptyState />
+          </div>
+        )}
       </section>
 
       {/* 三重困境：三個圓交疊，交集是左岸 */}
@@ -125,36 +164,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 系友故事 */}
-      <section className="pt-28 md:pt-40">
-        <div className="container-page flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <span className="eyebrow" data-reveal>
-              #系友故事
-            </span>
-            <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
-              學長姐走過的路
-            </h2>
-          </div>
-          <Link href="/alumni" className="btn-pill" data-reveal style={delay(160)}>
-            看更多系友 <Arrow />
-          </Link>
-        </div>
-        {stories.length ? (
-          <div className="snap-row mt-12 flex gap-5 overflow-x-auto px-5 md:container-page md:grid md:grid-cols-3 md:gap-10 md:overflow-visible">
-            {stories.map((s, i) => (
-              <div key={s.userId} className="w-[82%] shrink-0 md:w-auto">
-                <StoryCard s={s} index={i} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="container-page mt-12">
-            <EmptyState />
-          </div>
-        )}
-      </section>
-
       {/* 職涯羅盤：指針跟著捲動轉 */}
       <section data-progress className="container-page grid items-center gap-12 pt-28 md:grid-cols-[5fr_7fr] md:gap-20 md:pt-40">
         <div className="mx-auto w-full max-w-[380px]" data-reveal="draw">
@@ -178,7 +187,7 @@ export default async function HomePage() {
           <p className="prose-airy mt-4" data-reveal style={delay(240)}>
             此外，更提供最多 6 輪的 AI 互動對話，陪伴你針對目前的卡點反覆對話、尋找破局點。
           </p>
-          <Link href="/compass" className="btn-pill mt-9" data-reveal style={delay(280)}>
+          <Link href="/compass" className="btn mt-9" data-reveal style={delay(280)}>
             開始探索 <Arrow />
           </Link>
         </div>
