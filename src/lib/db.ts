@@ -61,7 +61,10 @@ async function connectPostgres(url: string): Promise<Db> {
     // Supabase 的 transaction pooler 不支援 prepared statements
     prepare: false,
     max: 5,
-    idle_timeout: 20,
+    // Vercel 實例閒置時會被凍結，連線在背後被 pooler 關掉卻沒人知道；縮短壽命並限制連線等待時間
+    idle_timeout: 5,
+    max_lifetime: 120,
+    connect_timeout: 10,
     ssl: local ? false : "require",
     onnotice: () => {},
     types: {
@@ -75,14 +78,41 @@ async function connectPostgres(url: string): Promise<Db> {
     },
   });
 
-  const wrap = (s: Sql | TransactionSql): Db => ({
+  /**
+   * 連線若在背後已死，查詢會一直等下去。超過時限就丟掉整個連線池；單純的 select 自動換新連線重試一次，
+   * 寫入不重試（不確定有沒有成功），直接回報錯誤讓使用者再按一次。交易裡的查詢不處理，由外層交易統一失敗。
+   */
+  const QUERY_TIMEOUT_MS = 8000;
+  const TIMEOUT = "資料庫查詢逾時";
+  const guarded = async <T,>(text: string, params: unknown[], run: () => Promise<T[]>): Promise<T[]> => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([
+        run(),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(new Error(TIMEOUT)), QUERY_TIMEOUT_MS);
+        }),
+      ]);
+    } catch (err) {
+      if (!(err instanceof Error) || err.message !== TIMEOUT) throw err;
+      console.error(`[db] 查詢逾時，重建連線池：${text.slice(0, 80)}`);
+      g.__leftbankDb = undefined;
+      void sql.end({ timeout: 0 }).catch(() => {});
+      if (!/^\s*select\b/i.test(text)) throw err;
+      return (await db()).query<T>(text, params);
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  const wrap = (s: Sql | TransactionSql, inTx = false): Db => ({
     kind: "postgres",
     async query<T>(text: string, params: unknown[] = []) {
-      const rows = await s.unsafe(text, params as never[]);
-      return rows as unknown as T[];
+      const run = async () => (await s.unsafe(text, params as never[])) as unknown as T[];
+      return inTx ? run() : guarded(text, params, run);
     },
     async one<T>(text: string, params: unknown[] = []) {
-      const rows = await s.unsafe(text, params as never[]);
+      const rows = await this.query<T>(text, params);
       return (rows[0] as T | undefined) ?? null;
     },
     async exec(text: string) {
@@ -90,7 +120,7 @@ async function connectPostgres(url: string): Promise<Db> {
     },
     async tx<T>(fn: (db: Db) => Promise<T>) {
       if ("begin" in s) {
-        return (await s.begin((t) => fn(wrap(t)))) as T;
+        return (await s.begin((t) => fn(wrap(t, true)))) as T;
       }
       return fn(wrap(s)); // 已經在交易裡
     },
