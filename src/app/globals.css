@@ -11,7 +11,8 @@
   --color-ink-strong: #1d1d1b;
   --color-stone: #333333; /* 舊名稱，等同 ink */
   --color-ash: #5f5e58; /* 次要文字，在底色上符合 AA 對比 */
-  --color-mute: #8d8b82; /* 只用於線條與 placeholder */
+  --color-mute: #8d8b82; /* 只用於線條 */
+  --color-placeholder: #6f6d65; /* placeholder 文字，在白底上約 5.2:1，符合 AA */
   --color-canvas: #fbfaf4;
   --color-panel: #f5f3e4;
   --color-surface: #ffffff;
@@ -89,8 +90,12 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
   body {
     background: var(--color-canvas);
@@ -309,7 +314,7 @@
     transition: border-color 0.15s;
   }
   .input::placeholder {
-    color: var(--color-mute);
+    color: var(--color-placeholder);
   }
   .input:focus {
     outline: none;
@@ -620,6 +625,7 @@
 
   /* 文字連結：河水綠、底線從左邊長出來、箭頭往右推 */
   .link-arrow {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -635,6 +641,12 @@
   .link-arrow:hover,
   .group:hover .link-arrow {
     background-size: 100% 1px;
+  }
+  /* 不改變外觀，只把可點擊範圍的高度撐到 44px 以上 */
+  .link-arrow::before {
+    content: "";
+    position: absolute;
+    inset: -10px 0;
   }
   .link-arrow svg {
     transition: transform 0.25s var(--ease-out-soft);

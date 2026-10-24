@@ -15,17 +15,17 @@ export function Footer() {
         </div>
         <div>
           <p className="text-meta font-medium">網站</p>
-          <ul className="mt-4 space-y-3 text-meta text-white/70">
-            <li><Link href="/#dilemmas" className="hover:text-white">關於計畫</Link></li>
-            <li><Link href="/alumni" className="hover:text-white">系友園地</Link></li>
-            <li><Link href="/compass" className="hover:text-white">職涯羅盤</Link></li>
+          <ul className="mt-2 text-meta text-white/70">
+            <li><Link href="/#dilemmas" className="block py-3 hover:text-white">關於計畫</Link></li>
+            <li><Link href="/alumni" className="block py-3 hover:text-white">系友園地</Link></li>
+            <li><Link href="/compass" className="block py-3 hover:text-white">職涯羅盤</Link></li>
           </ul>
         </div>
         <div>
           <p className="text-meta font-medium">聯絡我們</p>
-          <ul className="mt-4 space-y-3 text-meta text-white/70">
-            <li><a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white">{CONTACT_EMAIL}</a></li>
-            <li>臺大心理系館 南館</li>
+          <ul className="mt-2 text-meta text-white/70">
+            <li><a href={`mailto:${CONTACT_EMAIL}`} className="block py-3 hover:text-white">{CONTACT_EMAIL}</a></li>
+            <li className="py-3">臺大心理系館 南館</li>
           </ul>
         </div>
       </div>
