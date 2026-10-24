@@ -64,10 +64,10 @@ export default async function HomePage() {
           </div>
           {/* 兩個出口：學生、系友各走各的路 */}
           <div className="rise relative z-10 mt-10 flex flex-wrap justify-center gap-3 md:mt-12" style={delay(sealDelay + 300)}>
-            <Link href="/alumni" className="btn btn-primary">
+            <Link href="/alumni" className="btn btn-primary btn-hero">
               我是學生 <Arrow />
             </Link>
-            <Link href="/for-alumni" className="btn">
+            <Link href="/for-alumni" className="btn btn-hero">
               我是系友 <Arrow />
             </Link>
           </div>

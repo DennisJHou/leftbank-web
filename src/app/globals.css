@@ -175,6 +175,8 @@
       background-color 0.2s,
       color 0.2s,
       border-color 0.2s,
+      box-shadow 0.2s,
+      transform 0.2s,
       opacity 0.15s;
   }
   .btn:hover:where(:not(:disabled, [aria-disabled="true"])) {
@@ -192,6 +194,24 @@
     padding: 0 18px;
     font-size: 0.875rem;
     gap: 8px;
+  }
+  /* 主視覺尺寸：首頁兩個出口。放大、加粗，並用陰影從插畫上浮起來 */
+  .btn-hero {
+    min-height: 60px;
+    padding: 0 38px;
+    border-width: 2px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    gap: 12px;
+    box-shadow: 0 10px 24px -8px rgb(35 70 60 / 0.45);
+  }
+  .btn-hero svg {
+    width: 20px;
+    height: 20px;
+  }
+  .btn-hero:hover:where(:not(:disabled, [aria-disabled="true"])) {
+    box-shadow: 0 14px 28px -8px rgb(35 70 60 / 0.5);
+    transform: translateY(-2px);
   }
   .btn:disabled,
   .btn[aria-disabled="true"] {
