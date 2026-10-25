@@ -22,6 +22,13 @@ export default async function StoryPage({ searchParams }: PageProps<"/me/story">
       <h1 className="h-page">留下你的故事</h1>
 
       <div className="mt-8 space-y-3">
+        {sp.welcome === "1" && (
+          <p className="notice notice-ok">
+            email 已完成驗證，歡迎加入左岸計畫。你的帳號已經完成註冊，寫故事不是必要的；
+            但只要回答九題裡的任何一題，學弟妹就能在系友園地讀到你。
+            <Link href="/for-alumni" className="link ml-2">了解參與方式</Link>
+          </p>
+        )}
         {sp.saved && (
           <p className="notice notice-ok">
             已發布。<Link href={`/alumni/${user.id}#story`} className="link">查看故事頁</Link>
@@ -47,7 +54,7 @@ export default async function StoryPage({ searchParams }: PageProps<"/me/story">
         ) : user.status !== "active" ? (
           <p className="notice">帳號審核通過後，就可以發布故事。</p>
         ) : (
-          <StoryEditor initial={{ tagline: story?.tagline ?? "", answers: story?.answers ?? {} }} hasStory={Boolean(story)} />
+          <StoryEditor initial={{ tagline: story?.tagline ?? "", answers: story?.answers ?? {} }} hasStory={Boolean(story)} onboarding={sp.welcome === "1" && !story} />
         )}
       </div>
     </div>

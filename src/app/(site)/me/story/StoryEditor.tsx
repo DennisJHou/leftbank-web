@@ -1,14 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { deleteStory, saveStory } from "@/app/actions/story";
 import { FormMessage, SubmitButton } from "@/components/forms";
 import {
   STORY_FREE,
-  STORY_MIN_OPTIONAL,
+  STORY_MIN_ANSWERS,
   STORY_QUESTIONS,
   STORY_SUGGESTED,
   TAGLINE_MAX,
+  countAnswered,
   type StoryAnswers,
 } from "@/lib/story-questions";
 
@@ -23,15 +25,24 @@ function Counter({ n }: { n: number }) {
   );
 }
 
-export function StoryEditor({ initial, hasStory }: { initial: { tagline: string; answers: StoryAnswers }; hasStory: boolean }) {
+export function StoryEditor({
+  initial,
+  hasStory,
+  onboarding = false,
+}: {
+  initial: { tagline: string; answers: StoryAnswers };
+  hasStory: boolean;
+  onboarding?: boolean;
+}) {
   const [state, action] = useActionState(saveStory, undefined);
   const [answers, setAnswers] = useState<StoryAnswers>(initial.answers);
   const [tagline, setTagline] = useState(initial.tagline);
   const [open, setOpen] = useState<Set<string>>(
-    () => new Set(STORY_QUESTIONS.filter((q) => q.required || initial.answers[q.key]).map((q) => q.key)),
+    () => new Set(STORY_QUESTIONS.filter((q, i) => initial.answers[q.key] || (i === 0 && !countAnswered(initial.answers))).map((q) => q.key)),
   );
   const [deleting, startDelete] = useTransition();
-  const optionalDone = STORY_QUESTIONS.filter((q) => !q.required && answers[q.key]?.trim()).length;
+  const answered = countAnswered(answers);
+  const ready = tagline.trim().length > 0 && answered >= STORY_MIN_ANSWERS;
 
   const set = (k: keyof StoryAnswers, v: string) => setAnswers((a) => ({ ...a, [k]: v }));
   const toggle = (k: string) =>
@@ -62,8 +73,8 @@ export function StoryEditor({ initial, hasStory }: { initial: { tagline: string;
       <div>
         <div className="flex items-baseline justify-between gap-4">
           <p className="field-label !mb-0">題目</p>
-          <p className={`text-meta ${optionalDone >= STORY_MIN_OPTIONAL ? "text-ok" : "text-ash"}`}>
-            第 3 題必答，其他已回答 {optionalDone} 題（至少 {STORY_MIN_OPTIONAL} 題）
+          <p className={`text-meta ${answered >= STORY_MIN_ANSWERS ? "text-ok" : "text-ash"}`}>
+            九題任選，至少回答 {STORY_MIN_ANSWERS} 題・已回答 {answered} 題
           </p>
         </div>
         <p className="mt-2 text-meta text-ash">
@@ -77,18 +88,15 @@ export function StoryEditor({ initial, hasStory }: { initial: { tagline: string;
               <div key={q.key} className={`border bg-surface ${isOpen ? "border-line" : "border-hairline"}`}>
                 <button
                   type="button"
-                  onClick={() => !q.required && toggle(q.key)}
+                  onClick={() => toggle(q.key)}
                   aria-expanded={isOpen}
                   className="flex w-full items-start gap-3 px-5 py-4 text-left"
                 >
                   <span className="w-5 shrink-0 text-body text-ash">{i + 1}</span>
                   <span className="flex-1 text-body">
                     {q.text}
-                    {q.required && <span className="ml-2 tag">必答</span>}
                   </span>
-                  {!q.required && (
-                    <span className="mt-1 shrink-0 text-meta text-ash">{n ? "已作答" : isOpen ? "收起" : "作答"}</span>
-                  )}
+                  <span className="mt-1 shrink-0 text-meta text-ash">{n ? "已作答" : isOpen ? "收起" : "作答"}</span>
                 </button>
                 <div className={isOpen ? "px-5 pb-5" : "hidden"}>
                   <textarea
@@ -96,7 +104,6 @@ export function StoryEditor({ initial, hasStory }: { initial: { tagline: string;
                     value={answers[q.key] ?? ""}
                     onChange={(e) => set(q.key, e.target.value)}
                     rows={7}
-                    required={q.required}
                     className="input"
                   />
                   <div className="mt-1.5 text-right">
@@ -116,7 +123,14 @@ export function StoryEditor({ initial, hasStory }: { initial: { tagline: string;
 
       <FormMessage state={state} />
       <div className="flex flex-wrap items-center gap-3">
-        <SubmitButton className="btn btn-primary" pending="發布中…">{hasStory ? "更新故事" : "發布故事"}</SubmitButton>
+        <SubmitButton className="btn btn-primary" pending="發布中…" disabled={!ready}>
+          {hasStory ? "更新故事" : "發布故事"}
+        </SubmitButton>
+        {!ready && (
+          <span className="text-meta text-ash">
+            還差：{[!tagline.trim() && "一句話", answered < STORY_MIN_ANSWERS && `至少回答 ${STORY_MIN_ANSWERS} 題`].filter(Boolean).join("、")}
+          </span>
+        )}
         {hasStory && (
           <button
             type="button"
@@ -131,6 +145,11 @@ export function StoryEditor({ initial, hasStory }: { initial: { tagline: string;
         )}
       </div>
       <p className="text-meta text-ash">送出即發布，之後可以隨時編輯。</p>
+      {onboarding && (
+        <p className="text-note text-ash">
+          不想現在寫？沒有故事也不影響你的帳號，<Link href="/me?welcome=1" className="link">先略過，之後再寫</Link>。
+        </p>
+      )}
     </form>
   );
 }

@@ -1,15 +1,11 @@
-/** 系友故事的寫作框架：必答第 3 題，其他 8 題選至少 2 題，最後是選填的自由段 */
+/** 系友故事的寫作框架：九題任選至少 1 題回答，最後是選填的自由段 */
 
 export type StoryKey = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7" | "q8" | "q9" | "free";
 
-export const STORY_QUESTIONS: { key: Exclude<StoryKey, "free">; text: string; required?: boolean }[] = [
+export const STORY_QUESTIONS: { key: Exclude<StoryKey, "free">; text: string }[] = [
   { key: "q1", text: "當初為什麼選擇心理系？進來之後，和你想像的有什麼不一樣？" },
   { key: "q2", text: "在系上，印象最深刻的一門課、一位老師，或一件事是什麼？" },
-  {
-    key: "q3",
-    text: "離開臺大心理系之後，你曾在哪些地方求學或任職？每一次生涯的轉換，是怎麼決定的？",
-    required: true,
-  },
+  { key: "q3", text: "離開臺大心理系之後，你曾在哪些地方求學或任職？每一次生涯的轉換，是怎麼決定的？" },
   { key: "q4", text: "心理學在你的工作與生活中，扮演著什麼樣的角色？" },
   { key: "q5", text: "二十幾歲時，你最迷惘的一段時間是什麼時候？後來是怎麼走過來的？" },
   { key: "q6", text: "如果能回到大一，或大四畢業前夕，你會想對當時的自己說什麼？" },
@@ -20,8 +16,8 @@ export const STORY_QUESTIONS: { key: Exclude<StoryKey, "free">; text: string; re
 
 export const STORY_FREE = { key: "free" as const, text: "還想對學弟妹說的話" };
 
-/** 其他 8 題至少要回答幾題 */
-export const STORY_MIN_OPTIONAL = 2;
+/** 九題至少要回答幾題 */
+export const STORY_MIN_ANSWERS = 1;
 
 /** 每題建議字數（軟性提示，不強制） */
 export const STORY_SUGGESTED = { min: 150, max: 400 };
@@ -41,11 +37,13 @@ export function storySections(answers: StoryAnswers) {
   return sections;
 }
 
+export function countAnswered(answers: StoryAnswers) {
+  return STORY_QUESTIONS.filter((q) => answers[q.key]?.trim()).length;
+}
+
 export function validateStory(tagline: string, answers: StoryAnswers): string | null {
   if (!tagline.trim()) return "請寫下一句話，它會出現在首頁的故事卡上。";
   if (tagline.trim().length > TAGLINE_MAX) return `一句話請在 ${TAGLINE_MAX} 字以內。`;
-  if (!answers.q3?.trim()) return "第 3 題是必答題。";
-  const optional = STORY_QUESTIONS.filter((q) => !q.required && answers[q.key]?.trim()).length;
-  if (optional < STORY_MIN_OPTIONAL) return `除了第 3 題，請再從其他題目中選 ${STORY_MIN_OPTIONAL} 題以上回答。`;
+  if (countAnswered(answers) < STORY_MIN_ANSWERS) return `九題裡請至少回答 ${STORY_MIN_ANSWERS} 題。`;
   return null;
 }

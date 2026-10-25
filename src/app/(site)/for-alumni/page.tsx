@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { DAILY_REQUEST_LIMIT, RESPONSE_DAYS } from "@/lib/constants";
-import { STORY_MIN_OPTIONAL, STORY_SUGGESTED } from "@/lib/story-questions";
+import { STORY_MIN_ANSWERS, STORY_SUGGESTED } from "@/lib/story-questions";
 import { Arrow, PageHeader } from "@/components/ui";
 import { ScrollFx } from "@/components/ScrollFx";
 import { CoffeeSketch } from "@/components/art/CoffeeSketch";
@@ -13,7 +13,7 @@ const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as React.CSSProperties;
 const PROMISES = [
   {
     title: "要花多少時間",
-    text: `寫故事：九題裡必答第 3 題，再任選 ${STORY_MIN_OPTIONAL} 題，每題建議 ${STORY_SUGGESTED.min}–${STORY_SUGGESTED.max} 字，之後可以隨時修改或刪除。線上提問：回一封信。Coffee Chat：見一次面。每一項都能單獨開關，沒開放的項目，學生就看不到聯絡按鈕。`,
+    text: `寫故事（選填，沒寫也能完成註冊、出現在系友園地）：九題裡任選至少 ${STORY_MIN_ANSWERS} 題回答，每題建議 ${STORY_SUGGESTED.min}–${STORY_SUGGESTED.max} 字，之後可以隨時修改或刪除。線上提問：回一封信。Coffee Chat：見一次面。每一項都能單獨開關，沒開放的項目，學生就看不到聯絡按鈕。`,
   },
   {
     title: "信箱不會外露",

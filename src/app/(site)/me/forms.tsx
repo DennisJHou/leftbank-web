@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useRef, useState, useTransition } from "react";
 import { changePassword, removePhoto, updateEducation, updateName, updatePublicProfile, uploadPhoto } from "@/app/actions/me";
 import { FormMessage, SubmitButton } from "@/components/forms";
@@ -145,19 +146,20 @@ function Switch({ name, checked, onChange, disabled, label, hint }: {
   hint?: string;
 }) {
   return (
-    <label className={`flex items-start gap-4 py-5 ${disabled ? "opacity-40" : "cursor-pointer"}`}>
-      <input
-        type="checkbox"
-        name={name}
-        checked={checked}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.checked)}
-        className="checkbox mt-1"
-      />
+    <label className={`flex items-start justify-between gap-6 py-5 ${disabled ? "opacity-45" : "cursor-pointer"}`}>
       <span>
         <span className="block text-body font-medium">{label}</span>
         {hint && <span className="mt-1 block text-meta text-ash">{hint}</span>}
       </span>
+      <input
+        type="checkbox"
+        role="switch"
+        name={name}
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+        className="switch mt-0.5"
+      />
     </label>
   );
 }
@@ -188,12 +190,16 @@ export function PublicProfileForm({ initial }: { initial: PublicInitial }) {
       <section>
         <h3 className="h-section">公開層級</h3>
         <div className="mt-5 divide-y divide-hairline border-y border-hairline">
-          <Switch name="show_in_directory" checked={show} onChange={setShow} label="出現在系友園地" hint="總開關，下面三項都要先打開它。" />
-          <Switch name="accept_question" checked={show && question} onChange={setQuestion} disabled={!show} label="接受線上提問" hint="學生寫信給你，你回一封信。" />
-          <Switch name="accept_coffee" checked={show && coffee} onChange={setCoffee} disabled={!show} label="接受 Coffee Chat" hint="見面一次，實體或線上皆可。" />
-          <Switch name="willing_to_talk" checked={show && talk} onChange={setTalk} disabled={!show} label="願意回校分享" hint="票數只有你和系上看得到。" />
+          <Switch name="show_in_directory" checked={show} onChange={setShow} label="出現在系友園地" hint="打開後，學生才找得到你的頁面。下面三項要先打開這一項才能設定。" />
+          <Switch name="accept_question" checked={show && question} onChange={setQuestion} disabled={!show} label="接受線上提問" hint={show ? "學生寫信給你，你回一封信。" : "請先打開「出現在系友園地」。"} />
+          <Switch name="accept_coffee" checked={show && coffee} onChange={setCoffee} disabled={!show} label="接受 Coffee Chat" hint={show ? "見面一次，實體或線上皆可。" : "請先打開「出現在系友園地」。"} />
+          <Switch name="willing_to_talk" checked={show && talk} onChange={setTalk} disabled={!show} label="願意回校分享" hint={show ? "票數只有你和系上看得到。" : "請先打開「出現在系友園地」。"} />
         </div>
         <p className="mt-3 text-note text-ash">你的 email 不會出現在網站上，每一則邀請都可以婉拒。</p>
+        <p className="mt-1 text-note text-ash">
+          故事不是出現在系友園地的條件，但有故事的頁面，學生比較容易想聯絡。
+          <Link href="/me/story" className="link">前往寫故事</Link>
+        </p>
       </section>
 
       <section className="space-y-5">
@@ -228,9 +234,9 @@ export function PublicProfileForm({ initial }: { initial: PublicInitial }) {
         <p className="mt-2 text-meta text-ash">姓名一律公開。</p>
         <div className="mt-4 divide-y divide-hairline border-y border-hairline">
           {VIS_ROWS.map((r) => (
-            <div key={r.key} className="flex items-center justify-between gap-4 py-3">
+            <div key={r.key} className="grid grid-cols-[4rem_1fr] items-center gap-4 py-3 sm:grid-cols-[5rem_14rem]">
               <span className="text-meta">{r.label}</span>
-              <select name={`vis_${r.key}`} defaultValue={initial.vis[r.key] ?? r.options[0]} className="input max-w-[200px] text-meta">
+              <select name={`vis_${r.key}`} defaultValue={initial.vis[r.key] ?? r.options[0]} className="input text-meta">
                 {r.options.map((o) => (
                   <option key={o} value={o}>{VIS_LABEL[o]}</option>
                 ))}

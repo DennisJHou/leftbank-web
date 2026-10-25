@@ -8,9 +8,11 @@ import {
   createSession,
   destroyAllSessions,
   destroySession,
+  getEducation,
   LOCK_MINUTES,
   MAX_FAILED_LOGINS,
 } from "@/lib/auth";
+import { deriveIdentity } from "@/lib/identity";
 import { appUrl, resetPasswordEmail, verifyEmail } from "@/lib/mail";
 import { parseEducationForm, validateEducationForIdentity } from "@/lib/education-form";
 import { PASSWORD_MIN } from "@/lib/constants";
@@ -132,7 +134,14 @@ export async function confirmEmail(_: FormState, fd: FormData): Promise<FormStat
   await query("update users set email_verified_at = coalesce(email_verified_at, now()) where id = $1", [row.user_id]);
   if (row.status === "suspended") return { error: "這個帳號已被停用。" };
   await createSession(row.user_id);
-  redirect(row.status === "pending" ? "/me?welcome=pending" : "/me?welcome=1");
+  if (row.status === "pending") redirect("/me?welcome=pending");
+  // 系友與老師驗證完直接帶去寫故事，不要停在帳號頁等他自己找入口
+  const [edu, u] = await Promise.all([
+    getEducation(row.user_id),
+    one<{ role_teacher: boolean; teacher_verified: boolean }>("select role_teacher, teacher_verified from users where id = $1", [row.user_id]),
+  ]);
+  const canBeListed = deriveIdentity(edu, u?.role_teacher ?? false, u?.teacher_verified ?? false).canBeListed;
+  redirect(canBeListed ? "/me/story?welcome=1" : "/me?welcome=1");
 }
 
 // ─── 登入、登出 ────────────────────────────────────────

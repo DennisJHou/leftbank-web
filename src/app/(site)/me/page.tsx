@@ -232,10 +232,15 @@ async function RecordsTab({ userId, canWrite }: { userId: string; canWrite: bool
         )}
       </section>
 
-      {received.length > 0 && (
+      {(canWrite || received.length > 0) && (
         <section>
           <h2 className="h-section">收到的邀請</h2>
-          <ul className="mt-5 divide-y divide-hairline border-y border-hairline">
+          {received.length === 0 && (
+            <p className="mt-3 text-meta text-ash">
+              尚無邀請。學生向你提問或邀請 Coffee Chat 時，會出現在這裡，也會寄信通知你。
+            </p>
+          )}
+          <ul className={`mt-5 divide-y divide-hairline border-y border-hairline ${received.length ? "" : "hidden"}`}>
             {received.map((r) => (
               <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-4">
                 <span>
