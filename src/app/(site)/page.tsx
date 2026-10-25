@@ -105,6 +105,35 @@ export default async function HomePage() {
         )}
       </section>
 
+      {/* 職涯羅盤：指針跟著捲動轉 */}
+      <section data-progress className="container-page grid items-center gap-12 pt-28 md:grid-cols-[5fr_7fr] md:gap-20 md:pt-40">
+        <div className="mx-auto w-full max-w-[380px]" data-reveal="draw">
+          <CompassSketch />
+        </div>
+        <div>
+          <span className="eyebrow" data-reveal>
+            #職涯羅盤
+          </span>
+          <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
+            感到迷惘嗎？
+            <br />
+            讓心理學成為你探索的起點。
+          </h2>
+          <p className="lede mt-6" data-reveal style={delay(160)}>
+            {ITEMS.length} 題量表 × AI 生涯對談
+          </p>
+          <p className="prose-airy mt-4" data-reveal style={delay(200)}>
+            本測驗採用「生涯決策困難量表」（共 {ITEMS.length} 題，約需 8 分鐘），協助你將抽象的迷惘轉化為清晰的決策維度，並根據分析結果推薦最契合的實務方案與學長姊經驗。
+          </p>
+          <p className="prose-airy mt-4" data-reveal style={delay(240)}>
+            此外，更提供最多 6 輪的 AI 互動對話，陪伴你針對目前的卡點反覆對話、尋找破局點。
+          </p>
+          <Link href="/compass" className="btn mt-9" data-reveal style={delay(280)}>
+            開始探索 <Arrow />
+          </Link>
+        </div>
+      </section>
+
       {/* 三重困境：三個圓交疊，交集是左岸 */}
       <section id="dilemmas" className="container-page grid scroll-mt-24 items-center gap-14 pt-28 md:grid-cols-[6fr_5fr] md:gap-20 md:pt-40">
         <div>
@@ -161,35 +190,6 @@ export default async function HomePage() {
               {c["about.closing"]}
             </blockquote>
           )}
-        </div>
-      </section>
-
-      {/* 職涯羅盤：指針跟著捲動轉 */}
-      <section data-progress className="container-page grid items-center gap-12 pt-28 md:grid-cols-[5fr_7fr] md:gap-20 md:pt-40">
-        <div className="mx-auto w-full max-w-[380px]" data-reveal="draw">
-          <CompassSketch />
-        </div>
-        <div>
-          <span className="eyebrow" data-reveal>
-            #職涯羅盤
-          </span>
-          <h2 className="h-feature mt-4" data-reveal style={delay(80)}>
-            感到迷惘嗎？
-            <br />
-            讓心理學成為你探索的起點。
-          </h2>
-          <p className="lede mt-6" data-reveal style={delay(160)}>
-            {ITEMS.length} 題量表 × AI 生涯對談
-          </p>
-          <p className="prose-airy mt-4" data-reveal style={delay(200)}>
-            本測驗採用「生涯決策困難量表」（共 {ITEMS.length} 題，約需 8 分鐘），協助你將抽象的迷惘轉化為清晰的決策維度，並根據分析結果推薦最契合的實務方案與學長姊經驗。
-          </p>
-          <p className="prose-airy mt-4" data-reveal style={delay(240)}>
-            此外，更提供最多 6 輪的 AI 互動對話，陪伴你針對目前的卡點反覆對話、尋找破局點。
-          </p>
-          <Link href="/compass" className="btn mt-9" data-reveal style={delay(280)}>
-            開始探索 <Arrow />
-          </Link>
         </div>
       </section>
     </div>
