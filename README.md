@@ -18,7 +18,7 @@ npm run dev                  # http://localhost:3000
 
 - **不用安裝資料庫**：沒有設定 `DATABASE_URL` 時，會自動使用內嵌的 PGlite（真正的 Postgres，資料存在 `.data/pglite`），第一次啟動自動建表並放入示範資料。
 - **不用設定寄信**：沒有設定 `GMAIL_APP_PASSWORD` 時，信件不會寄出，而是記錄在資料庫，可以在 [/dev/mailbox](http://localhost:3000/dev/mailbox) 查看並點信裡的按鈕。
-- **不用 AI 金鑰**：沒有設定 `ANTHROPIC_API_KEY` 時，本機的 AI 對談會用固定回覆代替（畫面會標示「開發模式」，正式環境不會出現）。
+- **不用 AI 金鑰**：沒有設定 `ANTHROPIC_API_KEY` 時，本機的分流 Agent 會用示範模式產生處置包（引言一樣取自示範系友的故事原文，進度條、驗證照常跑；總覽會標示「示範模式」）。
 - 想從頭來過：先停掉開發伺服器，再執行 `npm run db:reset`。
 - 正式環境（有 `DATABASE_URL`）不會放示範資料；沒有內容的區塊會顯示「資料建置中」。
 
@@ -85,18 +85,22 @@ npm run dev                  # http://localhost:3000
    - `ANTHROPIC_API_KEY`、`AI_*`：AI 宣傳期設定（見下方）
 5. 部署後，用超級管理員登入 `/admin`，在「後台帳號」建立系辦、系主任的管理員帳號，在「首頁內容」上傳主視覺照片。
 
-### AI 生涯對談的設定
+### 職涯羅盤：分流 Agent 的設定
+
+做完 CDDQ 後，網站先用固定規則（`src/lib/diagnosis.ts`）做四步驟判讀（可信度 → 區辨度 → 相對突出度 → 回饋信心）與分流（先釐清／建議諮商／有人陪／自助），再在背景啟動 Agent（`src/lib/agent/`），從資料庫的系友故事與資源目錄整理成「處置包」放進結果頁。學生端可以把處置包存成圖片。
 
 | 變數 | 說明 |
 |---|---|
-| `AI_PROMO_START` / `AI_PROMO_END` | 宣傳期（含當天，臺灣時間）。期間外顯示「即將推出」 |
-| `AI_TOTAL_BUDGET_USD` | 全站總預算。所有 AI 呼叫（對談、報告、故事標籤）的花費加總超過就顯示「名額已滿」 |
-| `AI_MAX_TURNS` | 每次對談最多幾輪（學生發言次數），預設 8 |
-| `AI_MODEL` | 預設 `claude-opus-5-5`；想降低成本可改 `claude-sonnet-5-5` 或 `claude-haiku-5-5` |
+| `AGENT_MODEL` | 預設 `claude-opus-5-5`；評估後可改 `claude-sonnet-5-5` |
+| `AGENT_SECRET` | `/api/agent/run` 的內部驗證。正式環境必填，Agent 才會在獨立的函式（最長 300 秒）執行 |
+| `AGENT_WEB` | 預設開啟：Agent 會用 web_search / web_fetch 查臺大（ntu.edu.tw）、教育部、勞動部、青年署、台灣就業通的資訊，放進處置包的「查資料」；設成 `off` 才關閉。處置包裡的網址必須真的出現在搜尋結果裡 |
+| `AGENT_MAX_PER_USER_30D` | 每位使用者每 30 天最多幾次，預設 3 |
+| `AI_PROMO_START` / `AI_PROMO_END` | 宣傳期（含當天，臺灣時間）。期間外只顯示固定推薦 |
+| `AI_TOTAL_BUDGET_USD` | 全站總預算（Agent 與故事標籤合計）。用完自動改顯示固定推薦，畫面不出現「名額已滿」 |
 
-每個帳號限用 1 次；預算用完時，已經開始的對談仍可以完成。花費依照官方定價即時記錄在 `ai_usage`，後台儀表板看得到已用金額與剩餘預算。請求帶有 server-side fallback，若模型因安全政策婉拒，會自動改由備援模型回答。
+診斷門檻集中在 `src/lib/diagnosis-config.ts`（全部標註「待查證」），後台「分流 Agent」頁看得到目前的值；資源目錄在後台「資源目錄」頁管理，種子資料在 `db/seed/resources.json`。Agent 的輸出必須通過 `src/lib/agent/validate.ts`（資源必須在目錄裡、系友引言必須是故事原文、至少 3 種有效成分且有「找一個人」的出口、不出現人名與醫療化字詞），不通過可修補一次，仍不通過就改顯示固定推薦。`npm test` 會跑分流規則與驗證的測試。
 
----
+舊的「AI 生涯對談」已移除；過去的對談報告（`kind = 'ai'`）仍可唯讀開啟。
 
 ## 功能與程式位置
 
@@ -110,7 +114,7 @@ npm run dev                  # http://localhost:3000
 | 逾期與完成確認排程 | `src/lib/cron.ts`、`src/app/api/cron/daily/route.ts`、`vercel.json` |
 | 我的帳號（個人資料、學歷、公開層級、紀錄） | `src/app/(site)/me/` |
 | 留下你的故事 | `src/app/(site)/me/story/`、`src/lib/story-questions.ts` |
-| 職涯羅盤：量表、AI 對談、結果頁 | `src/app/(site)/compass/`、`src/lib/cddq.ts`、`src/lib/ai.ts` |
+| 職涯羅盤：量表、診斷分流、處置包 | `src/app/(site)/compass/`、`src/lib/cddq.ts`、`src/lib/diagnosis.ts`、`src/lib/agent/` |
 | 推薦系統（詞彙表、標籤、cosine 配對） | `src/lib/tags.ts`、`src/lib/tagging.ts`、`src/lib/recommend.ts` |
 | 註冊、驗證、登入、重設密碼 | `src/app/(site)/{signup,verify,login,forgot-password,reset-password}/`、`src/app/actions/auth.ts` |
 | 身分由學歷推算 | `src/lib/identity.ts` |
@@ -170,6 +174,6 @@ npm run dev                  # http://localhost:3000
 ## 待辦
 
 1. **CDDQ 授權**：由家安寫信給田秀蘭老師確認（信的草稿在上一層資料夾）；目前網站放的是她的原題，授權確認前不可公開部署（見上方）。
-2. **AI 宣傳期參數**：起訖日期、總預算、輪數上限，上線前在 Vercel 設定。
+2. **AI 宣傳期參數**：起訖日期、總預算、`AGENT_SECRET`，上線前在 Vercel 設定。
 3. **老師的額外權限**：之後再討論（目前與一般使用者相同，只是標示「老師」）。
 4. **隱私權說明頁**：知情同意已寫在羅盤開始前；正式上線前建議補一頁完整的隱私權政策。

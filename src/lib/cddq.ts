@@ -278,12 +278,6 @@ export const SERVICES_BY_CATEGORY: Record<CategoryKey, Service[]> = {
       text: "看看學長姐在你這個階段，是怎麼開始想這件事的。",
       href: "/alumni",
     },
-    {
-      key: "ai",
-      title: "AI 生涯對談",
-      text: "把心裡的想法說出來，讓對話幫你理出頭緒。",
-      href: "/compass/ai",
-    },
   ],
   information: [
     {

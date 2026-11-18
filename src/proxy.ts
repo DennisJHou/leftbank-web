@@ -21,7 +21,7 @@ export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const gate = process.env.SITE_GATE_PASSWORD;
-  if (gate && !pathname.startsWith("/api/cron") && !gateOk(req, gate)) {
+  if (gate && !pathname.startsWith("/api/cron") && pathname !== "/api/agent/run" && !gateOk(req, gate)) {
     return new NextResponse("需要密碼才能瀏覽", {
       status: 401,
       headers: {

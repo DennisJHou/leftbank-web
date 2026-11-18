@@ -7,6 +7,7 @@ import { FOLLOWUP_DAYS, RESPONSE_DAYS, type ContactType } from "./constants";
  * 每日排程：
  * 1. 14 天沒有回應的邀請 → 逾期，並通知學生
  * 2. 接受滿 14 天的邀請 → 寄信問系友「已經完成了嗎？」（只寄一次）
+ * 3. 卡在 queued / running 超過 10 分鐘的 Agent run → 標為 failed（結果頁改顯示固定推薦，學生可以再試一次）
  */
 export async function runDailyJobs() {
   const overdue = await query<{ type: ContactType; student_name: string; student_email: string; alumni_name: string }>(
@@ -37,10 +38,15 @@ export async function runDailyJobs() {
     await followupEmail({ type: r.type, token: r.token, studentName: r.student_name, alumniName: r.alumni_name, alumniEmail: r.alumni_email });
   }
 
+  const stuck = await query<{ id: string }>(
+    `update agent_runs set status = 'failed', error = coalesce(error, 'timeout (cron)'), finished_at = now()
+      where status in ('queued', 'running') and created_at < now() - interval '10 minutes' returning id`,
+  );
+
   // 清掉過期的登入與驗證資料
   await query("delete from sessions where expires_at < now()");
   await query("delete from admin_sessions where expires_at < now()");
   await query("delete from auth_tokens where expires_at < now() - interval '7 days'");
 
-  return { overdue: overdue.length, followups: followups.length };
+  return { overdue: overdue.length, followups: followups.length, stuckAgentRuns: stuck.length };
 }

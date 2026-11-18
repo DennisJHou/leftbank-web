@@ -1,24 +1,20 @@
 "use server";
 
+import { after } from "next/server";
 import { redirect } from "next/navigation";
-import { one, query } from "@/lib/db";
+import { one } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { compassEligibility, getAiSession } from "@/lib/compass";
-import { GOAL_OPTIONS, ITEM_VERSION, scoreCddq, STAGE_OPTIONS, validateCddqItems, type CddqAnswers } from "@/lib/cddq";
+import { compassEligibility, getOwnSession } from "@/lib/compass";
+import { GOAL_OPTIONS, ITEM_VERSION, ITEMS, scoreCddq, STAGE_OPTIONS, validateCddqItems, type CddqAnswers } from "@/lib/cddq";
 import { FIELD_CATEGORIES } from "@/lib/constants";
 import { cddqTags } from "@/lib/tagging";
 import { saveUserTags } from "@/lib/recommend";
-import {
-  aiAvailability,
-  aiConfig,
-  AiRefusalError,
-  chatReply,
-  generateReport,
-  OPENING_MESSAGE,
-  type ChatMessage,
-} from "@/lib/ai";
+import { diagnose } from "@/lib/diagnosis";
+import { createRun, latestRun, runCount } from "@/lib/agent/store";
+import { originFromHeaders, triggerRun } from "@/lib/agent/trigger";
+import type { Timing } from "@/lib/agent/types";
 
-// ─── 基礎版：量表 ──────────────────────────────────────
+// ─── 量表：計分 → 四步驟診斷與分流 → 背景啟動 Agent ─────────
 
 export async function submitCddq(payload: {
   items: Record<string, number>;
@@ -26,6 +22,7 @@ export async function submitCddq(payload: {
   stage: string;
   goal: string;
   consent: boolean;
+  timing?: { started_at?: string; per_item_ms?: Record<string, number> };
 }): Promise<{ error: string } | void> {
   const user = await getCurrentUser();
   const elig = compassEligibility(user);
@@ -46,93 +43,58 @@ export async function submitCddq(payload: {
     stage: payload.stage as CddqAnswers["stage"],
     goal: payload.goal as CddqAnswers["goal"],
   };
+  const timing = cleanTiming(payload.timing);
   const scores = scoreCddq(answers.items);
+  const diagnosis = diagnose(answers.items, scores, timing);
+
   const row = await one<{ id: string }>(
-    `insert into compass_sessions (user_id, kind, answers, scores, consent_at, completed_at)
-     values ($1, 'cddq', $2::jsonb, $3::jsonb, now(), now()) returning id`,
-    [user!.id, JSON.stringify(answers), JSON.stringify(scores)],
+    `insert into compass_sessions (user_id, kind, answers, scores, diagnosis, timing, consent_at, completed_at)
+     values ($1, 'cddq', $2::jsonb, $3::jsonb, $4::jsonb, $5::jsonb, now(), now()) returning id`,
+    [user!.id, JSON.stringify(answers), JSON.stringify(scores), JSON.stringify(diagnosis), JSON.stringify(timing)],
   );
   await saveUserTags(user!.id, "cddq", cddqTags(answers, scores));
+
+  const run = await createRun(row!.id, user!.id, diagnosis);
+  if (run.status === "queued") {
+    const origin = await originFromHeaders();
+    after(() => triggerRun(run.id, origin));
+  }
   redirect(`/compass/result/${row!.id}`);
 }
 
-// ─── AI 版：生涯對談 ───────────────────────────────────
-
-type ChatResult = { messages: ChatMessage[]; turnsLeft: number; error?: string };
-
-async function aiGuard(): Promise<{ error: string } | { user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>> }> {
-  const user = await getCurrentUser();
-  const elig = compassEligibility(user);
-  if (!elig.ok) return { error: elig.reason === "login" ? "請重新登入。" : elig.reason };
-  return { user: user! };
-}
-
-/** 同意後開始一場對談（每個帳號限用 1 次） */
-export async function startAiSession(): Promise<{ error: string } | void> {
-  const g = await aiGuard();
-  if ("error" in g) return { error: g.error };
-  const existing = await getAiSession(g.user.id);
-  if (!existing) {
-    if ((await aiAvailability()) !== "open") return { error: "AI 對談目前沒有開放。" };
-    await query(
-      `insert into compass_sessions (user_id, kind, status, answers, consent_at)
-       values ($1, 'ai', 'in_progress', $2::jsonb, now())`,
-      [g.user.id, JSON.stringify({ messages: [{ role: "assistant", content: OPENING_MESSAGE }] })],
+/** 只接受合理範圍的時間資料（前端送來的，不能全信） */
+function cleanTiming(t: { started_at?: string; per_item_ms?: Record<string, number> } | undefined): Timing {
+  const out: Timing = { submitted_at: new Date().toISOString() };
+  if (t?.started_at && !Number.isNaN(Date.parse(t.started_at))) {
+    const started = Date.parse(t.started_at);
+    if (started < Date.now() && Date.now() - started < 7 * 86400_000) out.started_at = new Date(started).toISOString();
+  }
+  if (t?.per_item_ms && typeof t.per_item_ms === "object") {
+    const ids = new Set(ITEMS.map((i) => i.id));
+    const per = Object.fromEntries(
+      Object.entries(t.per_item_ms)
+        .filter(([k, v]) => ids.has(k) && typeof v === "number" && v >= 0 && v < 3600_000)
+        .map(([k, v]) => [k, Math.round(v)]),
     );
+    if (Object.keys(per).length) out.per_item_ms = per;
   }
-  redirect("/compass/ai");
+  return out;
 }
 
-export async function sendAiMessage(text: string): Promise<ChatResult> {
-  const g = await aiGuard();
-  const maxTurns = aiConfig().maxTurns;
-  if ("error" in g) return { messages: [], turnsLeft: 0, error: g.error };
-  const s = await getAiSession(g.user.id);
-  if (!s || s.status !== "in_progress") return { messages: [], turnsLeft: 0, error: "找不到進行中的對談。" };
-
-  const history = (s.answers as { messages: ChatMessage[] }).messages;
-  const used = history.filter((m) => m.role === "user").length;
-  const content = text.trim().slice(0, 1000);
-  if (!content) return { messages: history, turnsLeft: maxTurns - used, error: "請輸入想說的話。" };
-  if (used >= maxTurns) return { messages: history, turnsLeft: 0, error: "這次對談的輪數已經用完，請產生報告。" };
-
-  const next: ChatMessage[] = [...history, { role: "user", content }];
-  let reply: string;
-  try {
-    reply = await chatReply(next, g.user.id);
-  } catch (e) {
-    console.error("[ai] chat error", e);
-    return {
-      messages: history,
-      turnsLeft: maxTurns - used,
-      error: e instanceof AiRefusalError ? "這段話 AI 沒辦法回應，換個方式說說看？" : "AI 暫時沒有回應，請稍後再試一次。",
-    };
+/** 學生端「再試一次」：每次作答只能手動重試 1 次 */
+export async function retryAgent(sessionId: string): Promise<{ error: string } | { ok: true }> {
+  const user = await getCurrentUser();
+  if (!user) return { error: "請重新登入。" };
+  const s = await getOwnSession(sessionId, user.id);
+  if (!s || s.kind !== "cddq") return { error: "找不到這份結果。" };
+  const last = await latestRun(sessionId);
+  if (!last || (last.status !== "failed" && last.status !== "fallback")) return { error: "目前不需要重試。" };
+  if ((await runCount(sessionId)) >= 2) return { error: "這份結果已經重試過了。" };
+  if (!s.diagnosis) return { error: "找不到這份結果。" };
+  const run = await createRun(sessionId, user.id, s.diagnosis, last.attempt + 1);
+  if (run.status === "queued") {
+    const origin = await originFromHeaders();
+    after(() => triggerRun(run.id, origin));
   }
-  const messages: ChatMessage[] = [...next, { role: "assistant", content: reply }];
-  await query("update compass_sessions set answers = $2::jsonb where id = $1", [s.id, JSON.stringify({ messages })]);
-  return { messages, turnsLeft: maxTurns - used - 1 };
-}
-
-export async function finishAiSession(): Promise<{ error: string } | void> {
-  const g = await aiGuard();
-  if ("error" in g) return { error: g.error };
-  const s = await getAiSession(g.user.id);
-  if (!s) return { error: "找不到對談紀錄。" };
-  if (s.status === "completed") redirect(`/compass/result/${s.id}`);
-  const history = (s.answers as { messages: ChatMessage[] }).messages;
-  if (history.filter((m) => m.role === "user").length < 2) return { error: "再多聊幾句，報告會更準確（至少 2 輪）。" };
-
-  let report;
-  try {
-    report = await generateReport(history, g.user.id);
-  } catch (e) {
-    console.error("[ai] report error", e);
-    return { error: "產生報告時發生問題，請稍後再試一次。" };
-  }
-  await query(
-    "update compass_sessions set status = 'completed', report = $2::jsonb, completed_at = now() where id = $1",
-    [s.id, JSON.stringify(report)],
-  );
-  await saveUserTags(g.user.id, "ai", report.tags);
-  redirect(`/compass/result/${s.id}`);
+  return { ok: true };
 }

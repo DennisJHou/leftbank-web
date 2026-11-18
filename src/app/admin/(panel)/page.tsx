@@ -3,6 +3,8 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { one, query } from "@/lib/db";
 import { semesterOf } from "@/lib/semester";
 import { aiAvailability, aiConfig, totalSpent } from "@/lib/ai";
+import { AGENT_MODEL, agentWebEnabled } from "@/lib/agent/run";
+import { staleResourceCount } from "@/lib/resources";
 import { PageTitle, Stat, Table, Td, Th } from "../ui";
 
 export const dynamic = "force-dynamic";
@@ -32,8 +34,12 @@ export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
               count(distinct user_id)::int as users
          from compass_sessions where status = 'completed'`,
     ),
-    one<{ n: number }>("select count(*)::int as n from compass_sessions where kind = 'ai'"),
+    one<{ n: number; ok: number }>(
+      `select count(*) filter (where status <> 'skipped')::int as n, count(*) filter (where status = 'succeeded')::int as ok
+         from agent_runs where created_at >= date_trunc('month', now())`,
+    ),
   ]);
+  const stale = await staleResourceCount();
 
   // 每學期 KPI：提問數、咖啡數、接受率、完成數
   const bySem = new Map<string, Kpi>();
@@ -53,7 +59,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
 
   const cfg = aiConfig();
   const [spent, availability] = await Promise.all([totalSpent(), aiAvailability()]);
-  const AVAIL = { open: "開放中", coming_soon: "未開放（即將推出）", full: "名額已滿" } as const;
+  const AVAIL = { open: "Agent 開放中", coming_soon: "宣傳期外（只顯示固定推薦）", full: "預算用完（只顯示固定推薦）" } as const;
   const fmtDate = (d: Date | null) => (d ? d.toLocaleDateString("zh-TW") : "未設定");
 
   return (
@@ -103,10 +109,12 @@ export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
       )}
       <p className="mt-2 text-note text-ash">接受率＝已接受（含已完成）÷ 已有結果的申請（不含待回應）。</p>
 
-      <h2 className="mb-4 mt-12 h-section">職涯羅盤與 AI</h2>
+      <h2 className="mb-4 mt-12 h-section">職涯羅盤與分流 Agent</h2>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="量表完成次數" value={compass?.cddq ?? 0} sub={`使用人數 ${compass?.users ?? 0}`} />
-        <Stat label="AI 對談" value={aiCount?.n ?? 0} sub={`完成報告 ${compass?.ai ?? 0}`} />
+        <Link href="/admin/agent" className="block">
+          <Stat label="本月 Agent 次數" value={aiCount?.n ?? 0} sub={`成功 ${aiCount?.ok ?? 0}`} />
+        </Link>
         <Stat label="AI 已用金額" value={`$${spent.toFixed(2)}`} sub={`總預算 $${cfg.budgetUsd.toFixed(2)}`} />
         <Stat
           label="剩餘預算"
@@ -115,9 +123,14 @@ export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
         />
       </div>
       <p className="mt-3 text-note text-ash">
-        宣傳期：{fmtDate(cfg.promoStart)} – {fmtDate(cfg.promoEnd)} · 每次最多 {cfg.maxTurns} 輪 · 模型 {cfg.model}
-        {cfg.mock && " · 開發模式（示範回覆）"}
+        宣傳期：{fmtDate(cfg.promoStart)} – {fmtDate(cfg.promoEnd)} · Agent 模型 {AGENT_MODEL} · 網路搜尋 {agentWebEnabled() ? "開" : "關"}
+        {cfg.mock && " · 開發模式（示範處置包）"}
       </p>
+      {stale > 0 && (
+        <p className="notice mt-4">
+          有 {stale} 項資源超過 60 天沒有查證。<Link href="/admin/resources" className="underline underline-offset-4">前往資源目錄</Link>
+        </p>
+      )}
     </>
   );
 }

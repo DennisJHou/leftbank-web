@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import { compassEligibility, getAiSession } from "@/lib/compass";
-import { aiAvailability, aiConfig } from "@/lib/ai";
+import { compassEligibility } from "@/lib/compass";
 import { ITEMS } from "@/lib/cddq";
 import { one } from "@/lib/db";
 import { Arrow, PageHeader } from "@/components/ui";
@@ -17,36 +16,18 @@ const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as React.CSSProperties;
 export default async function CompassPage() {
   const user = await getCurrentUser();
   const elig = compassEligibility(user);
-  const [ai, aiSession, last] = await Promise.all([
-    aiAvailability(),
-    user ? getAiSession(user.id) : null,
-    user
-      ? one<{ id: string }>("select id from compass_sessions where user_id = $1 and status = 'completed' order by created_at desc limit 1", [user.id])
-      : null,
-  ]);
-  const { maxTurns } = aiConfig();
+  const last = user
+    ? await one<{ id: string }>("select id from compass_sessions where user_id = $1 and status = 'completed' order by created_at desc limit 1", [user.id])
+    : null;
   const usable = elig.ok || elig.reason === "login";
   const startHref = (path: string) => (user ? path : `/login?next=${encodeURIComponent(path)}`);
-
-  let aiState: { text: string; href?: string; cta?: string };
-  if (aiSession?.status === "completed") {
-    aiState = { text: "你已經完成對談。", href: `/compass/result/${aiSession.id}`, cta: "查看報告" };
-  } else if (aiSession?.status === "in_progress") {
-    aiState = { text: "你有一場尚未結束的對談。", href: "/compass/ai", cta: "繼續對談" };
-  } else if (ai === "open") {
-    aiState = { text: `最多 ${maxTurns} 輪，每個帳號限用一次。`, href: startHref("/compass/ai"), cta: "開始對談" };
-  } else if (ai === "full") {
-    aiState = { text: "名額已滿。" };
-  } else {
-    aiState = { text: "即將推出。" };
-  }
 
   return (
     <div>
       <ScrollFx />
       <div data-progress className="container-page">
         <PageHeader eyebrow="#找到卡住的地方" title="職涯羅盤" visual={<CompassSketch />}>
-          不知道下一步往哪走，常常是因為說不清楚自己卡在哪裡。先做量表，或和 AI 聊一聊，再看看哪些服務與系友幫得上忙。
+          不知道下一步往哪走，常常是因為說不清楚自己卡在哪裡。先做量表找出卡住的地方，再由 AI 助手幫你整理系友的經驗與臺大的資源。
         </PageHeader>
         {!elig.ok && elig.reason !== "login" && <p className="notice mb-10 max-w-2xl">{elig.reason}</p>}
 
@@ -87,16 +68,12 @@ export default async function CompassPage() {
                 <ChatSketch className="h-24 w-24 md:h-28 md:w-28" />
               </div>
             </div>
-            <h2 className="h-section mt-6 tracking-[0.1em]">AI 生涯對談</h2>
-            <p className="lede mt-2 text-meta">{aiState.text}</p>
-            <p className="prose-airy mt-4 flex-1 text-ash">和 AI 聊聊你現在的狀況，結束時會產生一份報告，並推薦服務與系友。</p>
-            {aiState.href && usable && (
-              <div className="mt-8">
-                <Link href={aiState.href} className="btn">
-                  {user ? aiState.cta : "登入後開始"} <Arrow />
-                </Link>
-              </div>
-            )}
+            <h2 className="h-section mt-6 tracking-[0.1em]">你的處置包</h2>
+            <p className="lede mt-2 text-meta">做完問卷後自動產生・約 1 分鐘</p>
+            <p className="prose-airy mt-4 flex-1 text-ash">
+              做完問卷，會有一位 AI 助手依你最卡的地方，整理走過類似處境的系友說過的話、適合你的臺大資源，以及這週就能做的一件事。可以存成圖片留著。
+            </p>
+            <p className="mt-6 text-note text-ash">不需要再輸入任何文字。AI 只會拿到你的分數，不會拿到姓名、學號或 email。</p>
           </section>
         </div>
 
