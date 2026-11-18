@@ -4,6 +4,8 @@ import type { CurrentUser } from "./auth";
 import type { CddqAnswers, CddqScores } from "./cddq";
 import type { AiReport, ChatMessage } from "./ai";
 import { COMPASS_GRAD_YEARS } from "./constants";
+import type { Diagnosis } from "./agent/types";
+import { CONSENT_AGENT_LINE } from "./agent/copy";
 
 export type CompassSession = {
   id: string;
@@ -16,6 +18,7 @@ export type CompassSession = {
   consent_at: Date;
   created_at: Date;
   completed_at: Date | null;
+  diagnosis: Diagnosis | null;
 };
 
 /** 使用資格：登入，且「在學中」或「畢業 5 年內」（由學歷判定），帳號已啟用 */
@@ -57,5 +60,6 @@ export const CONSENT_TEXT = [
   "你的作答會存進左岸計畫的資料庫，用來產生你的結果與推薦。",
   "只有你本人和超級管理員看得到你的個人結果。",
   "一般管理員（例如系辦）只看得到去識別化的統計與趨勢，不會知道是誰的結果。",
+  CONSENT_AGENT_LINE,
   "這不是心理診斷。如果你最近感到很大的壓力，歡迎找臺大學生心理健康中心聊聊，或撥打 24 小時安心專線 1925。",
 ];

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { getAiSession, getOwnSession, previousCddq } from "@/lib/compass";
+import { getOwnSession, previousCddq } from "@/lib/compass";
 import {
   CATEGORIES,
   levelOf,
@@ -14,12 +14,16 @@ import {
   type CddqScores,
   type Service,
 } from "@/lib/cddq";
-import { aiAvailability, type AiReport } from "@/lib/ai";
+import { parseTags, type AiReport } from "@/lib/ai";
+import { diagnose } from "@/lib/diagnosis";
+import { latestRun, statusFor } from "@/lib/agent/store";
+import { CONFIDENCE_NOTE, CREDIBILITY_REASON, REFERRAL, ROUTE_LABEL } from "@/lib/agent/copy";
+import type { Diagnosis } from "@/lib/agent/types";
+import { CompassProfile } from "@/components/compass/CompassProfile";
+import { AgentPanel } from "./AgentPanel";
 import { cddqTags, type Tag } from "@/lib/tagging";
 import { recommendAlumni, type RecommendedAlumni } from "@/lib/recommend";
 import { DEFAULT_VISIBILITY } from "@/lib/queries";
-import { RadarChart } from "@/components/compass/RadarChart";
-import { Meter } from "@/components/compass/Meter";
 import { Avatar } from "@/components/Avatar";
 import { Arrow, BackLink, EmptyState } from "@/components/ui";
 import { ScrollFx } from "@/components/ScrollFx";
@@ -51,99 +55,131 @@ const ALL_SERVICES: Record<string, Service> = Object.fromEntries(
     .map((s) => [s.key, s]),
 );
 ALL_SERVICES.talk = SERVICES_BY_CATEGORY.inconsistent.find((s) => s.key === "talk")!;
+// 舊版 AI 對談報告可能推薦「再和 AI 聊聊」，功能已停用，改指向量表
+ALL_SERVICES.ai = { key: "ai", title: "生涯決策困難量表", text: "做一次問卷，看看你卡在哪裡。", href: "/compass/cddq" };
 
 export default async function ResultPage({ params }: PageProps<"/compass/result/[id]">) {
   const { id } = await params;
   const user = await requireUser(`/compass/result/${id}`);
   const session = await getOwnSession(id, user.id);
   if (!session) notFound();
-  if (session.status !== "completed") redirect("/compass/ai");
-
-  // AI 對談只能用一次：已經用過、或目前沒開放時，不推薦 AI 對談
-  const [availability, aiSession] = await Promise.all([aiAvailability(), getAiSession(user.id)]);
-  const aiUsable = availability === "open" && !aiSession;
-  const filterServices = (list: Service[]) => list.filter((s) => s.key !== "ai" || aiUsable);
+  if (session.status !== "completed") redirect("/compass");
 
   if (session.kind === "ai") {
     const report = session.report!;
     const alumni = await recommendAlumni(user.id, report.tags);
-    return <AiResult report={report} date={session.created_at} alumni={alumni} services={filterServices(report.services.map((k) => ALL_SERVICES[k]).filter(Boolean))} />;
+    const services = report.services.map((k) => ALL_SERVICES[k]).filter(Boolean);
+    return <AiResult report={report} date={session.created_at} alumni={alumni} services={[...new Map(services.map((s) => [s.key, s])).values()]} />;
   }
 
   const scores = session.scores!;
   const answers = session.answers as CddqAnswers;
   const prev = await previousCddq(user.id, session.created_at);
-  const tags: Tag[] = cddqTags(answers, scores);
+  // 舊紀錄沒有存診斷：用同一套規則即時算（沒有作答時間，可信度只看一直線作答）
+  const diagnosis: Diagnosis = session.diagnosis ?? diagnose(answers.items, scores, null);
+  const agent = (await statusFor(session.id, user.id)) ?? { status: "none" as const, steps: [], plan: null, canRetry: false };
+
+  // 推薦系友：量表標籤，加上 Agent 產生的標籤（處置包完成後）
+  const run = agent.status === "succeeded" ? await latestRun(session.id) : null;
+  const tags: Tag[] = [...cddqTags(answers, scores), ...(run?.result ? parseTags(run.result.tags) : [])];
   const alumni = await recommendAlumni(user.id, tags);
 
-  // 依最主要困難所屬的大類，推薦服務（去除重複）
+  // 固定推薦（Agent 失敗、略過或舊紀錄時顯示）：依最主要困難所屬的大類推薦服務（去除重複）
   const cats = [...new Set(scores.top.map((k) => SUBSCALES[k].category))];
-  const services = filterServices(
-    [...new Map(cats.flatMap((c) => SERVICES_BY_CATEGORY[c]).map((s) => [s.key, s])).values()],
-  ).slice(0, 4);
+  const services = [...new Map(cats.flatMap((c) => SERVICES_BY_CATEGORY[c]).map((s) => [s.key, s])).values()].slice(0, 4);
 
   const topCat = [...CAT_KEYS].sort((a, b) => scores.categories[b] - scores.categories[a])[0];
   const allLow = CAT_KEYS.every((c) => levelOf(scores.categories[c]) === "low");
+  const route = ROUTE_LABEL[diagnosis.route];
+  const heading =
+    diagnosis.route === "clarify_first"
+      ? "這次的結果，先別急著下結論"
+      : allLow
+        ? "三大類都在穩定的範圍"
+        : `你目前最需要處理的是「${CATEGORIES[topCat].label}」`;
+  const referral = diagnosis.route === "counseling" || diagnosis.route === "clarify_first" ? REFERRAL[diagnosis.route] : null;
 
   return (
     <Shell>
       <span className="eyebrow rise mt-12" style={delay(0)}>#{fmtDate(session.created_at)} 的羅盤</span>
-      <h1 className="h-feature rise mt-3 max-w-4xl" style={delay(80)}>
-        {allLow ? "三大類都在穩定的範圍" : `你目前最需要處理的是「${CATEGORIES[topCat].label}」`}
-      </h1>
+      <h1 className="h-feature rise mt-3 max-w-4xl" style={delay(80)}>{heading}</h1>
       <p className="prose-airy rise mt-5 max-w-2xl text-ash" style={delay(160)}>
-        {allLow ? "三大類都在穩定的範圍。下面列出相對較高的面向，可以作為下一步的參考。" : CATEGORIES[topCat].summary}
+        {diagnosis.route === "clarify_first"
+          ? CONFIDENCE_NOTE.low
+          : allLow
+            ? "三大類都在穩定的範圍。下面列出相對較高的面向，可以作為下一步的參考。"
+            : CATEGORIES[topCat].summary}
       </p>
-      {!scores.validity.ok && (
-        <p className="notice mt-6 max-w-2xl">
-          有 {scores.validity.failed.length} 題確認作答品質的題目沒有照指示作答，這份結果可能不太準確。有空的話可以重新測驗一次。
-        </p>
-      )}
 
-      <div className="mt-16 grid gap-14 border-t border-hairline pt-14 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
-        <section data-reveal>
-          <h2 className="h-section tracking-[0.1em]">三大類</h2>
-          <div className="mt-8 space-y-8">
-            {CAT_KEYS.map((c) => (
-              <Meter
-                key={c}
-                label={CATEGORIES[c].label}
-                levelLabel={LEVEL_LABEL[levelOf(scores.categories[c])]}
-                value={scores.categories[c]}
-                previous={prev?.scores.categories[c]}
-              />
-            ))}
-          </div>
-          {prev && (
-            <p className="mt-6 text-note text-ash">深色刻度為 {fmtDate(prev.created_at)} 的結果。分數下降代表比較不卡了。</p>
-          )}
-        </section>
-        <section data-reveal style={delay(120)}>
-          <h2 className="h-section tracking-[0.1em]">十個面向</h2>
-          <div className="paper-card mt-8 p-4 md:p-6">
-            <RadarChart
-              axes={SUBSCALE_ORDER.map((k) => ({
-                key: k,
-                label: SUBSCALES[k].label,
-                value: scores.subscales[k],
-                previous: prev?.scores.subscales[k] ?? null,
-              }))}
-              previousLabel={prev ? fmtDate(prev.created_at) : undefined}
-            />
-          </div>
-        </section>
-      </div>
-
-      <section className="mt-20 border-t border-hairline pt-14">
-        <h2 className="h-section tracking-[0.1em]" data-reveal>{allLow ? "相對較高的面向" : "最主要的困難"}</h2>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {scores.top.map((k, i) => (
-            <TopCard key={k} k={k} scores={scores} index={i} />
-          ))}
+      <section className="mt-16 border-t border-hairline pt-14" data-reveal>
+        <h2 className="h-section tracking-[0.1em]">你的羅盤</h2>
+        <p className="mt-2 max-w-2xl text-meta text-ash">十個面向分屬三大類；同一個顏色是同一類，大類的分數就是底下面向的平均。</p>
+        <div className="mt-8">
+          <CompassProfile
+            scores={scores}
+            previous={prev?.scores ?? null}
+            previousLabel={prev ? fmtDate(prev.created_at) : undefined}
+            highlight={diagnosis.route === "clarify_first" ? [] : diagnosis.salient}
+          />
         </div>
       </section>
 
-      <Recommendations services={services} alumni={alumni} />
+      <section className="mt-20 grid gap-8 border-t border-hairline pt-14 lg:grid-cols-[1fr_1.2fr] lg:gap-16" data-reveal>
+        <div>
+          <h2 className="h-section tracking-[0.1em]">下一步怎麼走</h2>
+          <p className="mt-4 inline-block bg-wash-river px-3 py-1 text-meta font-medium text-river">{route.title}</p>
+          <p className="prose-airy mt-4">{route.text}</p>
+          {diagnosis.confidence === "medium" && <p className="notice mt-6">{CONFIDENCE_NOTE.medium}</p>}
+          {!diagnosis.credibility.ok && (
+            <p className="mt-4 text-note text-ash">
+              判斷依據：{diagnosis.credibility.reasons.map((r) => CREDIBILITY_REASON[r]).join("、")}。
+            </p>
+          )}
+        </div>
+        {referral && (
+          <div className="paper-card p-6 md:p-8">
+            <h3 className="h-item tracking-[0.08em]">{referral.title}</h3>
+            <p className="mt-2 text-meta text-ash">{referral.lead}</p>
+            <ul className="mt-5 space-y-4">
+              {referral.items.map((it) => (
+                <li key={it.href}>
+                  <a href={it.href} target="_blank" rel="noreferrer" className="link-arrow">
+                    {it.title} <Arrow />
+                  </a>
+                  <p className="text-note text-ash">{it.text}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 border-t border-hairline pt-4 text-note text-ink">{referral.hotline}</p>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-20 border-t border-hairline pt-14">
+        <h2 className="h-section tracking-[0.1em]" data-reveal>
+          {diagnosis.route === "counseling" ? "等待期間可以做的事" : "你的處置包"}
+        </h2>
+        <div className="mt-8">
+          <AgentPanel
+            sessionId={session.id}
+            initial={agent}
+            imageMeta={{ date: fmtDate(session.created_at), heading, routeTitle: route.title, routeText: route.text }}
+            fallback={
+              <>
+                <h3 className="h-item tracking-[0.1em]">{allLow ? "相對較高的面向" : "最主要的困難"}</h3>
+                <div className="mt-6 grid gap-5 md:grid-cols-3">
+                  {scores.top.map((k, i) => (
+                    <TopCard key={k} k={k} scores={scores} index={i} />
+                  ))}
+                </div>
+                <ServiceList services={services} />
+              </>
+            }
+          />
+        </div>
+      </section>
+
+      <Recommendations services={[]} alumni={alumni} />
 
       <div className="mt-16 flex flex-wrap gap-3 border-t border-hairline pt-10">
         <Link href="/compass/cddq" className="btn btn-primary">重新測驗</Link>
@@ -167,6 +203,26 @@ function TopCard({ k, scores, index }: { k: (typeof SUBSCALE_ORDER)[number]; sco
         {CATEGORIES[s.category].label}，{LEVEL_LABEL[levelOf(scores.subscales[k])]} {scores.subscales[k].toFixed(1)}
       </p>
       <p className="mt-4 text-meta leading-[1.85] tracking-[0.03em] text-ink">{s.explain}</p>
+    </div>
+  );
+}
+
+function ServiceList({ services }: { services: Service[] }) {
+  if (!services.length) return null;
+  return (
+    <div className="mt-12">
+      <h3 className="h-item tracking-[0.1em]">推薦的服務</h3>
+      <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        {services.map((s) => (
+          <Link key={s.key} href={s.href} className="paper-card group flex flex-col p-6 transition-colors hover:border-river">
+            <h4 className="h-item tracking-[0.08em]">{s.title}</h4>
+            <p className="mt-2 flex-1 text-meta text-ash">{s.text}</p>
+            <span className="link-arrow mt-5">
+              前往 <Arrow />
+            </span>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

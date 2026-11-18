@@ -12,8 +12,7 @@ import {
   SUBSCALES,
   type CategoryKey,
 } from "@/lib/cddq";
-import { RadarChart } from "@/components/compass/RadarChart";
-import { Meter } from "@/components/compass/Meter";
+import { CompassProfile } from "@/components/compass/CompassProfile";
 import { Arrow } from "@/components/ui";
 
 const CAT_KEYS = Object.keys(CATEGORIES) as CategoryKey[];
@@ -25,10 +24,9 @@ export function TrialResult({ items, onRestart }: { items: Record<string, number
   const topCat = [...CAT_KEYS].sort((a, b) => scores.categories[b] - scores.categories[a])[0];
   const allLow = CAT_KEYS.every((c) => levelOf(scores.categories[c]) === "low");
 
-  // 依最主要困難所屬的大類推薦服務（去除重複）；AI 對談需要登入，試用版不列
+  // 依最主要困難所屬的大類推薦服務（去除重複）
   const cats = [...new Set(scores.top.map((k) => SUBSCALES[k].category))];
   const services = [...new Map(cats.flatMap((c) => SERVICES_BY_CATEGORY[c]).map((s) => [s.key, s])).values()]
-    .filter((s) => s.key !== "ai")
     .slice(0, 4);
 
   return (
@@ -45,22 +43,13 @@ export function TrialResult({ items, onRestart }: { items: Record<string, number
         </p>
       )}
 
-      <div className="mt-14 grid gap-14 border-t border-hairline pt-12 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
-        <section data-reveal>
-          <h3 className="h-section tracking-[0.1em]">三大類</h3>
-          <div className="mt-8 space-y-8">
-            {CAT_KEYS.map((c) => (
-              <Meter key={c} label={CATEGORIES[c].label} levelLabel={LEVEL_LABEL[levelOf(scores.categories[c])]} value={scores.categories[c]} />
-            ))}
-          </div>
-        </section>
-        <section data-reveal style={delay(120)}>
-          <h3 className="h-section tracking-[0.1em]">十個面向</h3>
-          <div className="paper-card mt-8 p-4 md:p-6">
-            <RadarChart axes={SUBSCALE_ORDER.map((k) => ({ key: k, label: SUBSCALES[k].label, value: scores.subscales[k] }))} />
-          </div>
-        </section>
-      </div>
+      <section className="mt-14 border-t border-hairline pt-12" data-reveal>
+        <h3 className="h-section tracking-[0.1em]">你的羅盤</h3>
+        <p className="mt-2 max-w-2xl text-meta text-ash">十個面向分屬三大類；同一個顏色是同一類，大類的分數就是底下面向的平均。</p>
+        <div className="mt-8">
+          <CompassProfile scores={scores} highlight={scores.top} />
+        </div>
+      </section>
 
       <section className="mt-16 border-t border-hairline pt-12">
         <h3 className="h-section tracking-[0.1em]" data-reveal>{allLow ? "相對較高的面向" : "最主要的困難"}</h3>
@@ -90,7 +79,7 @@ export function TrialResult({ items, onRestart }: { items: Record<string, number
             </Link>
           ))}
         </div>
-        <p className="mt-6 text-note text-ash">登入後作答，還會依結果與你的興趣推薦 3 位系友，並保存結果、和下次的結果比較。</p>
+        <p className="mt-6 text-note text-ash">登入後作答，還會整理一份個人化的處置包（行動建議、系友的話、臺大資源），推薦 3 位系友，並保存結果、和下次的結果比較。</p>
       </section>
 
       <details className="mt-16 border-t border-hairline pt-8 text-meta">

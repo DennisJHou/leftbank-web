@@ -58,6 +58,10 @@ export function CddqRunner({
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const [resume, setResume] = useState<Draft | null>(null);
+  // 作答時間：給可信度檢查用（作答過快）。只記在這次開啟頁面期間，續答時沿用開始時間
+  const startedAt = useRef<string | null>(null);
+  const shownAt = useRef<number>(0);
+  const perItem = useRef<Record<string, number>>({});
 
   useEffect(() => {
     if (trial) return;
@@ -82,6 +86,7 @@ export function CddqRunner({
     (v: number) => {
       if (advancing.current) return;
       advancing.current = true;
+      if (shownAt.current) perItem.current[item.id] = (perItem.current[item.id] ?? 0) + (Date.now() - shownAt.current);
       const next = { ...items, [item.id]: v };
       setItems(next);
       if (!trial) saveDraft(key, { items: next, step: step + 1 });
@@ -92,6 +97,12 @@ export function CddqRunner({
     },
     [items, item, step, total, key, trial],
   );
+
+  useEffect(() => {
+    if (!consented || onExtras) return;
+    startedAt.current ??= new Date().toISOString();
+    shownAt.current = Date.now();
+  }, [consented, onExtras, step]);
 
   // 鍵盤 1–9 作答
   useEffect(() => {
@@ -139,7 +150,14 @@ export function CddqRunner({
         return;
       }
       start(async () => {
-        const res = await submitCddq({ items, interests, stage, goal, consent: true });
+        const res = await submitCddq({
+          items,
+          interests,
+          stage,
+          goal,
+          consent: true,
+          timing: { started_at: resume ? undefined : (startedAt.current ?? undefined), per_item_ms: perItem.current },
+        });
         if (res?.error) setError(res.error);
         else saveDraft(key, null);
       });

@@ -12,6 +12,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     { href: "/admin/talks", label: "演講意願" },
     { href: "/admin/requests", label: "提問與咖啡" },
     { href: "/admin/compass", label: "職涯羅盤" },
+    { href: "/admin/agent", label: "分流 Agent" },
+    { href: "/admin/resources", label: "資源目錄" },
     { href: "/admin/content", label: "首頁內容" },
     ...(admin.level === "super" ? [{ href: "/admin/admins", label: "後台帳號" }] : []),
   ];

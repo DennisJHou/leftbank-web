@@ -183,7 +183,7 @@ async function RecordsTab({ userId, canWrite }: { userId: string; canWrite: bool
             {sessions.map((s) => (
               <li key={s.id}>
                 <Link
-                  href={s.status === "completed" ? `/compass/result/${s.id}` : "/compass/ai"}
+                  href={s.status === "completed" ? `/compass/result/${s.id}` : "/compass"}
                   className="group flex items-center justify-between gap-4 py-4"
                 >
                   <span>
@@ -192,7 +192,7 @@ async function RecordsTab({ userId, canWrite }: { userId: string; canWrite: bool
                     </span>
                     <span className="text-meta text-ash">
                       {fmt(s.created_at)}
-                      {s.status !== "completed" && "，進行中"}
+                      {s.status !== "completed" && "，未完成（AI 對談已停用）"}
                       {s.scores &&
                         `，${(Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[])
                           .map((k) => `${CATEGORIES[k].label}${LEVEL_LABEL[levelOf(s.scores!.categories[k])]}`)
