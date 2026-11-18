@@ -20,12 +20,15 @@ export const AGENT_SYSTEM = `你是臺大心理系「左岸計畫」網站的資
 
 ## 流程
 對每個要處理的焦點（只能從「突出項」裡挑，最多 3 個，依分數高低）：
-1. 用 search_resources 查可以推薦的資源。資源只能用工具回傳的 id，不可以自己編。
-2. 用 search_stories 找走過類似處境的系友（標籤從下面的詞彙表挑）。
-3. 挑一位最相關的系友，用 get_story_excerpt 讀全文，從中**原文擷取**一段 120 字以內的話（一字不改、不拼接、不加刪節號）。找不到合適的就不要引用（alumni_quote 填 null）。
-4. 全部整理好後，呼叫 submit_plan 交出處置包。這是最後一步，交出後不要再說話。
+1. 用 search_resources 查資源目錄。資源只能用工具回傳的 id，不可以自己編。優先挑臺大或全國的資源（level 為 university、national、department），左岸自己的服務（level 為 leftbank）網站會另外用系友故事與推薦系友呈現，盡量不要放進 resource_ids。
+2. **用 web_search 實際查資訊**（有 web_search 工具時一定要做）：替每個焦點找 1–3 筆學生現在就用得到的校內外資訊，例如臺大職涯中心本學期的講座與工作坊、實習與職場體驗、心輔中心的團體、教育部與勞動部的職涯平台、和學生興趣領域相關的職業介紹。缺乏資訊類（不了解決策步驟、對自己的了解、對職業的了解、找資訊的方法、不可靠的資訊）的焦點尤其要查。需要確認內容時用 web_fetch 讀網頁。搜尋關鍵字不能包含學生的任何個人資訊。
+3. 用 search_stories 找走過類似處境的系友（標籤從下面的詞彙表挑）。
+4. 挑一位最相關的系友，用 get_story_excerpt 讀全文，從中**原文擷取**一段 120 字以內的話（一字不改、不拼接、不加刪節號）。找不到合適的就不要引用（alumni_quote 填 null）。
+5. 全部整理好後，呼叫 submit_plan 交出處置包。這是最後一步，交出後不要再說話。
 
-工具呼叫總數請控制在 10 次以內。可以同時呼叫多個工具。
+links：放第 2 步查到的資訊，每筆有標題、網址、一句說明（為什麼對這位學生有用、怎麼用）。網址必須是搜尋或讀取結果裡**原樣出現過**的網址，只能是臺大（ntu.edu.tw）或政府、教育部網站；不確定的就不要放。沒有 web_search 工具時 links 填空陣列。
+
+自訂工具（search_resources、search_stories、get_story_excerpt、recommend_alumni）呼叫總數請控制在 10 次以內。可以同時呼叫多個工具。
 
 ## 寫作規則
 - 繁體中文，語氣溫暖、平實，像一位願意花時間的學長姐。第二人稱「你」。不說教、不列長清單。
@@ -86,7 +89,7 @@ export const SUBMIT_TOOL: Anthropic.Beta.BetaTool = {
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["subscale", "title", "why", "alumni_quote", "resource_ids", "action", "writing_prompt", "components"],
+          required: ["subscale", "title", "why", "alumni_quote", "resource_ids", "links", "action", "writing_prompt", "components"],
           properties: {
             subscale: { type: "string", enum: [...SUBSCALE_ORDER] },
             title: { type: "string", description: "12 字以內的小標" },
@@ -102,6 +105,20 @@ export const SUBMIT_TOOL: Anthropic.Beta.BetaTool = {
               },
             },
             resource_ids: { type: "array", items: { type: "string" }, description: "1–2 個 search_resources 回傳的 id" },
+            links: {
+              type: "array",
+              description: "0–3 筆網路搜尋查到的校內外資訊",
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["title", "url", "note"],
+                properties: {
+                  title: { type: "string" },
+                  url: { type: "string", description: "搜尋結果裡原樣出現過的網址" },
+                  note: { type: "string", description: "一句話：為什麼有用、怎麼用" },
+                },
+              },
+            },
             action: { type: "string" },
             writing_prompt: { type: "string" },
             components: { type: "array", items: { type: "string", enum: [...COMPONENTS] } },

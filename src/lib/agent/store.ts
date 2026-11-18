@@ -5,6 +5,7 @@ import { agentMaxPer30d } from "../diagnosis-config";
 import { resourcesByIds } from "../resources";
 import { eligibleStories } from "./tools";
 import { STEP_ORDER } from "./copy";
+import { isCampus } from "./validate";
 import type { AgentPlan, AgentStatusPayload, Diagnosis, ResolvedPlan, RunStatus, Step } from "./types";
 
 export type AgentRun = {
@@ -73,6 +74,7 @@ export async function resolvePlan(plan: AgentPlan, prevSalient?: string[] | null
           .map((id) => resources.find((r) => r.id === id))
           .filter((r) => r && r.active)
           .map((r) => ({ id: r!.id, title: r!.title, provider: r!.provider, url: r!.url, summary: r!.summary, evidence: r!.evidence })),
+        links: (f.links ?? []).map((l) => ({ ...l, campus: isCampus(l.url) })),
         changed: prevSalient ? !prevSalient.includes(f.subscale) : undefined,
       };
     }),

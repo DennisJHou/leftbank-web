@@ -164,6 +164,14 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
             sessionId={session.id}
             initial={agent}
             imageMeta={{ date: fmtDate(session.created_at), heading, routeTitle: route.title, routeText: route.text }}
+            alumni={alumni.map((a) => ({
+              id: a.id,
+              name: a.name,
+              title: ({ ...DEFAULT_VISIBILITY, ...a.visibility }).title === "public" ? a.title : null,
+              tagline: a.tagline,
+              accept_question: a.accept_question,
+              accept_coffee: a.accept_coffee,
+            }))}
             fallback={
               <>
                 <h3 className="h-item tracking-[0.1em]">{allLow ? "相對較高的面向" : "最主要的困難"}</h3>
@@ -178,8 +186,6 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
           />
         </div>
       </section>
-
-      <Recommendations services={[]} alumni={alumni} />
 
       <div className="mt-16 flex flex-wrap gap-3 border-t border-hairline pt-10">
         <Link href="/compass/cddq" className="btn btn-primary">重新測驗</Link>

@@ -5,7 +5,7 @@ import type { Component, Route, StepKey } from "./types";
 export const STEP_LABELS: Record<StepKey, string> = {
   profile: "讀你的困難剖面",
   stories: "找走過類似處境的系友",
-  resources: "對照臺大與校外資源",
+  resources: "上網查臺大與校外的資訊",
   plan: "整理成你的行動建議",
 };
 export const STEP_ORDER: StepKey[] = ["profile", "stories", "resources", "plan"];

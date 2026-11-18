@@ -76,8 +76,15 @@ export function CompassProfile({
               </g>
             );
           })}
-          {/* 6.33 以上（明顯卡關）的外圈 */}
-          <circle cx={CX} cy={CY} r={radius(6.33)} fill="none" stroke="#c9b98f" strokeWidth="1" strokeDasharray="3 4" />
+          {/* 6.33 以上（明顯卡關）：外圈加斜線底紋＋實線邊界，一眼看得出來 */}
+          <defs>
+            <pattern id="hard-zone" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <rect width="7" height="7" fill="#9a5f17" fillOpacity="0.06" />
+              <line x1="0" y1="0" x2="0" y2="7" stroke="#9a5f17" strokeOpacity="0.28" strokeWidth="1.5" />
+            </pattern>
+          </defs>
+          <path d={arcPath(0, Math.PI * 2 - 0.0001, radius(6.33), R)} fill="url(#hard-zone)" />
+          <circle cx={CX} cy={CY} r={radius(6.33)} fill="none" stroke="#9a5f17" strokeOpacity="0.7" strokeWidth="1.5" />
           {[3, 5, 7, 9].map((v) => (
             <circle key={v} cx={CX} cy={CY} r={radius(v)} fill="none" stroke="#e1dcd3" strokeWidth="1" />
           ))}
@@ -148,7 +155,17 @@ export function CompassProfile({
               上一次{previousLabel ? `（${previousLabel}）` : ""}
             </span>
           )}
-          <span>越外圈越卡關；虛線圈以外為明顯卡關</span>
+          <span className="inline-flex items-center gap-2">
+            <svg width="16" height="12" aria-hidden>
+              <rect width="16" height="12" fill="url(#hard-zone-legend)" stroke="#9a5f17" strokeOpacity="0.7" />
+              <defs>
+                <pattern id="hard-zone-legend" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <line x1="0" y1="0" x2="0" y2="5" stroke="#9a5f17" strokeOpacity="0.35" strokeWidth="1.5" />
+                </pattern>
+              </defs>
+            </svg>
+            斜線區＝明顯卡關（6.33 以上）；越外圈越卡
+          </span>
         </figcaption>
       </figure>
 

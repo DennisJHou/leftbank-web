@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { one, query } from "@/lib/db";
 import { semesterOf } from "@/lib/semester";
 import { aiAvailability, aiConfig, totalSpent } from "@/lib/ai";
-import { AGENT_MODEL } from "@/lib/agent/run";
+import { AGENT_MODEL, agentWebEnabled } from "@/lib/agent/run";
 import { staleResourceCount } from "@/lib/resources";
 import { PageTitle, Stat, Table, Td, Th } from "../ui";
 
@@ -123,7 +123,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
         />
       </div>
       <p className="mt-3 text-note text-ash">
-        宣傳期：{fmtDate(cfg.promoStart)} – {fmtDate(cfg.promoEnd)} · Agent 模型 {AGENT_MODEL} · 網路工具 {process.env.AGENT_WEB === "on" ? "開" : "關"}
+        宣傳期：{fmtDate(cfg.promoStart)} – {fmtDate(cfg.promoEnd)} · Agent 模型 {AGENT_MODEL} · 網路搜尋 {agentWebEnabled() ? "開" : "關"}
         {cfg.mock && " · 開發模式（示範處置包）"}
       </p>
       {stale > 0 && (

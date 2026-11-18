@@ -3,8 +3,7 @@
  * 直接用 Canvas 2D 繪製（不用額外套件），字型沿用網頁已載入的 Noto Sans／Serif TC。
  */
 import { SUBSCALES } from "@/lib/cddq";
-import { COMPONENT_LABEL } from "@/lib/agent/copy";
-import type { ResolvedPlan } from "@/lib/agent/types";
+import type { PlanAlumni, ResolvedPlan } from "@/lib/agent/types";
 
 export type PlanImageMeta = { date: string; routeTitle: string; routeText: string; heading: string };
 
@@ -21,7 +20,6 @@ const C = {
   river: "#2f5d50",
   riverWash: "#d3e4de",
   chart: "#9a5f17",
-  washes: ["#ebcabd", "#f0d9a5", "#cfd9bf"],
 };
 const NUMERALS = ["一", "二", "三"];
 const NO_LINE_START = "，。、！？；：」』）》〉…—,.!?;:)";
@@ -55,7 +53,7 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, width: number): strin
 
 type Op = (ctx: CanvasRenderingContext2D, y: number) => number;
 
-export async function renderPlanImage(plan: ResolvedPlan, meta: PlanImageMeta): Promise<Blob> {
+export async function renderPlanImage(plan: ResolvedPlan, meta: PlanImageMeta, alumni: PlanAlumni[] = []): Promise<Blob> {
   await document.fonts?.ready;
   const { sans, serif } = fontStacks();
   const measure = document.createElement("canvas").getContext("2d")!;
@@ -108,64 +106,76 @@ export async function renderPlanImage(plan: ResolvedPlan, meta: PlanImageMeta): 
   text(plan.overview, { size: 32, color: C.ink, lh: 1.8, gap: 40 });
   rule();
 
-  // ── 焦點
-  plan.focuses.forEach((f, i) => {
-    space(48);
+  // ── 焦點：和網頁一樣，一條一條的建議（左邊標籤、右邊內容）
+  const LABEL_W = 200;
+  const item = (label: string, body: string, sub?: string) => {
+    measure.font = `400 29px ${sans}`;
+    const lines = wrap(measure, body, INNER - LABEL_W);
+    measure.font = `400 24px ${sans}`;
+    const subLines = sub ? wrap(measure, sub, INNER - LABEL_W) : [];
     ops.push((ctx, y) => {
-      ctx.fillStyle = C.washes[i % 3];
-      ctx.beginPath();
-      ctx.arc(PAD + 34, y + 34, 34, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = C.strong;
-      ctx.font = `400 34px ${serif}`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(NUMERALS[i] ?? String(i + 1), PAD + 34, y + 36);
-      ctx.textAlign = "left";
+      const top = y + 22;
       ctx.textBaseline = "top";
-      ctx.font = `500 42px ${serif}`;
-      ctx.fillText(f.title, PAD + 92, y + 6);
+      ctx.fillStyle = C.river;
+      ctx.font = `500 25px ${sans}`;
+      ctx.fillText(label, PAD, top + 3);
+      ctx.fillStyle = C.strong;
+      ctx.font = `400 29px ${sans}`;
+      lines.forEach((l, j) => ctx.fillText(l, PAD + LABEL_W, top + j * 29 * 1.7));
+      let yy = top + lines.length * 29 * 1.7;
       ctx.fillStyle = C.ash;
       ctx.font = `400 24px ${sans}`;
-      ctx.fillText(`${SUBSCALES[f.subscale].label}${f.changed ? "・這次新出現" : ""}`, PAD + 92, y + 60);
-      return y + 104;
+      subLines.forEach((l, j) => ctx.fillText(l, PAD + LABEL_W, yy + 4 + j * 24 * 1.6));
+      yy += subLines.length ? subLines.length * 24 * 1.6 + 4 : 0;
+      ctx.fillStyle = C.hair;
+      ctx.fillRect(PAD, yy + 20, INNER, 2);
+      return yy + 22;
     });
-    text(f.why, { size: 29, color: C.ink, lh: 1.8, gap: 26 });
-
-    const block = (label: string, body: string, accent: string) => {
-      text(label, { size: 24, color: accent, weight: 500, gap: 6 });
-      text(body, { size: 30, color: C.strong, lh: 1.75, gap: 24 });
-    };
-    block("這週可以做的一件事", f.action, C.chart);
-    block("書寫練習", f.writing_prompt, C.chart);
-
-    if (f.quote) {
-      const q = f.quote;
-      measure.font = `400 29px ${serif}`;
-      const lines = wrap(measure, `「${q.text}」`, INNER - 56);
-      const by = `— ${q.name}${q.title ? `，${q.title}` : ""}`;
-      ops.push((ctx, y) => {
-        const h = lines.length * 29 * 1.8 + 64;
-        ctx.fillStyle = C.hair;
-        ctx.fillRect(PAD, y, 5, h);
-        ctx.fillStyle = C.ink;
-        ctx.font = `400 29px ${serif}`;
-        ctx.textBaseline = "top";
-        lines.forEach((l, j) => ctx.fillText(l, PAD + 32, y + j * 29 * 1.8 + 6));
-        ctx.fillStyle = C.ash;
-        ctx.font = `400 24px ${sans}`;
-        ctx.fillText(by, PAD + 32, y + lines.length * 29 * 1.8 + 18);
-        return y + h + 24;
-      });
+  };
+  const hostOf = (u: string) => {
+    try {
+      return new URL(u, location.origin).hostname.replace(/^www\./, "");
+    } catch {
+      return "";
     }
-    if (f.resources.length) {
-      text("可以使用的資源", { size: 24, color: C.river, weight: 500, gap: 8 });
-      f.resources.forEach((r) => text(`・${r.title}（${r.provider}）`, { size: 27, color: C.ink, lh: 1.6, gap: 4 }));
-      space(12);
-    }
-    text(f.components.map((c) => COMPONENT_LABEL[c]).join("　"), { size: 22, color: C.ash, gap: 40 });
-    rule();
+  };
+
+  plan.focuses.forEach((f, i) => {
+    space(56);
+    text(`${NUMERALS[i] ?? i + 1}、${f.title}`, { size: 44, color: C.strong, family: serif, lh: 1.4, gap: 4 });
+    const sub = [f.title !== SUBSCALES[f.subscale].label && SUBSCALES[f.subscale].label, f.changed && "這次新出現"].filter(Boolean).join("・");
+    if (sub) text(sub, { size: 24, color: C.ash, gap: 16 });
+    else space(12);
+    text(f.why, { size: 28, color: C.ash, lh: 1.8, gap: 12 });
+    ops.push((ctx, y) => {
+      ctx.fillStyle = C.hair;
+      ctx.fillRect(PAD, y, INNER, 2);
+      return y + 2;
+    });
+    item("這週做一件事", f.action);
+    f.links.forEach((l) => item(l.campus ? "查資料・校內" : "查資料・校外", l.title, `${l.note}（${hostOf(l.url)}）`));
+    f.resources.forEach((r) => item("可以使用的資源", r.title, r.provider));
+    item("寫下來", f.writing_prompt);
+    if (f.quote) item("系友故事", `「${f.quote.text}」`, `— ${f.quote.name}${f.quote.title ? `，${f.quote.title}` : ""}`);
   });
+
+  if (alumni.length) {
+    space(56);
+    text("推薦你聯絡的系友", { size: 44, color: C.strong, family: serif, lh: 1.4, gap: 16 });
+    ops.push((ctx, y) => {
+      ctx.fillStyle = C.hair;
+      ctx.fillRect(PAD, y, INNER, 2);
+      return y + 2;
+    });
+    alumni.forEach((a) =>
+      item(
+        a.name,
+        a.title ?? "心理系系友",
+        [a.tagline ? `「${a.tagline}」` : "", [a.accept_question && "可線上提問", a.accept_coffee && "可約咖啡"].filter(Boolean).join("・")].filter(Boolean).join(" "),
+      ),
+    );
+  }
+  space(24);
 
   // ── 頁尾
   space(40);

@@ -4,29 +4,29 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { retryAgent } from "@/app/actions/compass";
 import { SUBSCALES } from "@/lib/cddq";
-import { COMPONENT_LABEL, FALLBACK_TEXT, STEP_LABELS, STEP_ORDER } from "@/lib/agent/copy";
+import { FALLBACK_TEXT, STEP_LABELS, STEP_ORDER } from "@/lib/agent/copy";
 import { EVIDENCE_LABEL, EVIDENCE_TEXT, type Evidence } from "@/lib/diagnosis-config";
-import type { AgentStatusPayload, ResolvedPlan } from "@/lib/agent/types";
+import type { AgentStatusPayload, PlanAlumni, ResolvedPlan } from "@/lib/agent/types";
 import { renderPlanImage, type PlanImageMeta } from "@/components/compass/planImage";
-import { Arrow } from "@/components/ui";
 
-const WASHES = ["#ebcabd", "#f0d9a5", "#cfd9bf"];
 const NUMERALS = ["一", "二", "三"];
 const POLL_MS = 2000;
 
 /**
  * 處置包面板：Agent 執行中時每 2 秒輪詢進度；完成後顯示處置包；
- * 失敗、略過時顯示 fallback（由伺服器端渲染好的固定推薦）。
+ * 失敗、略過時顯示 fallback（由伺服器端渲染好的固定推薦）。推薦系友兩種情況都顯示在最後。
  */
 export function AgentPanel({
   sessionId,
   initial,
   imageMeta,
+  alumni,
   fallback,
 }: {
   sessionId: string;
   initial: AgentStatusPayload;
   imageMeta: PlanImageMeta;
+  alumni: PlanAlumni[];
   fallback: React.ReactNode;
 }) {
   const [state, setState] = useState(initial);
@@ -55,7 +55,7 @@ export function AgentPanel({
   if (live) return <Progress state={state} />;
 
   if (state.status === "succeeded" && state.plan) {
-    return <PlanView plan={state.plan} imageMeta={imageMeta} />;
+    return <PlanView plan={state.plan} imageMeta={imageMeta} alumni={alumni} />;
   }
 
   return (
@@ -84,6 +84,7 @@ export function AgentPanel({
         </div>
       )}
       {fallback}
+      <AlumniList alumni={alumni} />
     </div>
   );
 }
@@ -93,7 +94,7 @@ function Progress({ state }: { state: AgentStatusPayload }) {
   return (
     <div className="paper-card p-6 md:p-10" aria-live="polite">
       <p className="h-item tracking-[0.08em]">正在為你整理</p>
-      <p className="mt-1 text-meta text-ash">大約需要 30–90 秒，可以先往上看看你的羅盤。這段時間不用重新整理頁面。</p>
+      <p className="mt-1 text-meta text-ash">大約需要 30–90 秒，會上網查臺大與校外的資訊。可以先往上看看你的羅盤，不用重新整理頁面。</p>
       <ol className="mt-8 space-y-5">
         {steps.map((s, i) => (
           <li key={s.key} className="flex items-center gap-4">
@@ -121,90 +122,80 @@ function Progress({ state }: { state: AgentStatusPayload }) {
   );
 }
 
-function PlanView({ plan, imageMeta }: { plan: ResolvedPlan; imageMeta: PlanImageMeta }) {
+/** 一條建議：左邊是標籤，右邊是內容。整份處置包只用這一種排版。 */
+function Item({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <li className="grid gap-1 py-4 md:grid-cols-[9rem_1fr] md:gap-6">
+      <span className="text-meta font-medium text-river">{label}</span>
+      <div className="text-body leading-[1.8] text-ink-strong">{children}</div>
+    </li>
+  );
+}
+
+const external = (url: string) => (url.startsWith("/") ? {} : { target: "_blank", rel: "noreferrer" });
+
+function PlanView({ plan, imageMeta, alumni }: { plan: ResolvedPlan; imageMeta: PlanImageMeta; alumni: PlanAlumni[] }) {
   const evidences = [...new Set(plan.focuses.flatMap((f) => f.resources.map((r) => r.evidence)))] as Evidence[];
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-6">
         <p className="prose-airy max-w-3xl">{plan.overview}</p>
-        <SaveImage plan={plan} meta={imageMeta} />
+        <SaveImage plan={plan} meta={imageMeta} alumni={alumni} />
       </div>
 
-      <div className="mt-12 space-y-14">
-        {plan.focuses.map((f, i) => (
-          <article key={f.subscale} className="grid gap-8 border-t border-hairline pt-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
-            <div>
-              <div className="flex items-center gap-4">
-                <span className="numeral h-11 w-11 text-[1.125rem]" style={{ background: WASHES[i % 3] }} aria-hidden>
-                  {NUMERALS[i] ?? i + 1}
+      {plan.focuses.map((f, i) => (
+        <section key={f.subscale} className="mt-12 border-t border-hairline pt-8">
+          <h3 className="h-section tracking-[0.08em]">
+            {NUMERALS[i] ?? i + 1}、{f.title}
+            {f.changed && <span className="ml-3 align-middle text-note text-accent">這次新出現</span>}
+          </h3>
+          {f.title !== SUBSCALES[f.subscale].label && <p className="mt-1 text-note text-ash">{SUBSCALES[f.subscale].label}</p>}
+          <p className="prose-airy mt-4 max-w-3xl text-ash">{f.why}</p>
+
+          <ul className="mt-4 divide-y divide-hairline border-y border-hairline">
+            <Item label="這週做一件事">{f.action}</Item>
+            {f.links.map((l) => (
+              <Item key={l.url} label={l.campus ? "查資料・校內" : "查資料・校外"}>
+                <a href={l.url} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-river">
+                  {l.title}
+                </a>
+                <span className="block text-meta text-ash">{l.note}</span>
+              </Item>
+            ))}
+            {f.resources.map((r) => (
+              <Item key={r.id} label="可以使用的資源">
+                <a href={r.url} {...external(r.url)} className="underline underline-offset-4 hover:text-river">
+                  {r.title}
+                </a>
+                <span className="block text-meta text-ash">
+                  {r.provider}・{r.summary}
                 </span>
-                <div>
-                  <h3 className="h-section tracking-[0.08em]">{f.title}</h3>
-                  <p className="text-note text-ash">
-                    {SUBSCALES[f.subscale].label}
-                    {f.changed && <span className="ml-2 text-accent">這次新出現</span>}
-                  </p>
-                </div>
-              </div>
-              <p className="prose-airy mt-5">{f.why}</p>
-              {f.quote && (
-                <figure className="mt-7 border-l-[3px] border-hairline pl-5">
-                  <blockquote className="text-tagline">「{f.quote.text}」</blockquote>
-                  <figcaption className="mt-3 text-note text-ash">
-                    —{" "}
-                    <Link href={`/alumni/${f.quote.alumniId}`} className="underline underline-offset-4 hover:text-ink">
-                      {f.quote.name}
-                    </Link>
-                    {f.quote.title && `，${f.quote.title}`}
-                  </figcaption>
-                </figure>
-              )}
-            </div>
-            <div className="space-y-6">
-              <div className="paper-card p-5 md:p-6">
-                <p className="text-note font-medium tracking-[0.06em] text-chart">這週可以做的一件事</p>
-                <p className="mt-2 text-body text-ink-strong">{f.action}</p>
-              </div>
-              <div className="paper-card p-5 md:p-6">
-                <p className="text-note font-medium tracking-[0.06em] text-chart">書寫練習</p>
-                <p className="mt-2 text-body text-ink-strong">{f.writing_prompt}</p>
-              </div>
-              {f.resources.length > 0 && (
-                <ul className="space-y-3">
-                  {f.resources.map((r) => (
-                    <li key={r.id}>
-                      <a
-                        href={r.url}
-                        target={r.url.startsWith("/") ? undefined : "_blank"}
-                        rel={r.url.startsWith("/") ? undefined : "noreferrer"}
-                        className="group block border-b border-hairline pb-3"
-                      >
-                        <span className="link-arrow">
-                          {r.title} <Arrow />
-                        </span>
-                        <span className="mt-1 block text-note text-ash">
-                          {r.provider}・{r.summary}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <p className="flex flex-wrap gap-1.5 text-note text-ash">
-                {f.components.map((c) => (
-                  <span key={c} className="border border-hairline px-2 py-0.5">{COMPONENT_LABEL[c]}</span>
-                ))}
-              </p>
-            </div>
-          </article>
-        ))}
-      </div>
+              </Item>
+            ))}
+            <Item label="寫下來">{f.writing_prompt}</Item>
+            {f.quote && (
+              <Item label="系友故事">
+                「{f.quote.text}」
+                <span className="block text-meta text-ash">
+                  —{" "}
+                  <Link href={`/alumni/${f.quote.alumniId}`} className="underline underline-offset-4 hover:text-river">
+                    {f.quote.name}
+                  </Link>
+                  {f.quote.title && `，${f.quote.title}`}・點名字讀完整故事
+                </span>
+              </Item>
+            )}
+          </ul>
+        </section>
+      ))}
+
+      <AlumniList alumni={alumni} />
 
       <details className="mt-12 border-t border-hairline pt-6 text-meta">
         <summary className="cursor-pointer text-ash hover:text-ink">這些建議依據哪類研究？</summary>
         <div className="mt-4 max-w-3xl space-y-3 text-ash">
           <p>
-            整合分析發現，有效的生涯介入通常包含：個別化解釋、職業世界資訊、書寫練習、看見榜樣、支持網絡、有人陪談、價值澄清、做決定的方法；結合 3 種以上的效果較好，而且最好有人陪著，不只是看網站。每個焦點下方的標籤，就是這次用到的成分。
+            整合分析發現，有效的生涯介入通常包含：個別化解釋、職業世界資訊、書寫練習、看見榜樣、支持網絡、有人陪談、價值澄清、做決定的方法；結合 3 種以上的效果較好，而且最好有人陪著，不只是看網站。
           </p>
           <ul className="space-y-1">
             {(["direct", "inferred", "preliminary"] as Evidence[]).map((e) => (
@@ -220,7 +211,35 @@ function PlanView({ plan, imageMeta }: { plan: ResolvedPlan; imageMeta: PlanImag
   );
 }
 
-function SaveImage({ plan, meta }: { plan: ResolvedPlan; meta: PlanImageMeta }) {
+/** 推薦的系友：和處置包同一種條列 */
+function AlumniList({ alumni }: { alumni: PlanAlumni[] }) {
+  if (!alumni.length) return null;
+  return (
+    <section className="mt-12 border-t border-hairline pt-8">
+      <h3 className="h-section tracking-[0.08em]">推薦你聯絡的系友</h3>
+      <p className="mt-1 text-meta text-ash">依你的結果與興趣配對，他們都願意回答學弟妹的問題。</p>
+      <ul className="mt-4 divide-y divide-hairline border-y border-hairline">
+        {alumni.map((a) => (
+          <Item key={a.id} label={a.name}>
+            {a.title && <span className="block">{a.title}</span>}
+            {a.tagline && <span className="block text-meta text-ash">「{a.tagline}」</span>}
+            <span className="mt-1 flex flex-wrap gap-x-5 text-meta">
+              <Link href={`/alumni/${a.id}`} className="underline underline-offset-4 hover:text-river">讀他的故事</Link>
+              {a.accept_question && (
+                <Link href={`/alumni/${a.id}/contact?type=question`} className="underline underline-offset-4 hover:text-river">線上提問</Link>
+              )}
+              {a.accept_coffee && (
+                <Link href={`/alumni/${a.id}/contact?type=coffee`} className="underline underline-offset-4 hover:text-river">約咖啡</Link>
+              )}
+            </span>
+          </Item>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function SaveImage({ plan, meta, alumni }: { plan: ResolvedPlan; meta: PlanImageMeta; alumni: PlanAlumni[] }) {
   const [url, setUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -234,7 +253,7 @@ function SaveImage({ plan, meta }: { plan: ResolvedPlan; meta: PlanImageMeta }) 
     setErr(null);
     setBusy(true);
     try {
-      const blob = await renderPlanImage(plan, meta);
+      const blob = await renderPlanImage(plan, meta, alumni);
       blobRef.current = blob;
       setUrl((old) => {
         if (old) URL.revokeObjectURL(old);

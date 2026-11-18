@@ -56,6 +56,11 @@ export const AgentPlanSchema = z.object({
           .nullable()
           .optional(),
         resource_ids: z.array(z.string()).min(1).max(2),
+        /** 用網路搜尋找到的資訊（校內外官方網站），網址必須出現在搜尋結果裡 */
+        links: z
+          .array(z.object({ title: z.string().min(2).max(60), url: z.string().url(), note: z.string().min(4).max(120) }))
+          .max(3)
+          .default([]),
         action: z.string().min(6).max(200),
         writing_prompt: z.string().min(6).max(240),
         components: z.array(ComponentEnum).min(1),
@@ -73,11 +78,14 @@ export type Step = { key: StepKey; status: "pending" | "active" | "done"; at?: s
 
 /** 給前端呈現用：伺服器把 resource id、系友 id 展開成可以顯示的資料 */
 export type ResolvedResource = { id: string; title: string; provider: string; url: string; summary: string; evidence: string };
+export type ResolvedLink = { title: string; url: string; note: string; campus: boolean };
+export type PlanAlumni = { id: string; name: string; title: string | null; tagline: string | null; accept_question: boolean; accept_coffee: boolean };
 export type ResolvedPlan = {
   overview: string;
-  focuses: (Omit<AgentPlan["focuses"][number], "alumni_quote" | "resource_ids"> & {
+  focuses: (Omit<AgentPlan["focuses"][number], "alumni_quote" | "resource_ids" | "links"> & {
     quote: { alumniId: string; name: string; title: string | null; text: string } | null;
     resources: ResolvedResource[];
+    links: ResolvedLink[];
     changed?: boolean;
   })[];
 };

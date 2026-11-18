@@ -21,7 +21,10 @@ import type { AgentPlan, Diagnosis, Step, StepKey } from "./types";
 export const AGENT_MODEL = process.env.AGENT_MODEL || "claude-opus-5-5";
 const MAX_TOOL_CALLS = 10;
 const TIMEOUT_MS = 240_000;
-const WEB_DOMAINS = ["career.ntu.edu.tw", "ntucace.ntu.edu.tw", "scc_osa.ntu.edu.tw", "psy.ntu.edu.tw", "ucan.moe.edu.tw", "mol.gov.tw", "yda.gov.tw"];
+/** 網路工具只能查這些網域（含子網域）：臺大各單位、教育部、勞動部、青年署、台灣就業通 */
+const WEB_DOMAINS = ["ntu.edu.tw", "moe.edu.tw", "mol.gov.tw", "wda.gov.tw", "yda.gov.tw", "taiwanjobs.gov.tw"];
+/** 預設開啟；AGENT_WEB=off 時關閉 */
+export const agentWebEnabled = () => process.env.AGENT_WEB !== "off";
 
 type TraceEntry = { tool: string; input: unknown; result: string; ok: boolean; ms: number };
 
@@ -137,6 +140,24 @@ async function finish(runId: string, status: "succeeded" | "failed" | "fallback"
 
 // ─── 真實的工具迴圈 ─────────────────────────────────────
 
+/** 從伺服器端工具（web_search / web_fetch）的結果收集出現過的網址，給驗證用；也記進軌跡 */
+function collectUrls(content: Anthropic.Beta.BetaContentBlock[], ctx: ValidateContext, trace: TraceEntry[]) {
+  ctx.seenUrls ??= new Set();
+  for (const b of content as unknown as { type: string; input?: unknown; content?: unknown }[]) {
+    if (b.type === "server_tool_use") trace.push({ tool: "web", input: b.input, result: "", ok: true, ms: 0 });
+    if (b.type === "web_search_tool_result" && Array.isArray(b.content)) {
+      const urls = (b.content as { url?: string }[]).map((r) => r.url).filter((u): u is string => Boolean(u));
+      urls.forEach((u) => ctx.seenUrls!.add(u));
+      trace.push({ tool: "web_search", input: null, result: urls.join(" "), ok: true, ms: 0 });
+    }
+    if (b.type === "web_fetch_tool_result" && b.content && typeof b.content === "object") {
+      const url = (b.content as { url?: string }).url;
+      if (url) ctx.seenUrls!.add(url);
+      trace.push({ tool: "web_fetch", input: null, result: url ?? "error", ok: Boolean(url), ms: 0 });
+    }
+  }
+}
+
 async function realLoop(a: {
   runId: string;
   userId: string;
@@ -147,13 +168,13 @@ async function realLoop(a: {
   addCost: (usd: number) => void;
 }): Promise<AgentPlan> {
   const client = getClient();
-  const web = process.env.AGENT_WEB === "on";
+  const web = agentWebEnabled();
   const tools = [
     ...TOOL_DEFS,
     ...(web
       ? ([
-          { type: "web_search_20260209", name: "web_search", max_uses: 2, allowed_domains: WEB_DOMAINS },
-          { type: "web_fetch_20260209", name: "web_fetch", max_uses: 3, allowed_domains: WEB_DOMAINS },
+          { type: "web_search_20260209", name: "web_search", max_uses: 5, allowed_domains: WEB_DOMAINS },
+          { type: "web_fetch_20260209", name: "web_fetch", max_uses: 4, allowed_domains: WEB_DOMAINS },
         ] as unknown as Anthropic.Beta.BetaToolUnion[])
       : []),
     SUBMIT_TOOL,
@@ -196,11 +217,13 @@ async function realLoop(a: {
       await recordUsage(a.userId, "agent", msg.model, msg.usage);
       await query("update agent_runs set cost_usd = cost_usd + $2 where id = $1", [a.runId, usd]);
 
+      collectUrls(msg.content, a.ctx, a.trace);
       if (msg.stop_reason === "refusal") throw new Error("model refused");
       if (msg.stop_reason === "max_tokens") throw new Error("max_tokens reached");
       messages.push({ role: "assistant", content: msg.content });
       if (msg.stop_reason === "pause_turn") continue;
 
+      if (msg.content.some((b) => (b as { type: string }).type === "server_tool_use")) await a.advance("resources");
       const uses = msg.content.filter((b): b is Anthropic.Beta.BetaToolUseBlock => b.type === "tool_use");
       if (!uses.length) {
         if (nudged) throw new Error("ended without submit_plan");

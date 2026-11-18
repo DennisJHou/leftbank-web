@@ -66,6 +66,7 @@ const ctx: ValidateContext = {
   activeResourceIds: new Set(["lb-coffee", "ucan"]),
   stories: new Map([["a1", { q5: "大四那年我很迷惘，後來是一杯咖啡改變了我。", q6: "不要怕走彎路。" }]]),
   personNames: ["王小明", "陳系友"],
+  seenUrls: new Set(["https://career.ntu.edu.tw/student/events"]),
 };
 const good = {
   overview: "你對未來的工作樣子還不太清楚，也在意家人的想法。下面整理了兩個方向。",
@@ -76,6 +77,7 @@ const good = {
       why: "你在對職業的了解這一項分數比較高，代表還不清楚工作每天實際在做什麼。",
       alumni_quote: { alumni_id: "a1", question: "q5", quote: "大四那年我很迷惘，後來是一杯咖啡改變了我。" },
       resource_ids: ["lb-coffee"],
+      links: [{ title: "職涯中心本學期活動", url: "https://career.ntu.edu.tw/student/events", note: "看看這學期有哪些產業講座。" }],
       action: "這週寫一封線上提問給系友。",
       writing_prompt: "寫下三個你最想問的問題。",
       components: ["world_of_work_info", "support_network", "writing_exercise"],
@@ -100,6 +102,8 @@ const rejects: [string, (p: typeof good) => void][] = [
   ["沒有找人的出口", (p) => (p.focuses[0].components = ["world_of_work_info", "writing_exercise", "modeling"])],
   ["出現人名", (p) => (p.overview += "可以找王小明聊聊。")],
   ["醫療化字詞", (p) => (p.focuses[0].why += "這不是一種障礙。")],
+  ["編造的網址（沒出現在搜尋結果）", (p) => (p.focuses[0].links[0].url = "https://career.ntu.edu.tw/made-up")],
+  ["非官方網域", (p) => (p.focuses[0].links[0].url = "https://example.com/jobs")],
   ["格式錯誤", (p) => ((p as { overview: unknown }).overview = 3)],
 ];
 for (const [name, patch] of rejects) {

@@ -93,7 +93,7 @@ npm run dev                  # http://localhost:3000
 |---|---|
 | `AGENT_MODEL` | 預設 `claude-opus-5-5`；評估後可改 `claude-sonnet-5-5` |
 | `AGENT_SECRET` | `/api/agent/run` 的內部驗證。正式環境必填，Agent 才會在獨立的函式（最長 300 秒）執行 |
-| `AGENT_WEB` | `on` 時啟用 web_search / web_fetch（限臺大、教育部、勞動部等白名單網域），預設關閉 |
+| `AGENT_WEB` | 預設開啟：Agent 會用 web_search / web_fetch 查臺大（ntu.edu.tw）、教育部、勞動部、青年署、台灣就業通的資訊，放進處置包的「查資料」；設成 `off` 才關閉。處置包裡的網址必須真的出現在搜尋結果裡 |
 | `AGENT_MAX_PER_USER_30D` | 每位使用者每 30 天最多幾次，預設 3 |
 | `AI_PROMO_START` / `AI_PROMO_END` | 宣傳期（含當天，臺灣時間）。期間外只顯示固定推薦 |
 | `AI_TOTAL_BUDGET_USD` | 全站總預算（Agent 與故事標籤合計）。用完自動改顯示固定推薦，畫面不出現「名額已滿」 |

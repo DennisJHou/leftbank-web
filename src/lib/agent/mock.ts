@@ -57,7 +57,10 @@ export async function mockPlan(
 
   const focuses: AgentPlan["focuses"] = [];
   for (const k of d.salient.slice(0, 3)) {
-    const resources = await searchResources([k]);
+    // 優先用臺大與全國的資源；左岸自己的服務改由系友故事與推薦系友呈現
+    const all = await searchResources([k]);
+    const outside = all.filter((r) => r.level !== "leftbank");
+    const resources = outside.length ? outside : all;
     // 一個有人帶領、一個自己來，讓學生有兩種選擇
     const human = resources.find((r) => r.needs_human);
     const self = resources.find((r) => !r.needs_human && r.id !== human?.id);
@@ -69,7 +72,8 @@ export async function mockPlan(
     if (story && picked) used.add(story.id);
 
     const comps = new Set<Component>([...INTERVENTIONS[k].components, "writing_exercise", "individualized_feedback"]);
-    if (resources.some((r) => resource_ids.includes(r.id) && r.needs_human)) comps.add("support_network");
+    if (resources.some((r) => resource_ids.includes(r.id) && r.needs_human)) comps.add("counselor_support");
+    if (story && picked) comps.add("modeling");
 
     focuses.push({
       subscale: k,
@@ -77,6 +81,7 @@ export async function mockPlan(
       why: `你在「${SUBSCALES[k].label}」的分數是 ${scores.subscales[k].toFixed(1)}，是你相對比較卡的地方。${SUBSCALES[k].explain.split("。")[0]}。`,
       alumni_quote: story && picked ? { alumni_id: story.id, question: picked.question, quote: picked.quote } : null,
       resource_ids,
+      links: [],
       action: ACTIONS[k],
       writing_prompt: WRITING_EXAMPLES[k][0],
       components: [...comps],
@@ -87,7 +92,7 @@ export async function mockPlan(
   }
 
   return {
-    overview: `（示範模式產生的處置包）${ROUTE_LABEL[d.route].text}下面是依你最突出的 ${focuses.length} 個面向整理的建議，每一項都附上一個這週就能做的小行動。`,
+    overview: `（示範模式：沒有設定 API 金鑰，不會上網查資料，以下只用資源目錄與系友故事產生。）${ROUTE_LABEL[d.route].text}下面是依你最突出的 ${focuses.length} 個面向整理的建議，每一項都附上一個這週就能做的小行動。`,
     focuses,
     tags: studentTags.slice(0, 10).map((t) => ({ tag: tagKey(t.dimension, t.label), weight: t.weight })),
   };
