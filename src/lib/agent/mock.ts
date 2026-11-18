@@ -92,7 +92,7 @@ export async function mockPlan(
   }
 
   return {
-    overview: `（示範模式：沒有設定 API 金鑰，不會上網查資料，以下只用資源目錄與系友故事產生。）${ROUTE_LABEL[d.route].text}下面是依你最突出的 ${focuses.length} 個面向整理的建議，每一項都附上一個這週就能做的小行動。`,
+    overview: `（示範模式：沒有設定 API 金鑰，不會上網查資料，以下只用資源目錄與系友故事產生。）下面是依你最突出的 ${focuses.length} 個面向整理的建議，每一項都附上一個這週就能做的小行動。`,
     focuses,
     tags: studentTags.slice(0, 10).map((t) => ({ tag: tagKey(t.dimension, t.label), weight: t.weight })),
   };

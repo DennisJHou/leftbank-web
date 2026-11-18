@@ -8,6 +8,7 @@ import { FALLBACK_TEXT, STEP_LABELS, STEP_ORDER } from "@/lib/agent/copy";
 import { EVIDENCE_LABEL, EVIDENCE_TEXT, type Evidence } from "@/lib/diagnosis-config";
 import type { AgentStatusPayload, PlanAlumni, ResolvedPlan } from "@/lib/agent/types";
 import { renderPlanImage, type PlanImageMeta } from "@/components/compass/planImage";
+import { References } from "@/components/compass/References";
 
 const NUMERALS = ["一", "二", "三"];
 const POLL_MS = 2000;
@@ -153,17 +154,19 @@ function PlanView({ plan, imageMeta, alumni }: { plan: ResolvedPlan; imageMeta: 
           <p className="prose-airy mt-4 max-w-3xl text-ash">{f.why}</p>
 
           <ul className="mt-4 divide-y divide-hairline border-y border-hairline">
-            <Item label="這週做一件事">{f.action}</Item>
+            <Item label="下一步行動">{f.action}</Item>
             {f.links.map((l) => (
-              <Item key={l.url} label={l.campus ? "查資料・校內" : "查資料・校外"}>
+              <Item key={l.url} label="身邊的資源">
                 <a href={l.url} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-river">
                   {l.title}
                 </a>
-                <span className="block text-meta text-ash">{l.note}</span>
+                <span className="block text-meta text-ash">
+                  {l.campus ? "校內" : "校外"}・{l.note}
+                </span>
               </Item>
             ))}
             {f.resources.map((r) => (
-              <Item key={r.id} label="可以使用的資源">
+              <Item key={r.id} label="身邊的資源">
                 <a href={r.url} {...external(r.url)} className="underline underline-offset-4 hover:text-river">
                   {r.title}
                 </a>
@@ -172,9 +175,9 @@ function PlanView({ plan, imageMeta, alumni }: { plan: ResolvedPlan; imageMeta: 
                 </span>
               </Item>
             ))}
-            <Item label="寫下來">{f.writing_prompt}</Item>
+            <Item label="寫下你的想法">{f.writing_prompt}</Item>
             {f.quote && (
-              <Item label="系友故事">
+              <Item label="看看系友故事">
                 「{f.quote.text}」
                 <span className="block text-meta text-ash">
                   —{" "}
@@ -205,6 +208,8 @@ function PlanView({ plan, imageMeta, alumni }: { plan: ResolvedPlan; imageMeta: 
             ))}
           </ul>
           <p>目前沒有研究直接證明「依困難類型配對」一定比通用的建議更好，所以這份處置包是依有效成分推論出來的建議，不是唯一答案。</p>
+          <p className="pt-2 text-meta font-medium text-ink">參考文獻（APA 7）</p>
+          <References />
         </div>
       </details>
     </div>

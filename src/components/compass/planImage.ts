@@ -152,11 +152,11 @@ export async function renderPlanImage(plan: ResolvedPlan, meta: PlanImageMeta, a
       ctx.fillRect(PAD, y, INNER, 2);
       return y + 2;
     });
-    item("這週做一件事", f.action);
-    f.links.forEach((l) => item(l.campus ? "查資料・校內" : "查資料・校外", l.title, `${l.note}（${hostOf(l.url)}）`));
-    f.resources.forEach((r) => item("可以使用的資源", r.title, r.provider));
-    item("寫下來", f.writing_prompt);
-    if (f.quote) item("系友故事", `「${f.quote.text}」`, `— ${f.quote.name}${f.quote.title ? `，${f.quote.title}` : ""}`);
+    item("下一步行動", f.action);
+    f.links.forEach((l) => item("身邊的資源", l.title, `${l.campus ? "校內" : "校外"}・${l.note}（${hostOf(l.url)}）`));
+    f.resources.forEach((r) => item("身邊的資源", r.title, r.provider));
+    item("寫下你的想法", f.writing_prompt);
+    if (f.quote) item("看看系友故事", `「${f.quote.text}」`, `— ${f.quote.name}${f.quote.title ? `，${f.quote.title}` : ""}`);
   });
 
   if (alumni.length) {

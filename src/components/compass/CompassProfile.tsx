@@ -65,26 +65,12 @@ export function CompassProfile({
     <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
       <figure className="paper-card p-3 md:p-5">
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="十個面向依三大類分組的雷達圖，數字見旁邊的清單">
-          {/* 三大類扇區：淡色底＋外圈色帶 */}
+          {/* 外圈色帶：標示每個面向屬於哪一大類 */}
           {groups.map((g) => {
             const a0 = angle(g.from) - Math.PI / N;
             const a1 = angle(g.to) + Math.PI / N;
-            return (
-              <g key={g.c}>
-                <path d={arcPath(a0, a1, 0.01, R)} fill={CATEGORY_COLOR[g.c].wash} fillOpacity={0.32} />
-                <path d={arcPath(a0 + 0.012, a1 - 0.012, R + 4, R + 11)} fill={CATEGORY_COLOR[g.c].mark} />
-              </g>
-            );
+            return <path key={g.c} d={arcPath(a0 + 0.012, a1 - 0.012, R + 4, R + 10)} fill={CATEGORY_COLOR[g.c].mark} />;
           })}
-          {/* 6.33 以上（明顯卡關）：外圈加斜線底紋＋實線邊界，一眼看得出來 */}
-          <defs>
-            <pattern id="hard-zone" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <rect width="7" height="7" fill="#9a5f17" fillOpacity="0.06" />
-              <line x1="0" y1="0" x2="0" y2="7" stroke="#9a5f17" strokeOpacity="0.28" strokeWidth="1.5" />
-            </pattern>
-          </defs>
-          <path d={arcPath(0, Math.PI * 2 - 0.0001, radius(6.33), R)} fill="url(#hard-zone)" />
-          <circle cx={CX} cy={CY} r={radius(6.33)} fill="none" stroke="#9a5f17" strokeOpacity="0.7" strokeWidth="1.5" />
           {[3, 5, 7, 9].map((v) => (
             <circle key={v} cx={CX} cy={CY} r={radius(v)} fill="none" stroke="#e1dcd3" strokeWidth="1" />
           ))}
@@ -145,27 +131,16 @@ export function CompassProfile({
         </svg>
         <figcaption className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 px-2 text-note text-ash">
           <span className="inline-flex items-center gap-2">
-            <span className="h-[3px] w-5" style={{ background: CURRENT }} /> {previous ? "這一次" : "你的分數"}
+            <span className="h-[3px] w-5" style={{ background: CURRENT }} /> {previous ? "本次測驗" : "你的分數"}
           </span>
           {previous && (
             <span className="inline-flex items-center gap-2">
               <svg width="20" height="4" aria-hidden>
                 <line x1="0" y1="2" x2="20" y2="2" stroke={PREVIOUS} strokeWidth="2" strokeDasharray="4 3" />
               </svg>
-              上一次{previousLabel ? `（${previousLabel}）` : ""}
+              上次測驗{previousLabel ? `（${previousLabel}）` : ""}
             </span>
           )}
-          <span className="inline-flex items-center gap-2">
-            <svg width="16" height="12" aria-hidden>
-              <rect width="16" height="12" fill="url(#hard-zone-legend)" stroke="#9a5f17" strokeOpacity="0.7" />
-              <defs>
-                <pattern id="hard-zone-legend" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                  <line x1="0" y1="0" x2="0" y2="5" stroke="#9a5f17" strokeOpacity="0.35" strokeWidth="1.5" />
-                </pattern>
-              </defs>
-            </svg>
-            斜線區＝明顯卡關（6.33 以上）；越外圈越卡
-          </span>
         </figcaption>
       </figure>
 
@@ -205,9 +180,8 @@ export function CompassProfile({
                         {on && <span className="sr-only">（突出）</span>}
                       </span>
                       <span className="relative h-2 bg-chart-track">
-                        <span className="absolute inset-y-0 left-0" style={{ width: `${Math.max(3, pct(s))}%`, background: on ? CURRENT : CATEGORY_COLOR[g.c].mark }} />
-                        {p != null && <span className="absolute -top-1 h-4 w-[2px] bg-ink" style={{ left: `calc(${pct(p)}% - 1px)` }} title={`上一次 ${p.toFixed(1)}`} />}
-                        <span className="absolute inset-y-0 w-[2px] bg-canvas" style={{ left: `${pct(6.33)}%` }} />
+                        <span className="absolute inset-y-0 left-0" style={{ width: `${Math.max(3, pct(s))}%`, background: CATEGORY_COLOR[g.c].mark }} />
+                        {p != null && <span className="absolute -top-1 h-4 w-[2px] bg-ink" style={{ left: `calc(${pct(p)}% - 1px)` }} title={`上次測驗 ${p.toFixed(1)}`} />}
                       </span>
                       <span className="text-right tabular-nums text-ash">{s.toFixed(1)}</span>
                     </li>
@@ -217,10 +191,11 @@ export function CompassProfile({
             </section>
           );
         })}
-        <p className="text-note text-ash">
-          大類分數是底下各面向的平均。分數 1–9，越高代表越卡關；6.33 以上為明顯卡關。{highlight.length > 0 && "深色長條是你相對最突出的面向。"}
-          {previous && " 黑色刻度是上一次的分數，下降代表比較不卡了。"}
-        </p>
+        {previous && (
+          <p className="inline-flex items-center gap-2 text-note text-ash">
+            <span className="inline-block h-4 w-[2px] bg-ink" aria-hidden />：上次測驗的分數
+          </p>
+        )}
       </div>
     </div>
   );

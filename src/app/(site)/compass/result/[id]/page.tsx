@@ -124,41 +124,32 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
         </div>
       </section>
 
-      <section className="mt-20 grid gap-8 border-t border-hairline pt-14 lg:grid-cols-[1fr_1.2fr] lg:gap-16" data-reveal>
-        <div>
-          <h2 className="h-section tracking-[0.1em]">下一步怎麼走</h2>
-          <p className="mt-4 inline-block bg-wash-river px-3 py-1 text-meta font-medium text-river">{route.title}</p>
-          <p className="prose-airy mt-4">{route.text}</p>
-          {diagnosis.confidence === "medium" && <p className="notice mt-6">{CONFIDENCE_NOTE.medium}</p>}
-          {!diagnosis.credibility.ok && (
-            <p className="mt-4 text-note text-ash">
-              判斷依據：{diagnosis.credibility.reasons.map((r) => CREDIBILITY_REASON[r]).join("、")}。
-            </p>
-          )}
-        </div>
-        {referral && (
-          <div className="paper-card p-6 md:p-8">
-            <h3 className="h-item tracking-[0.08em]">{referral.title}</h3>
-            <p className="mt-2 text-meta text-ash">{referral.lead}</p>
-            <ul className="mt-5 space-y-4">
-              {referral.items.map((it) => (
-                <li key={it.href}>
-                  <a href={it.href} target="_blank" rel="noreferrer" className="link-arrow">
-                    {it.title} <Arrow />
-                  </a>
-                  <p className="text-note text-ash">{it.text}</p>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-6 border-t border-hairline pt-4 text-note text-ink">{referral.hotline}</p>
-          </div>
-        )}
-      </section>
-
       <section className="mt-20 border-t border-hairline pt-14">
-        <h2 className="h-section tracking-[0.1em]" data-reveal>
-          {diagnosis.route === "counseling" ? "等待期間可以做的事" : "你的處置包"}
-        </h2>
+        <h2 className="h-section tracking-[0.1em]" data-reveal>給你的建議</h2>
+        <p className="prose-airy mt-4 max-w-3xl">{route.text}</p>
+        {diagnosis.confidence === "medium" && <p className="mt-3 max-w-3xl text-meta text-ash">{CONFIDENCE_NOTE.medium}</p>}
+        {!diagnosis.credibility.ok && (
+          <p className="mt-2 text-note text-ash">判斷依據：{diagnosis.credibility.reasons.map((r) => CREDIBILITY_REASON[r]).join("、")}。</p>
+        )}
+        {referral && (
+          <ul className="mt-6 divide-y divide-hairline border-y border-hairline">
+            {referral.items.map((it) => (
+              <li key={it.href} className="grid gap-1 py-4 md:grid-cols-[9rem_1fr] md:gap-6">
+                <span className="text-meta font-medium text-river">{referral.title}</span>
+                <div className="text-body leading-[1.8] text-ink-strong">
+                  <a href={it.href} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-river">
+                    {it.title}
+                  </a>
+                  <span className="block text-meta text-ash">{it.text}</span>
+                </div>
+              </li>
+            ))}
+            <li className="grid gap-1 py-4 md:grid-cols-[9rem_1fr] md:gap-6">
+              <span className="text-meta font-medium text-river">需要時</span>
+              <div className="text-body leading-[1.8] text-ink-strong">{referral.hotline}</div>
+            </li>
+          </ul>
+        )}
         <div className="mt-8">
           <AgentPanel
             sessionId={session.id}
