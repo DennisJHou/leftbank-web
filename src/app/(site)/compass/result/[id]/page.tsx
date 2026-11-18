@@ -134,19 +134,19 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
         {referral && (
           <ul className="mt-6 divide-y divide-hairline border-y border-hairline">
             {referral.items.map((it) => (
-              <li key={it.href} className="grid gap-1 py-4 md:grid-cols-[9rem_1fr] md:gap-6">
-                <span className="text-meta font-medium text-river">{referral.title}</span>
-                <div className="text-body leading-[1.8] text-ink-strong">
+              <li key={it.href} className="grid gap-1.5 py-5 md:grid-cols-[10rem_1fr] md:gap-6">
+                <span className="h-item tracking-[0.06em] text-river">{referral.title}</span>
+                <div className="text-meta leading-[1.85] text-ink md:pt-0.5">
                   <a href={it.href} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-river">
                     {it.title}
                   </a>
-                  <span className="block text-meta text-ash">{it.text}</span>
+                  <span className="block text-note text-ash">{it.text}</span>
                 </div>
               </li>
             ))}
-            <li className="grid gap-1 py-4 md:grid-cols-[9rem_1fr] md:gap-6">
-              <span className="text-meta font-medium text-river">需要時</span>
-              <div className="text-body leading-[1.8] text-ink-strong">{referral.hotline}</div>
+            <li className="grid gap-1.5 py-5 md:grid-cols-[10rem_1fr] md:gap-6">
+              <span className="h-item tracking-[0.06em] text-river">需要時</span>
+              <div className="text-meta leading-[1.85] text-ink md:pt-0.5">{referral.hotline}</div>
             </li>
           </ul>
         )}

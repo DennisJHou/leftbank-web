@@ -107,9 +107,9 @@ export async function renderPlanImage(plan: ResolvedPlan, meta: PlanImageMeta, a
   rule();
 
   // ── 焦點：和網頁一樣，一條一條的建議（左邊標籤、右邊內容）
-  const LABEL_W = 200;
+  const LABEL_W = 230;
   const item = (label: string, body: string, sub?: string) => {
-    measure.font = `400 29px ${sans}`;
+    measure.font = `400 27px ${sans}`;
     const lines = wrap(measure, body, INNER - LABEL_W);
     measure.font = `400 24px ${sans}`;
     const subLines = sub ? wrap(measure, sub, INNER - LABEL_W) : [];
@@ -117,12 +117,12 @@ export async function renderPlanImage(plan: ResolvedPlan, meta: PlanImageMeta, a
       const top = y + 22;
       ctx.textBaseline = "top";
       ctx.fillStyle = C.river;
-      ctx.font = `500 25px ${sans}`;
-      ctx.fillText(label, PAD, top + 3);
-      ctx.fillStyle = C.strong;
-      ctx.font = `400 29px ${sans}`;
-      lines.forEach((l, j) => ctx.fillText(l, PAD + LABEL_W, top + j * 29 * 1.7));
-      let yy = top + lines.length * 29 * 1.7;
+      ctx.font = `500 31px ${serif}`;
+      ctx.fillText(label, PAD, top);
+      ctx.fillStyle = C.ink;
+      ctx.font = `400 27px ${sans}`;
+      lines.forEach((l, j) => ctx.fillText(l, PAD + LABEL_W, top + 2 + j * 27 * 1.75));
+      let yy = top + 2 + lines.length * 27 * 1.75;
       ctx.fillStyle = C.ash;
       ctx.font = `400 24px ${sans}`;
       subLines.forEach((l, j) => ctx.fillText(l, PAD + LABEL_W, yy + 4 + j * 24 * 1.6));
@@ -143,7 +143,7 @@ export async function renderPlanImage(plan: ResolvedPlan, meta: PlanImageMeta, a
   plan.focuses.forEach((f, i) => {
     space(56);
     text(`${NUMERALS[i] ?? i + 1}、${f.title}`, { size: 44, color: C.strong, family: serif, lh: 1.4, gap: 4 });
-    const sub = [f.title !== SUBSCALES[f.subscale].label && SUBSCALES[f.subscale].label, f.changed && "這次新出現"].filter(Boolean).join("・");
+    const sub = f.title !== SUBSCALES[f.subscale].label ? SUBSCALES[f.subscale].label : "";
     if (sub) text(sub, { size: 24, color: C.ash, gap: 16 });
     else space(12);
     text(f.why, { size: 28, color: C.ash, lh: 1.8, gap: 12 });
@@ -153,8 +153,11 @@ export async function renderPlanImage(plan: ResolvedPlan, meta: PlanImageMeta, a
       return y + 2;
     });
     item("下一步行動", f.action);
-    f.links.forEach((l) => item("身邊的資源", l.title, `${l.campus ? "校內" : "校外"}・${l.note}（${hostOf(l.url)}）`));
-    f.resources.forEach((r) => item("身邊的資源", r.title, r.provider));
+    const res = [
+      ...f.links.map((l) => `・${l.title}（${l.campus ? "校內" : "校外"}，${hostOf(l.url)}）`),
+      ...f.resources.map((r) => `・${r.title}（${r.provider}）`),
+    ];
+    if (res.length) item("身邊的資源", res.join("\n"));
     item("寫下你的想法", f.writing_prompt);
     if (f.quote) item("看看系友故事", `「${f.quote.text}」`, `— ${f.quote.name}${f.quote.title ? `，${f.quote.title}` : ""}`);
   });

@@ -126,9 +126,9 @@ function Progress({ state }: { state: AgentStatusPayload }) {
 /** 一條建議：左邊是標籤，右邊是內容。整份處置包只用這一種排版。 */
 function Item({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <li className="grid gap-1 py-4 md:grid-cols-[9rem_1fr] md:gap-6">
-      <span className="text-meta font-medium text-river">{label}</span>
-      <div className="text-body leading-[1.8] text-ink-strong">{children}</div>
+    <li className="grid gap-1.5 py-5 md:grid-cols-[10rem_1fr] md:gap-6">
+      <span className="h-item tracking-[0.06em] text-river">{label}</span>
+      <div className="text-meta leading-[1.85] text-ink md:pt-0.5">{children}</div>
     </li>
   );
 }
@@ -148,38 +148,43 @@ function PlanView({ plan, imageMeta, alumni }: { plan: ResolvedPlan; imageMeta: 
         <section key={f.subscale} className="mt-12 border-t border-hairline pt-8">
           <h3 className="h-section tracking-[0.08em]">
             {NUMERALS[i] ?? i + 1}、{f.title}
-            {f.changed && <span className="ml-3 align-middle text-note text-accent">這次新出現</span>}
           </h3>
           {f.title !== SUBSCALES[f.subscale].label && <p className="mt-1 text-note text-ash">{SUBSCALES[f.subscale].label}</p>}
           <p className="prose-airy mt-4 max-w-3xl text-ash">{f.why}</p>
 
           <ul className="mt-4 divide-y divide-hairline border-y border-hairline">
             <Item label="下一步行動">{f.action}</Item>
-            {f.links.map((l) => (
-              <Item key={l.url} label="身邊的資源">
-                <a href={l.url} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-river">
-                  {l.title}
-                </a>
-                <span className="block text-meta text-ash">
-                  {l.campus ? "校內" : "校外"}・{l.note}
-                </span>
+            {(f.links.length > 0 || f.resources.length > 0) && (
+              <Item label="身邊的資源">
+                <ul className="space-y-3">
+                  {f.links.map((l) => (
+                    <li key={l.url}>
+                      <a href={l.url} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-river">
+                        {l.title}
+                      </a>
+                      <span className="block text-note text-ash">
+                        {l.campus ? "校內" : "校外"}・{l.note}
+                      </span>
+                    </li>
+                  ))}
+                  {f.resources.map((r) => (
+                    <li key={r.id}>
+                      <a href={r.url} {...external(r.url)} className="underline underline-offset-4 hover:text-river">
+                        {r.title}
+                      </a>
+                      <span className="block text-note text-ash">
+                        {r.provider}・{r.summary}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </Item>
-            ))}
-            {f.resources.map((r) => (
-              <Item key={r.id} label="身邊的資源">
-                <a href={r.url} {...external(r.url)} className="underline underline-offset-4 hover:text-river">
-                  {r.title}
-                </a>
-                <span className="block text-meta text-ash">
-                  {r.provider}・{r.summary}
-                </span>
-              </Item>
-            ))}
+            )}
             <Item label="寫下你的想法">{f.writing_prompt}</Item>
             {f.quote && (
               <Item label="看看系友故事">
                 「{f.quote.text}」
-                <span className="block text-meta text-ash">
+                <span className="block text-note text-ash">
                   —{" "}
                   <Link href={`/alumni/${f.quote.alumniId}`} className="underline underline-offset-4 hover:text-river">
                     {f.quote.name}
@@ -208,7 +213,7 @@ function PlanView({ plan, imageMeta, alumni }: { plan: ResolvedPlan; imageMeta: 
             ))}
           </ul>
           <p>目前沒有研究直接證明「依困難類型配對」一定比通用的建議更好，所以這份處置包是依有效成分推論出來的建議，不是唯一答案。</p>
-          <p className="pt-2 text-meta font-medium text-ink">參考文獻（APA 7）</p>
+          <p className="pt-2 text-meta font-medium text-ink">參考文獻</p>
           <References />
         </div>
       </details>
@@ -227,7 +232,7 @@ function AlumniList({ alumni }: { alumni: PlanAlumni[] }) {
         {alumni.map((a) => (
           <Item key={a.id} label={a.name}>
             {a.title && <span className="block">{a.title}</span>}
-            {a.tagline && <span className="block text-meta text-ash">「{a.tagline}」</span>}
+            {a.tagline && <span className="block text-note text-ash">「{a.tagline}」</span>}
             <span className="mt-1 flex flex-wrap gap-x-5 text-meta">
               <Link href={`/alumni/${a.id}`} className="underline underline-offset-4 hover:text-river">讀他的故事</Link>
               {a.accept_question && (
