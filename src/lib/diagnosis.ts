@@ -58,7 +58,7 @@ export function diagnose(items: Record<string, number>, scores: CddqScores, timi
   // 3. 相對突出度：高於個人平均 0.5 SD，且絕對程度至少「有些卡關」；最多 3 個
   const ranked = [...SUBSCALE_ORDER].sort((a, b) => scores.subscales[b] - scores.subscales[a]);
   let salient = ranked.filter((k) => scores.subscales[k] >= m + t.salientSd * s && level(scores.subscales[k], t) !== "low").slice(0, 3);
-  // 平坦剖面沒有相對突出的項目：退而取絕對分數最高、至少中等的 2 項，讓處置包仍有焦點
+  // 平坦剖面沒有相對突出的項目：退而取絕對分數最高、至少中等的 2 項，讓生涯報告仍有焦點
   if (!salient.length) {
     salient = ranked.filter((k) => level(scores.subscales[k], t) !== "low").slice(0, 2);
     if (!salient.length) salient = ranked.slice(0, 1);

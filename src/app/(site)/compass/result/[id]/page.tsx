@@ -79,7 +79,7 @@ export default async function ResultPage({ params }: PageProps<"/compass/result/
   const diagnosis: Diagnosis = session.diagnosis ?? diagnose(answers.items, scores, null);
   const agent = (await statusFor(session.id, user.id)) ?? { status: "none" as const, steps: [], plan: null, canRetry: false };
 
-  // 推薦系友：量表標籤，加上 Agent 產生的標籤（處置包完成後）
+  // 推薦系友：量表標籤，加上 Agent 產生的標籤（生涯報告完成後）
   const run = agent.status === "succeeded" ? await latestRun(session.id) : null;
   const tags: Tag[] = [...cddqTags(answers, scores), ...(run?.result ? parseTags(run.result.tags) : [])];
   const alumni = await recommendAlumni(user.id, tags);

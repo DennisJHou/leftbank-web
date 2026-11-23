@@ -83,7 +83,7 @@ export default async function AgentPage() {
     <>
       <PageTitle
         title="分流 Agent"
-        lead="CDDQ 做完後，網站用固定規則判讀並分流，再由 Agent 整理處置包。一般管理員只看彙總；個人處置包與工具紀錄只有超級管理員看得到。"
+        lead="CDDQ 做完後，網站用固定規則判讀並分流，再由 Agent 整理生涯報告。一般管理員只看彙總；個人生涯報告與工具紀錄只有超級管理員看得到。"
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

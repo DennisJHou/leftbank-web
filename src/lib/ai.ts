@@ -6,12 +6,12 @@ import { allTags, tagKey, type TagDimension } from "./tags";
 /**
  * Claude API 共用：用量、預算、可用性、系友故事標籤；職涯羅盤的分流 Agent 在 lib/agent/
  *
- * - 模型由 AI_MODEL 設定，預設 claude-opus-5-5；想省錢可以改成 claude-sonnet-5-5 或 claude-haiku-5-5
+ * - 模型由 AI_MODEL 設定，預設 claude-haiku-5-5；想要更好的品質可以改成 claude-sonnet-5-5 或 claude-opus-5-5
  * - 每次呼叫都記進 ai_usage，用量超過 AI_TOTAL_BUDGET_USD 就關閉 AI 版
  * - 本機沒有設定 ANTHROPIC_API_KEY 時，改用固定的示範回覆，方便測試整個流程
  */
 
-export const AI_MODEL = process.env.AI_MODEL || "claude-opus-5-5";
+export const AI_MODEL = process.env.AI_MODEL || "claude-haiku-5-5";
 
 /** 美元 / 百萬 tokens（2026-10 官方定價） */
 const PRICING: Record<string, { input: number; output: number }> = {

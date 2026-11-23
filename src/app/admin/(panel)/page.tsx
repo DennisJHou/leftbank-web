@@ -124,7 +124,7 @@ export default async function Dashboard({ searchParams }: PageProps<"/admin">) {
       </div>
       <p className="mt-3 text-note text-ash">
         宣傳期：{fmtDate(cfg.promoStart)} – {fmtDate(cfg.promoEnd)} · Agent 模型 {AGENT_MODEL} · 網路搜尋 {agentWebEnabled() ? "開" : "關"}
-        {cfg.mock && " · 開發模式（示範處置包）"}
+        {cfg.mock && " · 開發模式（示範生涯報告）"}
       </p>
       {stale > 0 && (
         <p className="notice mt-4">

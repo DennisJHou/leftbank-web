@@ -30,7 +30,10 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10">
-        <p className="container-page py-6 text-note text-white/60">© {new Date().getFullYear()} 臺大心理系 左岸計畫</p>
+        <div className="container-page flex flex-col gap-2 py-6 text-note text-white/60">
+          <p>本計劃由臺大心理系、臺大心理系系友會、台大小田野自主學習計劃、NTU Challengers贊助支持</p>
+          <p>© {new Date().getFullYear()} 臺大心理系 左岸計畫</p>
+        </div>
       </div>
     </footer>
   );

@@ -120,13 +120,13 @@ export default async function HomePage() {
             讓心理學成為你探索的起點。
           </h2>
           <p className="lede mt-6" data-reveal style={delay(160)}>
-            {ITEMS.length} 題量表 × AI 生涯對談
+            {ITEMS.length} 題量表 × AI 生涯報告
           </p>
           <p className="prose-airy mt-4" data-reveal style={delay(200)}>
             本測驗採用「生涯決策困難量表」（共 {ITEMS.length} 題，約需 8 分鐘），協助你將抽象的迷惘轉化為清晰的決策維度，並根據分析結果推薦最契合的實務方案與學長姊經驗。
           </p>
           <p className="prose-airy mt-4" data-reveal style={delay(240)}>
-            此外，更提供最多 6 輪的 AI 互動對話，陪伴你針對目前的卡點反覆對話、尋找破局點。
+            做完量表後，AI 會依照你的結果整理出一份專屬的「生涯報告」，附上可以立刻開始的小行動、相關資源，以及值得聊聊的學長姊故事，幫你找到下一步的破局點。
           </p>
           <Link href="/compass" className="btn mt-9" data-reveal style={delay(280)}>
             開始探索 <Arrow />
