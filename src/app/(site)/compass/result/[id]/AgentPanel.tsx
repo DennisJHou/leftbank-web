@@ -14,7 +14,7 @@ const NUMERALS = ["一", "二", "三"];
 const POLL_MS = 2000;
 
 /**
- * 處置包面板：Agent 執行中時每 2 秒輪詢進度；完成後顯示處置包；
+ * 生涯報告面板：Agent 執行中時每 2 秒輪詢進度；完成後顯示生涯報告；
  * 失敗、略過時顯示 fallback（由伺服器端渲染好的固定推薦）。推薦系友兩種情況都顯示在最後。
  */
 export function AgentPanel({
@@ -123,7 +123,7 @@ function Progress({ state }: { state: AgentStatusPayload }) {
   );
 }
 
-/** 一條建議：左邊是標籤，右邊是內容。整份處置包只用這一種排版。 */
+/** 一條建議：左邊是標籤，右邊是內容。整份生涯報告只用這一種排版。 */
 function Item({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <li className="grid gap-1.5 py-5 md:grid-cols-[10rem_1fr] md:gap-6">
@@ -212,7 +212,7 @@ function PlanView({ plan, imageMeta, alumni }: { plan: ResolvedPlan; imageMeta: 
               </li>
             ))}
           </ul>
-          <p>目前沒有研究直接證明「依困難類型配對」一定比通用的建議更好，所以這份處置包是依有效成分推論出來的建議，不是唯一答案。</p>
+          <p>目前沒有研究直接證明「依困難類型配對」一定比通用的建議更好，所以這份生涯報告是依有效成分推論出來的建議，不是唯一答案。</p>
           <p className="pt-2 text-meta font-medium text-ink">參考文獻</p>
           <References />
         </div>
@@ -221,7 +221,7 @@ function PlanView({ plan, imageMeta, alumni }: { plan: ResolvedPlan; imageMeta: 
   );
 }
 
-/** 推薦的系友：和處置包同一種條列 */
+/** 推薦的系友：和生涯報告同一種條列 */
 function AlumniList({ alumni }: { alumni: PlanAlumni[] }) {
   if (!alumni.length) return null;
   return (
@@ -255,7 +255,7 @@ function SaveImage({ plan, meta, alumni }: { plan: ResolvedPlan; meta: PlanImage
   const [err, setErr] = useState<string | null>(null);
   const blobRef = useRef<Blob | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
-  const filename = `左岸處置包-${meta.date.replace(/\D/g, "")}.png`;
+  const filename = `左岸生涯報告-${meta.date.replace(/\D/g, "")}.png`;
 
   useEffect(() => () => void (url && URL.revokeObjectURL(url)), [url]);
 
@@ -293,14 +293,14 @@ function SaveImage({ plan, meta, alumni }: { plan: ResolvedPlan; meta: PlanImage
         onClick={(e) => e.target === dialog.current && dialog.current?.close()}
       >
         <div className="flex items-center justify-between gap-3 border-b border-hairline px-5 py-3">
-          <p className="text-meta text-ink-strong">處置包圖片</p>
+          <p className="text-meta text-ink-strong">生涯報告圖片</p>
           <button type="button" className="btn-text text-meta" onClick={() => dialog.current?.close()}>
             關閉
           </button>
         </div>
         <div className="max-h-[calc(92dvh-8.5rem)] overflow-y-auto bg-panel p-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {url && <img src={url} alt="處置包的圖片版" className="mx-auto w-full shadow-[var(--shadow-float)]" />}
+          {url && <img src={url} alt="生涯報告的圖片版" className="mx-auto w-full shadow-[var(--shadow-float)]" />}
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-hairline px-5 py-3">
           <p className="mr-auto text-note text-ash">手機上也可以長按圖片儲存</p>
@@ -310,7 +310,7 @@ function SaveImage({ plan, meta, alumni }: { plan: ResolvedPlan; meta: PlanImage
               className="btn btn-sm"
               onClick={async () => {
                 const f = file();
-                if (f && navigator.canShare?.({ files: [f] })) await navigator.share({ files: [f], title: "我的處置包" }).catch(() => {});
+                if (f && navigator.canShare?.({ files: [f] })) await navigator.share({ files: [f], title: "我的生涯報告" }).catch(() => {});
               }}
             >
               分享

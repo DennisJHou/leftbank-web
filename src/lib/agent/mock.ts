@@ -9,7 +9,7 @@ import type { AgentPlan, Component, Diagnosis } from "./types";
 import type { EligibleStory } from "./tools";
 
 /**
- * 沒有 ANTHROPIC_API_KEY 的本機示範：用固定規則組一份處置包。
+ * 沒有 ANTHROPIC_API_KEY 的本機示範：用固定規則組一份生涯報告。
  * 系友引言一樣從資料庫的故事原文擷取，所以會通過 validate.ts，整個流程（進度、驗證、呈現）照常跑。
  */
 

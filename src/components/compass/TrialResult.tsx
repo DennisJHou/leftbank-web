@@ -79,7 +79,7 @@ export function TrialResult({ items, onRestart }: { items: Record<string, number
             </Link>
           ))}
         </div>
-        <p className="mt-6 text-note text-ash">登入後作答，還會整理一份個人化的處置包（行動建議、系友的話、臺大資源），推薦 3 位系友，並保存結果、和下次的結果比較。</p>
+        <p className="mt-6 text-note text-ash">登入後作答，還會整理一份個人化的生涯報告（行動建議、系友的話、臺大資源），推薦 3 位系友，並保存結果、和下次的結果比較。</p>
       </section>
 
       <details className="mt-16 border-t border-hairline pt-8 text-meta">

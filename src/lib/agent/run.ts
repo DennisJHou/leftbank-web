@@ -18,7 +18,7 @@ import type { AgentPlan, Diagnosis, Step, StepKey } from "./types";
  * 計畫書 §2.1、§2.5。流程：claim run → 逐步更新進度 → 工具迴圈 → submit_plan → 驗證（可修補一次）→ 寫入。
  */
 
-export const AGENT_MODEL = process.env.AGENT_MODEL || "claude-opus-5-5";
+export const AGENT_MODEL = process.env.AGENT_MODEL || "claude-haiku-5-5";
 const MAX_TOOL_CALLS = 10;
 const TIMEOUT_MS = 240_000;
 /** 網路工具只能查這些網域（含子網域）：臺大各單位、教育部、勞動部、青年署、台灣就業通 */
@@ -228,7 +228,7 @@ async function realLoop(a: {
       if (!uses.length) {
         if (nudged) throw new Error("ended without submit_plan");
         nudged = true;
-        messages.push({ role: "user", content: "請呼叫 submit_plan 交出處置包。" });
+        messages.push({ role: "user", content: "請呼叫 submit_plan 交出生涯報告。" });
         continue;
       }
 
@@ -249,7 +249,7 @@ async function realLoop(a: {
                 type: "tool_result",
                 tool_use_id: u.id,
                 is_error: true,
-                content: `處置包沒有通過檢查，請修正後再呼叫一次 submit_plan：\n- ${v.errors.join("\n- ")}`,
+                content: `生涯報告沒有通過檢查，請修正後再呼叫一次 submit_plan：\n- ${v.errors.join("\n- ")}`,
               });
             }
             return;

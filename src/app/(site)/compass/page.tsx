@@ -68,7 +68,7 @@ export default async function CompassPage() {
                 <ChatSketch className="h-24 w-24 md:h-28 md:w-28" />
               </div>
             </div>
-            <h2 className="h-section mt-6 tracking-[0.1em]">你的處置包</h2>
+            <h2 className="h-section mt-6 tracking-[0.1em]">你的生涯報告</h2>
             <p className="lede mt-2 text-meta">做完問卷後自動產生・約 1 分鐘</p>
             <p className="prose-airy mt-4 flex-1 text-ash">
               做完問卷，會有一位 AI 助手依你最卡的地方，整理走過類似處境的系友說過的話、適合你的臺大資源，以及這週就能做的一件事。可以存成圖片留著。

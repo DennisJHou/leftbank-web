@@ -18,7 +18,7 @@ npm run dev                  # http://localhost:3000
 
 - **不用安裝資料庫**：沒有設定 `DATABASE_URL` 時，會自動使用內嵌的 PGlite（真正的 Postgres，資料存在 `.data/pglite`），第一次啟動自動建表並放入示範資料。
 - **不用設定寄信**：沒有設定 `GMAIL_APP_PASSWORD` 時，信件不會寄出，而是記錄在資料庫，可以在 [/dev/mailbox](http://localhost:3000/dev/mailbox) 查看並點信裡的按鈕。
-- **不用 AI 金鑰**：沒有設定 `ANTHROPIC_API_KEY` 時，本機的分流 Agent 會用示範模式產生處置包（引言一樣取自示範系友的故事原文，進度條、驗證照常跑；總覽會標示「示範模式」）。
+- **不用 AI 金鑰**：沒有設定 `ANTHROPIC_API_KEY` 時，本機的分流 Agent 會用示範模式產生生涯報告（引言一樣取自示範系友的故事原文，進度條、驗證照常跑；總覽會標示「示範模式」）。
 - 想從頭來過：先停掉開發伺服器，再執行 `npm run db:reset`。
 - 正式環境（有 `DATABASE_URL`）不會放示範資料；沒有內容的區塊會顯示「資料建置中」。
 
@@ -52,7 +52,7 @@ npm run dev                  # http://localhost:3000
 | 照片 | **Supabase Storage**（有設定時），否則存在本機 `.data/uploads` |
 | 會員 | 自建：scrypt 雜湊密碼、httpOnly session cookie、email 驗證與重設密碼 |
 | 寄信 | Gmail SMTP（nodemailer） |
-| AI | Anthropic Claude API（`@anthropic-ai/sdk`），預設 `claude-opus-5-5`，可用 `AI_MODEL` 更換 |
+| AI | Anthropic Claude API（`@anthropic-ai/sdk`），預設 `claude-haiku-5-5`，可用 `AI_MODEL` 更換 |
 | 排程 | Vercel Cron 每天呼叫 `/api/cron/daily`（逾期判定、14 天完成確認信） |
 
 ### ⚠️ 和規格書不同的地方
@@ -87,13 +87,13 @@ npm run dev                  # http://localhost:3000
 
 ### 職涯羅盤：分流 Agent 的設定
 
-做完 CDDQ 後，網站先用固定規則（`src/lib/diagnosis.ts`）做四步驟判讀（可信度 → 區辨度 → 相對突出度 → 回饋信心）與分流（先釐清／建議諮商／有人陪／自助），再在背景啟動 Agent（`src/lib/agent/`），從資料庫的系友故事與資源目錄整理成「處置包」放進結果頁。學生端可以把處置包存成圖片。
+做完 CDDQ 後，網站先用固定規則（`src/lib/diagnosis.ts`）做四步驟判讀（可信度 → 區辨度 → 相對突出度 → 回饋信心）與分流（先釐清／建議諮商／有人陪／自助），再在背景啟動 Agent（`src/lib/agent/`），從資料庫的系友故事與資源目錄整理成「生涯報告」放進結果頁。學生端可以把生涯報告存成圖片。
 
 | 變數 | 說明 |
 |---|---|
-| `AGENT_MODEL` | 預設 `claude-opus-5-5`；評估後可改 `claude-sonnet-5-5` |
+| `AGENT_MODEL` | 預設 `claude-haiku-5-5`；品質不足時可改 `claude-sonnet-5-5` 或 `claude-opus-5-5` |
 | `AGENT_SECRET` | `/api/agent/run` 的內部驗證。正式環境必填，Agent 才會在獨立的函式（最長 300 秒）執行 |
-| `AGENT_WEB` | 預設開啟：Agent 會用 web_search / web_fetch 查臺大（ntu.edu.tw）、教育部、勞動部、青年署、台灣就業通的資訊，放進處置包的「查資料」；設成 `off` 才關閉。處置包裡的網址必須真的出現在搜尋結果裡 |
+| `AGENT_WEB` | 預設開啟：Agent 會用 web_search / web_fetch 查臺大（ntu.edu.tw）、教育部、勞動部、青年署、台灣就業通的資訊，放進生涯報告的「查資料」；設成 `off` 才關閉。生涯報告裡的網址必須真的出現在搜尋結果裡 |
 | `AGENT_MAX_PER_USER_30D` | 每位使用者每 30 天最多幾次，預設 3 |
 | `AI_PROMO_START` / `AI_PROMO_END` | 宣傳期（含當天，臺灣時間）。期間外只顯示固定推薦 |
 | `AI_TOTAL_BUDGET_USD` | 全站總預算（Agent 與故事標籤合計）。用完自動改顯示固定推薦，畫面不出現「名額已滿」 |
@@ -114,7 +114,7 @@ npm run dev                  # http://localhost:3000
 | 逾期與完成確認排程 | `src/lib/cron.ts`、`src/app/api/cron/daily/route.ts`、`vercel.json` |
 | 我的帳號（個人資料、學歷、公開層級、紀錄） | `src/app/(site)/me/` |
 | 留下你的故事 | `src/app/(site)/me/story/`、`src/lib/story-questions.ts` |
-| 職涯羅盤：量表、診斷分流、處置包 | `src/app/(site)/compass/`、`src/lib/cddq.ts`、`src/lib/diagnosis.ts`、`src/lib/agent/` |
+| 職涯羅盤：量表、診斷分流、生涯報告 | `src/app/(site)/compass/`、`src/lib/cddq.ts`、`src/lib/diagnosis.ts`、`src/lib/agent/` |
 | 推薦系統（詞彙表、標籤、cosine 配對） | `src/lib/tags.ts`、`src/lib/tagging.ts`、`src/lib/recommend.ts` |
 | 註冊、驗證、登入、重設密碼 | `src/app/(site)/{signup,verify,login,forgot-password,reset-password}/`、`src/app/actions/auth.ts` |
 | 身分由學歷推算 | `src/lib/identity.ts` |

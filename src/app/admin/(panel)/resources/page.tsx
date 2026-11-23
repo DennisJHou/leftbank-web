@@ -20,7 +20,7 @@ export default async function ResourcesPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <PageTitle title="資源目錄" lead="處置包裡的資源只能從這裡挑。停用的項目不會出現在新的處置包；超過 60 天沒查證的會標示出來。" />
+      <PageTitle title="資源目錄" lead="生涯報告裡的資源只能從這裡挑。停用的項目不會出現在新的生涯報告；超過 60 天沒查證的會標示出來。" />
       <Table>
         <thead>
           <tr>
@@ -58,7 +58,7 @@ export default async function ResourcesPage({ searchParams }: { searchParams: Pr
                   <div className="flex justify-end gap-2">
                     <a href={`/admin/resources?edit=${r.id}#form`} className="btn btn-sm">編輯</a>
                     <ConfirmButton action={markResourceVerified.bind(null, r.id)}>已查證</ConfirmButton>
-                    <ConfirmButton action={toggleResource.bind(null, r.id)} confirm={r.active ? "停用後，新的處置包不會再推薦這項資源。確定嗎？" : undefined}>
+                    <ConfirmButton action={toggleResource.bind(null, r.id)} confirm={r.active ? "停用後，新的生涯報告不會再推薦這項資源。確定嗎？" : undefined}>
                       {r.active ? "停用" : "啟用"}
                     </ConfirmButton>
                   </div>

@@ -1,4 +1,4 @@
-/** 處置包相關的固定文案（前後端共用）。語氣依 DESIGN.md：平實、溫暖，不出現「診斷」「障礙」。 */
+/** 生涯報告相關的固定文案（前後端共用）。語氣依 DESIGN.md：平實、溫暖，不出現「診斷」「障礙」。 */
 import type { SubscaleKey } from "../cddq";
 import type { Component, Route, StepKey } from "./types";
 

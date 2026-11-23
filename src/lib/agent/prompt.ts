@@ -14,7 +14,7 @@ const interventionTable = SUBSCALE_ORDER.map((k) => {
 const TAG_LIST = allTags().map((t) => tagKey(t.dimension, t.label)).join("、");
 
 /** 固定不變的系統提示詞（放在快取斷點之前） */
-export const AGENT_SYSTEM = `你是臺大心理系「左岸計畫」網站的資源整理助手。一位學生剛做完「生涯決定困難問卷」（CDDQ，田秀蘭中文版），網站已經用固定規則算好分數、判讀並分流。你的工作是：依學生最突出的困難，從左岸的資料庫找出系友故事與資源，整理成一份給學生本人看的「處置包」。
+export const AGENT_SYSTEM = `你是臺大心理系「左岸計畫」網站的資源整理助手。一位學生剛做完「生涯決定困難問卷」（CDDQ，田秀蘭中文版），網站已經用固定規則算好分數、判讀並分流。你的工作是：依學生最突出的困難，從左岸的資料庫找出系友故事與資源，整理成一份給學生本人看的「生涯報告」。
 
 你不是諮商師，也不做診斷。讀者是學生本人。
 
@@ -24,7 +24,7 @@ export const AGENT_SYSTEM = `你是臺大心理系「左岸計畫」網站的資
 2. **用 web_search 實際查資訊**（有 web_search 工具時一定要做）：替每個焦點找 1–3 筆學生現在就用得到的校內外資訊，例如臺大職涯中心本學期的講座與工作坊、實習與職場體驗、心輔中心的團體、教育部與勞動部的職涯平台、和學生興趣領域相關的職業介紹。缺乏資訊類（不了解決策步驟、對自己的了解、對職業的了解、找資訊的方法、不可靠的資訊）的焦點尤其要查。需要確認內容時用 web_fetch 讀網頁。搜尋關鍵字不能包含學生的任何個人資訊。
 3. 用 search_stories 找走過類似處境的系友（標籤從下面的詞彙表挑）。
 4. 挑一位最相關的系友，用 get_story_excerpt 讀全文，從中**原文擷取**一段 120 字以內的話（一字不改、不拼接、不加刪節號）。找不到合適的就不要引用（alumni_quote 填 null）。
-5. 全部整理好後，呼叫 submit_plan 交出處置包。這是最後一步，交出後不要再說話。
+5. 全部整理好後，呼叫 submit_plan 交出生涯報告。這是最後一步，交出後不要再說話。
 
 links：放第 2 步查到的資訊，每筆有標題、網址、一句說明（為什麼對這位學生有用、怎麼用）。網址必須是搜尋或讀取結果裡**原樣出現過**的網址，只能是臺大（ntu.edu.tw）或政府、教育部網站；不確定的就不要放。沒有 web_search 工具時 links 填空陣列。
 
@@ -36,7 +36,7 @@ links：放第 2 步查到的資訊，每筆有標題、網址、一句說明（
 - why：用學生聽得懂的話連結到分數，60–120 字。
 - action：一週內做得到、具體的一個小行動。
 - writing_prompt：一個書寫練習，可以參考對照表的書寫範例，但要配合學生的情況改寫。
-- components：標註這個焦點用到的有效成分。整份處置包的成分聯集至少 3 種，且至少一個焦點包含 counselor_support 或 support_network（一定要有「找一個人」的出口）。
+- components：標註這個焦點用到的有效成分。整份生涯報告的成分聯集至少 3 種，且至少一個焦點包含 counselor_support 或 support_network（一定要有「找一個人」的出口）。
 - 不要寫出任何人的姓名（你也不會拿到姓名）。提到系友時說「一位系友」或用職稱。
 - external（和家人的期待不同）：用「把家人的期待放進決策條件一起考慮」的框架，不要叫學生切割或對抗家人。
 - motivation（不急著決定）：用「探問」而不是「推動」，好奇他為什麼現在不想決定。
@@ -69,13 +69,13 @@ export function buildStudentMessage(runId: string, d: Diagnosis, scores: CddqSco
 ${prevChanged?.length ? `和上一次相比新出現的突出項：${prevChanged.join("、")}` : ""}
 </student>
 
-請依流程整理處置包，最後呼叫 submit_plan。`;
+請依流程整理生涯報告，最後呼叫 submit_plan。`;
 }
 
-/** 最後一步：交出處置包（strict，伺服器再用 zod 與 validate.ts 檢查一次） */
+/** 最後一步：交出生涯報告（strict，伺服器再用 zod 與 validate.ts 檢查一次） */
 export const SUBMIT_TOOL: Anthropic.Beta.BetaTool = {
   name: "submit_plan",
-  description: "交出最後的處置包。呼叫之後流程就結束。",
+  description: "交出最後的生涯報告。呼叫之後流程就結束。",
   strict: true,
   input_schema: {
     type: "object",

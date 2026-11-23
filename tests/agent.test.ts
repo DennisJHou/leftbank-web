@@ -1,5 +1,5 @@
 /**
- * 分流規則與處置包驗證的測試：npm test
+ * 分流規則與生涯報告驗證的測試：npm test
  * 合成剖面：每個小項指定一個目標分數，題目分數在目標附近交錯（避免被當成一直線作答）。
  */
 import assert from "node:assert/strict";
@@ -51,7 +51,7 @@ for (const c of cases) {
   pass++;
 }
 
-// 單一條件不通過 → 信心中等，仍給處置包
+// 單一條件不通過 → 信心中等，仍給生涯報告
 {
   const it = items({ base: 3, occupations: 7 });
   const d = diagnose(it, scoreCddq(it), fast);
@@ -85,7 +85,7 @@ const good = {
   ],
   tags: [{ tag: "value:助人", weight: 0.5 }],
 };
-assert.equal(validatePlan(good, ctx).ok, true, "正常的處置包應該通過");
+assert.equal(validatePlan(good, ctx).ok, true, "正常的生涯報告應該通過");
 pass++;
 
 const bad = (patch: (p: typeof good) => void) => {

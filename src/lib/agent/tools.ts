@@ -70,7 +70,7 @@ export const TOOL_DEFS: Anthropic.Beta.BetaTool[] = [
   {
     name: "search_resources",
     description:
-      "查資源目錄。輸入學生突出的小項，回傳可以推薦的資源（id、名稱、說明、證據層級、是否有人帶領）。處置包裡的資源只能用這個工具回傳的 id。",
+      "查資源目錄。輸入學生突出的小項，回傳可以推薦的資源（id、名稱、說明、證據層級、是否有人帶領）。生涯報告裡的資源只能用這個工具回傳的 id。",
     strict: true,
     input_schema: {
       type: "object",

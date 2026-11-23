@@ -1,5 +1,5 @@
 /**
- * 把處置包畫成一張直式長圖（PNG），讓學生截圖留存或傳給自己。
+ * 把生涯報告畫成一張直式長圖（PNG），讓學生截圖留存或傳給自己。
  * 直接用 Canvas 2D 繪製（不用額外套件），字型沿用網頁已載入的 Noto Sans／Serif TC。
  */
 import { SUBSCALES } from "@/lib/cddq";

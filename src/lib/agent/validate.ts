@@ -1,5 +1,5 @@
 /**
- * 處置包驗證（計畫書 §2.6）。純函式：所有資料由呼叫端準備好傳進來，方便測試。
+ * 生涯報告驗證（計畫書 §2.6）。純函式：所有資料由呼叫端準備好傳進來，方便測試。
  */
 import { AgentPlanSchema, type AgentPlan, type Diagnosis } from "./types";
 
@@ -15,7 +15,7 @@ export type ValidateContext = {
   seenUrls?: Set<string>;
 };
 
-/** 可以放進處置包的網域：臺大各單位、政府機關、教育部 */
+/** 可以放進生涯報告的網域：臺大各單位、政府機關、教育部 */
 export const LINK_DOMAINS = ["ntu.edu.tw", "gov.tw", "edu.tw"];
 export const isCampus = (url: string) => {
   try {
